@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Rico OS</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rico OS">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0e0d0a">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230e0d0a'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>◈</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <link rel="stylesheet" href="css/style.css">
+
+<!-- PIN SCREEN -->
+<div id="pinScreen">
+  <!-- STEP 1: scelta profilo -->
+  <div id="profileSelect" class="pin-box" style="width:360px;max-width:92vw;">
+    <div class="pin-logo">Rico OS</div>
+    <div class="pin-sub" style="margin-bottom:28px">Chi sei?</div>
+    <div style="display:flex;gap:16px;justify-content:center;margin-bottom:16px;">
+      <button onclick="selectProfile('rico')" style="
+        flex:1;padding:24px 16px;background:var(--bg3);border:1px solid var(--bdr);
+        border-radius:16px;cursor:pointer;font-family:inherit;transition:all .2s;color:var(--txt2);
+        display:flex;flex-direction:column;align-items:center;gap:10px;
+      ">
+        <span style="font-size:36px">👨</span>
+        <span style="font-size:16px;font-weight:600;color:var(--gold2)">Rico</span>
+      </button>
+      <button onclick="selectProfile('anissa')" style="
+        flex:1;padding:24px 16px;background:var(--bg3);border:1px solid var(--bdr);
+        border-radius:16px;cursor:pointer;font-family:inherit;transition:all .2s;color:var(--txt2);
+        display:flex;flex-direction:column;align-items:center;gap:10px;
+      ">
+        <span style="font-size:36px">🌸</span>
+        <span style="font-size:16px;font-weight:600;color:var(--gold2)">Anissa</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2: inserisci PIN (nascosto inizialmente) -->
+  <div id="pinEntry" class="pin-box" style="display:none;">
+    <div class="pin-logo" id="pinProfileName">Rico OS</div>
+    <div class="pin-sub" id="pinSubText">Inserisci il PIN</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn" onclick="pinPress('0')" style="grid-column:2">0</button>
+      <button class="pin-del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+    <button onclick="backToProfiles()" style="
+      margin-top:16px;background:none;border:none;color:var(--dim);
+      font-size:13px;cursor:pointer;font-family:inherit;
+    ">← Cambia profilo</button>
+  </div>
+</div>
+
+<div class="app">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-name">Rico OS</div>
+    <div class="sb-date" id="sbDate"></div>
+  </div>
+
+  <nav class="sb-nav">
+    <button class="sb-btn active" data-v="oggi"    onclick="setView('oggi')"><span class="sb-ico">◈</span>Oggi</button>
+    <button class="sb-btn"        data-v="briefing" onclick="setView('briefing')"><span class="sb-ico">✦</span>Briefing</button>
+    <button class="sb-btn"        data-v="agenda"  onclick="setView('agenda')"><span class="sb-ico">▦</span>Agenda</button>
+    <button class="sb-btn"        data-v="upload"  onclick="setView('upload')"><span class="sb-ico">⊕</span>Scansiona</button>
+    <button class="sb-btn"        data-v="weekend" onclick="setView('weekend')"><span class="sb-ico">🌿</span>Weekend</button>
+    <button class="sb-btn"        data-v="jasper"  onclick="setView('jasper')"><span class="sb-ico">👶</span>Jasper</button>
+    <button class="sb-btn sb-startup-btn" data-v="startup" onclick="setView('startup')"><span class="sb-ico">🚀</span>Startup</button>
+    <button class="sb-btn"        onclick="openPDFModal()"><span class="sb-ico">📄</span>PDF Agenda</button>
+  </nav>
+
+  <div class="sb-bottom">
+    <div class="sb-stat-lbl">Per area</div>
+    <div id="sbStats"></div>
+    <div class="sb-prog" id="sbProg" style="display:none">
+      <div class="sb-prog-lbl" style="margin-top:10px;border-top:1px solid var(--bdr);padding-top:10px">Oggi</div>
+      <div class="sb-prog-nums" id="sbProgNums"></div>
+      <div class="sb-prog-bar"><div class="sb-prog-fill" id="sbProgFill" style="width:0%"></div></div>
+    </div>
+    <button class="sb-add-btn" onclick="openModal()">+ Aggiungi</button>
+    <button onclick="switchProfile()" style="margin-top:8px;width:100%;padding:8px;background:none;border:1px solid var(--bdr);border-radius:8px;color:var(--dim);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;" onmouseover="this.style.color='var(--gold)';this.style.borderColor='var(--gold3)'" onmouseout="this.style.color='var(--dim)';this.style.borderColor='var(--bdr)'">
+      ⇄ Cambia profilo
+    </button>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="main">
+
+  <!-- Topbar desktop -->
+  <div class="topbar">
+    <div>
+      <div class="tb-greet" id="tbGreet"></div>
+      <div class="tb-date" id="tbDate"></div>
+    </div>
+    <div class="tb-flex"></div>
+    <div class="search-wrap">
+      <span class="search-ico">🔍</span>
+      <input class="search-inp" id="dSrchInp" placeholder="Cerca... (Ctrl+K)" autocomplete="off"
+        oninput="doSearch(this.value,'d')" onfocus="if(this.value) doSearch(this.value,'d')">
+      <div class="search-res" id="dSrchRes"></div>
+    </div>
+    <button class="tb-settings-btn" onclick="openSettings()" title="Impostazioni API">⚙</button>
+  </div>
+
+  <!-- Areas bar desktop -->
+  <div class="areas-bar" id="dAreas"></div>
+
+  <!-- Content desktop -->
+  <div class="content">
+
+    <!-- OGGI -->
+    <div class="view active" id="dv-oggi">
+      <div id="dBanner" class="setup-banner" style="display:none">
+        <strong>⚠ API Key non configurata.</strong><br>
+        Clicca il bottone qui sotto per inserire la tua chiave Anthropic e attivare tutte le funzioni AI.
+        La trovi su <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold2)">console.anthropic.com</a> → API Keys.
+        <br><button class="setup-cta" onclick="openSettings()">⚙ Configura API Key</button>
+      </div>
+
+      <div id="dNotifArea"></div>
+
+      <div id="dMitWrap"></div>
+
+      <div class="qa-wrap">
+        <div class="qa-row">
+          <input class="qa-inp has-mic" id="dQaInp" placeholder='Aggiunta rapida → es. "test CCOB giovedì mattina, alta priorità"' onkeydown="if(event.key==='Enter') doQA('d')">
+          <button class="qa-mic" id="dQaMic" onclick="startVoice('d')" title="Dettatura vocale" style="display:none">🎤</button>
+          <button class="qa-send" onclick="doQA('d')" title="Aggiungi con AI">✦</button>
+        </div>
+        <div class="qa-hint">Scrivi in italiano normale → Claude capisce e struttura automaticamente</div>
+        <div class="qa-preview" id="dQaPreview"></div>
+      </div>
+
+      <div class="sec-lbl" id="dTodayLbl"></div>
+      <div class="items-list" id="dTodayList"></div>
+    </div>
+
+    <!-- BRIEFING -->
+    <div class="view" id="dv-briefing">
+      <div class="briefing-page-lbl">✦ Coach AI · Briefing giornaliero</div>
+
+      <button class="ai-strip" id="dAiBtn" onclick="doBriefing()">
+        <span class="ai-star">✦</span>
+        <div class="spin" id="dAiSpin"></div>
+        <div>
+          <div class="lbl" id="dAiBtnLbl">Inizia la giornata con il tuo coach</div>
+          <div class="sub">Tocca per il briefing di oggi</div>
+        </div>
+      </button>
+
+      <div class="chat-section" id="dChatSection">
+        <div class="chat-msgs" id="dChatMsgs"></div>
+        <div class="chat-inp-row">
+          <input class="chat-inp" id="dChatInp" placeholder="Chatta con il tuo coach..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doChat('d')}">
+          <button class="chat-send" onclick="doChat('d')">✦</button>
+        </div>
+        <div id="dChatConfirm" style="display:none" class="chat-action-preview"></div>
+      </div>
+    </div>
+
+    <!-- AGENDA -->
+    <div class="view" id="dv-agenda">
+      <div class="week-nav">
+        <button class="w-arr" onclick="shiftWeek(-1)">‹ Prec</button>
+        <span class="week-lbl" id="dWkLbl"></span>
+        <button class="w-arr" onclick="shiftWeek(1)">Succ ›</button>
+      </div>
+      <div class="week-grid" id="dWkGrid"></div>
+      <div class="sec-lbl" id="dAgLbl"></div>
+      <div class="items-list" id="dAgList"></div>
+    </div>
+
+    <!-- startup view placeholder (area chip ancora funziona) -->
+    <div class="view" id="dv-startup"></div>
+
+    <!-- JASPER — solo Anissa -->
+    <div class="view" id="dv-jasper"></div>
+
+    <!-- UPLOAD -->
+    <div class="view" id="dv-upload">
+      <div class="sec-lbl">Scansiona documento</div>
+      <label class="upload-zone" for="dFileInp">
+        <div class="upload-ico">📄</div>
+        <div class="upload-lbl">Trascina o tocca per caricare<br>foto, screenshot o PDF</div>
+        <div class="upload-sub">L'AI estrae automaticamente appuntamenti, test e scadenze · JPG · PNG · PDF</div>
+      </label>
+      <input type="file" id="dFileInp" accept="image/*,application/pdf" style="display:none" onchange="handleUpload(event)">
+      <div class="upload-prev" id="dPrev"></div>
+      <button class="act-btn scan-act" id="dScanBtn" onclick="doScan()">✦ Analizza con AI</button>
+      <div class="scan-progress" id="dScanProg"><div class="scan-progress-bar" id="dScanBar"></div></div>
+      <div class="scan-step-lbl" id="dScanLbl"></div>
+      <div class="ext-box" id="dExtBox"></div>
+      <button class="act-btn confirm-act" id="dConfBtn" onclick="confirmExtracted()">✓ Aggiungi tutto al calendario</button>
+    </div>
+
+    <!-- WEEKEND -->
+    <div class="view" id="dv-weekend">
+      <div class="wk-hdr">
+        <h2>Weekend in famiglia</h2>
+        <p>Idee per il Locarnese e Canton Ticino · con Anissa e Jasper</p>
+      </div>
+      <button class="wk-gen" id="dWkBtn" onclick="doWeekend()">
+        <span style="font-size:18px;color:var(--gold);flex-shrink:0">✦</span>
+        <div>
+          <div class="lbl">Genera idee per questo weekend</div>
+          <div class="sub">Ricerca eventi locali + consigli stagionali</div>
+        </div>
+        <div class="spin" id="dWkSpin" style="display:none;margin-left:auto"></div>
+      </button>
+      <div class="wk-cards" id="dWkCards"></div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- ══ MOBILE HEADER ══ -->
+  <div class="mob-hdr">
+    <div class="mob-top">
+      <div>
+        <div class="mob-date" id="mobDate"></div>
+        <div class="mob-greet" id="mobGreet"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="mob-prog" id="mobProg" style="display:none">
+          <div class="mob-prog-nums" id="mobProgNums"></div>
+          <div class="mob-prog-bar"><div class="mob-prog-fill" id="mobProgFill"></div></div>
+        </div>
+        <button style="background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:4px" onclick="openSettings()">⚙</button>
+      </div>
+    </div>
+    <div class="mob-search" style="position:relative">
+      <span class="mob-search-ico">🔍</span>
+      <input class="mob-search-inp" id="mSrchInp" placeholder="Cerca..." autocomplete="off"
+        oninput="doSearch(this.value,'m')" onfocus="if(this.value) doSearch(this.value,'m')">
+      <div class="mob-search-res" id="mSrchRes"></div>
+    </div>
+    <div class="mob-areas" id="mAreas"></div>
+  </div>
+
+  <!-- MOBILE CONTENT -->
+  <div class="mob-content">
+    <div class="view active" id="mv-oggi">
+      <div id="mBanner" class="setup-banner" style="display:none">
+        <strong>⚠ API Key mancante.</strong>
+        <br><button class="setup-cta" style="margin-top:10px" onclick="openSettings()">⚙ Configura API Key</button>
+      </div>
+      <div id="mNotifArea"></div>
+      <div id="mMitWrap"></div>
+      <div class="qa-wrap">
+        <div class="qa-row">
+          <input class="qa-inp has-mic" id="mQaInp" placeholder='es. "riunione lavoro lunedì 9:00"' onkeydown="if(event.key==='Enter') doQA('m')">
+          <button class="qa-mic" id="mQaMic" onclick="startVoice('m')" title="Voce" style="display:none">🎤</button>
+          <button class="qa-send" onclick="doQA('m')" title="✦">✦</button>
+        </div>
+        <div class="qa-preview" id="mQaPreview"></div>
+      </div>
+      <div class="sec-lbl" id="mTodayLbl"></div>
+      <div class="items-list" id="mTodayList"></div>
+    </div>
+
+    <div class="view" id="mv-briefing">
+      <div class="briefing-page-lbl">✦ Coach AI · Briefing</div>
+      <button class="ai-strip" id="mAiBtn" onclick="doBriefing()">
+        <span class="ai-star">✦</span>
+        <div class="spin" id="mAiSpin"></div>
+        <div><div class="lbl" id="mAiBtnLbl">Inizia la giornata con il tuo coach</div></div>
+      </button>
+      <div class="chat-section" id="mChatSection">
+        <div class="chat-msgs" id="mChatMsgs"></div>
+        <div class="chat-inp-row">
+          <input class="chat-inp" id="mChatInp" placeholder="Chatta con il tuo coach..." onkeydown="if(event.key==='Enter'){event.preventDefault();doChat('m')}">
+          <button class="chat-send" onclick="doChat('m')">✦</button>
+        </div>
+        <div id="mChatConfirm" style="display:none" class="chat-action-preview"></div>
+      </div>
+    </div>
+
+    <div class="view" id="mv-agenda">
+      <div class="week-nav">
+        <button class="w-arr" onclick="shiftWeek(-1)">‹</button>
+        <span class="week-lbl" id="mWkLbl"></span>
+        <button class="w-arr" onclick="shiftWeek(1)">›</button>
+      </div>
+      <div class="week-grid" id="mWkGrid"></div>
+      <div class="sec-lbl" id="mAgLbl"></div>
+      <div class="items-list" id="mAgList"></div>
+    </div>
+
+    <!-- startup view placeholder (area chip still works) -->
+    <div class="view" id="mv-startup"></div>
+
+    <!-- JASPER — solo Anissa -->
+    <div class="view" id="mv-jasper"></div>
+
+    <div class="view" id="mv-upload">
+      <div class="sec-lbl">Scansiona documento</div>
+      <label class="upload-zone" for="mFileInp">
+        <div class="upload-ico">📄</div>
+        <div class="upload-lbl">Tocca per caricare<br>foto o screenshot</div>
+        <div class="upload-sub">JPG · PNG · PDF</div>
+      </label>
+      <input type="file" id="mFileInp" accept="image/*,application/pdf" style="display:none" onchange="handleUpload(event)">
+      <div class="upload-prev" id="mPrev"></div>
+      <button class="act-btn scan-act" id="mScanBtn" onclick="doScan()">✦ Analizza</button>
+      <div class="scan-progress" id="mScanProg"><div class="scan-progress-bar" id="mScanBar"></div></div>
+      <div class="scan-step-lbl" id="mScanLbl"></div>
+      <div class="ext-box" id="mExtBox"></div>
+      <button class="act-btn confirm-act" id="mConfBtn" onclick="confirmExtracted()">✓ Aggiungi al calendario</button>
+    </div>
+
+    <div class="view" id="mv-weekend">
+      <div class="wk-hdr">
+        <h2>Weekend</h2>
+        <p>Locarnese · con Anissa e Jasper</p>
+      </div>
+      <button class="wk-gen" id="mWkBtn" onclick="doWeekend()">
+        <span style="font-size:16px;color:var(--gold);flex-shrink:0">✦</span>
+        <div><div class="lbl">Genera idee weekend</div></div>
+        <div class="spin" id="mWkSpin" style="display:none;margin-left:auto"></div>
+      </button>
+      <div class="wk-cards" id="mWkCards"></div>
+    </div>
+  </div><!-- /mob-content -->
+
+  <!-- Bottom nav mobile -->
+  <nav class="bot-nav">
+    <button class="bot-btn active" data-v="oggi"     onclick="setView('oggi')"><span class="bico">◈</span><span>Oggi</span><div class="bot-dot"></div></button>
+    <button class="bot-btn"        data-v="briefing"  onclick="setView('briefing')"><span class="bico">✦</span><span>Coach</span><div class="bot-dot"></div></button>
+    <button class="bot-btn"        data-v="agenda"   onclick="setView('agenda')"><span class="bico">▦</span><span>Agenda</span><div class="bot-dot"></div></button>
+    <button class="bot-btn"        data-v="upload"   onclick="setView('upload')"><span class="bico">⊕</span><span>Scan</span><div class="bot-dot"></div></button>
+    <button class="bot-btn"        data-v="weekend"  onclick="setView('weekend')"><span class="bico">🌿</span><span>Weekend</span><div class="bot-dot"></div></button>
+    <button class="bot-btn"        data-v="jasper"   onclick="setView('jasper')"><span class="bico">👶</span><span>Jasper</span><div class="bot-dot"></div></button>
+  </nav>
+
+  <button class="mob-fab" onclick="openModal()">+</button>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══ MODAL AGGIUNGI ══ -->
+<div class="modal-overlay" id="addOverlay">
+  <div class="modal-box" id="addBox">
+    <div class="modal-hdr">
+      <span class="modal-ttl" id="modalTitle">Nuovo elemento</span>
+      <button class="modal-x" onclick="closeModal()">×</button>
+    </div>
+    <div class="field"><label>Titolo *</label>
+      <input type="text" id="fTit" placeholder="Descrivi l'impegno, evento o task..."></div>
+    <div class="field"><label>Tipo</label>
+      <div class="pill-group" id="gTipo">
+        <button class="pill on" data-v="task"     onclick="pill('tipo',this)">📋 Task</button>
+        <button class="pill"    data-v="evento"   onclick="pill('tipo',this)">📅 Evento</button>
+        <button class="pill"    data-v="test"     onclick="pill('tipo',this)">📝 Test</button>
+        <button class="pill"    data-v="compito"  onclick="pill('tipo',this)">📚 Compito</button>
+        <button class="pill"    data-v="scadenza" onclick="pill('tipo',this)">⏰ Scadenza</button>
+        <button class="pill"    data-v="meeting"  onclick="pill('tipo',this)">🤝 Meeting</button>
+      </div></div>
+    <div class="field"><label>Area</label>
+      <div class="pill-group" id="gArea">
+        <button class="pill on" data-v="lavoro"           onclick="pill('area',this)">💼 Lavoro</button>
+        <button class="pill"    data-v="cpc"              onclick="pill('area',this)">📚 CPC</button>
+        <button class="pill"    data-v="formatore"        onclick="pill('area',this)">🎓 Formatore</button>
+        <button class="pill"    data-v="startup"          onclick="pill('area',this)">🚀 Startup</button>
+        <button class="pill"    data-v="famiglia"         onclick="pill('area',this)">👨‍👩‍👧 Famiglia</button>
+        <button class="pill"    data-v="coppia"           onclick="pill('area',this)">💑 Coppia</button>
+        <button class="pill"    data-v="vacanza"          onclick="pill('area',this)">🏖 Vacanza</button>
+        <button class="pill"    data-v="personale_rico"   onclick="pill('area',this)">👨 Pers. Rico</button>
+        <button class="pill"    data-v="personale_anissa" onclick="pill('area',this)">🌸 Pers. Anissa</button>
+        <button class="pill"    data-v="jasper"           onclick="pill('area',this)">👶 Jasper</button>
+      </div></div>
+    <div class="field" id="fStField" style="display:none"><label>Progetto</label>
+      <div class="pill-group" id="gSt">
+        <button class="pill on" data-v="remychef"   onclick="pill('st',this)">🍽 RemyChef</button>
+        <button class="pill"    data-v="zodai"      onclick="pill('st',this)">♊ ZodAI</button>
+        <button class="pill"    data-v="paintquote" onclick="pill('st',this)">🎨 PaintQuote</button>
+        <button class="pill"    data-v="freelance"  onclick="pill('st',this)">💻 Freelance</button>
+      </div></div>
+    <div class="field" id="fCpcField" style="display:none"><label>Materia CPC</label>
+      <div class="pill-group" id="gCpc">
+        <button class="pill on" data-v="CCOA" onclick="pill('cpc',this)">CCOA</button>
+        <button class="pill"    data-v="CCOB" onclick="pill('cpc',this)">CCOB</button>
+        <button class="pill"    data-v="CCOC" onclick="pill('cpc',this)">CCOC</button>
+        <button class="pill"    data-v="CCOD" onclick="pill('cpc',this)">CCOD</button>
+        <button class="pill"    data-v="CCOE" onclick="pill('cpc',this)">CCOE</button>
+        <button class="pill"    data-v="Inglese" onclick="pill('cpc',this)">🇬🇧 Inglese</button>
+      </div></div>
+    <div class="row-2">
+      <div class="field"><label>Data</label><input type="date" id="fData"></div>
+      <div class="field"><label>Orario</label><input type="time" id="fOra"></div>
+    </div>
+    <div class="field"><label>Priorità</label>
+      <div class="pill-group" id="gPrio">
+        <button class="pill"    data-v="alta"  onclick="pill('prio',this)">🔴 Alta</button>
+        <button class="pill on" data-v="media" onclick="pill('prio',this)">🟡 Media</button>
+        <button class="pill"    data-v="bassa" onclick="pill('prio',this)">⚪ Bassa</button>
+      </div></div>
+    <div class="field"><label>Ricorrenza</label>
+      <select id="fRecur">
+        <option value="">Nessuna</option>
+        <option value="weekly">Ogni settimana</option>
+        <option value="biweekly">Ogni 2 settimane</option>
+        <option value="monthly">Ogni mese</option>
+      </select></div>
+    <div class="field"><label>Note</label>
+      <textarea id="fNote" rows="2" placeholder="Dettagli, link, promemoria..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea></div>
+    <div id="stopRecurWrap" style="display:none">
+      <button class="stop-recur-btn" onclick="stopRecurrence()">✗ Interrompi ricorrenza da oggi</button>
+    </div>
+    <button class="submit-btn" id="modalSubmitBtn" onclick="submitModal()">Aggiungi</button>
+  </div>
+</div>
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div class="modal-overlay" id="settingsOverlay">
+  <div class="settings-box">
+    <div class="modal-hdr">
+      <span class="modal-ttl">⚙ Impostazioni</span>
+      <button class="modal-x" onclick="closeSettings()">×</button>
+    </div>
+
+    <div class="field">
+      <label>API Key Anthropic</label>
+      <div class="key-input-wrap">
+        <input type="password" id="keyInp" placeholder="sk-ant-api03-..." autocomplete="new-password">
+        <button class="key-toggle" onclick="toggleKeyVis()" id="keyToggle">Mostra</button>
+      </div>
+      <div class="key-status" id="keyStatus"></div>
+      <div style="font-size:12px;color:var(--dim);margin-top:8px;line-height:1.6">
+        Ottieni la tua key su <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold2)">console.anthropic.com</a> → API Keys → Create Key.<br>
+        La key viene salvata nel browser (localStorage) e non viene mai inviata ad altri server.
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="saveKey()">Salva e attiva</button>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bdr)">
+      <div style="font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Dati</div>
+      <button onclick="openPDFModal()" style="display:block;width:100%;padding:11px;background:var(--bg3);border:1px solid var(--bdr);border-radius:9px;color:var(--txt2);font-size:13px;cursor:pointer;margin-bottom:8px;font-family:inherit;text-align:left">📄 PDF Agenda</button>
+      <button onclick="switchProfile()" style="display:block;width:100%;padding:11px;background:var(--bg3);border:1px solid var(--bdr);border-radius:9px;color:var(--txt2);font-size:13px;cursor:pointer;margin-bottom:8px;font-family:inherit;text-align:left">⇄ Cambia profilo</button>
+      <button onclick="clearData()" style="display:block;width:100%;padding:11px;background:#1e0f0f;border:1px solid #6a3030;border-radius:9px;color:#f07070;font-size:13px;cursor:pointer;font-family:inherit;text-align:left">🗑 Cancella tutti i dati</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast + Confetti -->
+<div class="toast-wrap" id="toastWrap"></div>
+<div class="confetti-c" id="confettiC"></div>
+  <!-- JS — ordine obbligatorio: ogni file usa globals dei file precedenti -->
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/startup.js"></script>
+  <script src="js/jasper.js"></script>
+  <script src="js/memory.js"></script>
+  <script src="js/mit.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/ai2.js"></script>
+  <script src="js/ui2.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/init.js"></script>
+
+
+<!-- PDF MODAL -->
+<div id="pdfModal" style="display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:18px;padding:28px 24px;max-width:340px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.5);">
+    <div style="font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:16px;">📄 Esporta PDF agenda</div>
+    <div style="font-size:14px;color:var(--txt2);margin-bottom:20px;">Scegli il periodo da esportare:</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="printWeekPDF(7);closePDFModal()" style="padding:14px 18px;background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;color:var(--txt2);font-size:14px;cursor:pointer;font-family:inherit;text-align:left;">
+        📅 <strong>Prossimi 7 giorni</strong><br><span style="font-size:12px;color:var(--dim)">Settimana corrente</span>
+      </button>
+      <button onclick="printWeekPDF(15);closePDFModal()" style="padding:14px 18px;background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;color:var(--txt2);font-size:14px;cursor:pointer;font-family:inherit;text-align:left;">
+        📅 <strong>Prossimi 15 giorni</strong><br><span style="font-size:12px;color:var(--dim)">Due settimane</span>
+      </button>
+      <button onclick="printWeekPDF(30);closePDFModal()" style="padding:14px 18px;background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;color:var(--txt2);font-size:14px;cursor:pointer;font-family:inherit;text-align:left;">
+        📅 <strong>Prossimi 30 giorni</strong><br><span style="font-size:12px;color:var(--dim)">Mese intero</span>
+      </button>
+    </div>
+    <button onclick="closePDFModal()" style="margin-top:18px;width:100%;padding:10px;background:none;border:1px solid var(--bdr);border-radius:10px;color:var(--dim);font-size:13px;cursor:pointer;font-family:inherit;">✗ Annulla</button>
+  </div>
+</div>
+
+</body>
+</html>
