@@ -109,7 +109,6 @@ let chatHistory = []; // chat session memory
 let fS = {tipo:'task', area:'lavoro', st:'remychef', cpc:'CCOA', prio:'media'};
 let pendingChatAction = null; // pending calendar action awaiting confirmation
 
-function $  (id)  { return document.getElementById(id); }
 function toISO() {
   // Use local date components — NOT toISOString() which returns UTC
   // In Switzerland (UTC+1/+2) toISOString() returns yesterday between midnight and 01:00/02:00
@@ -135,3 +134,11 @@ function isMob() { return window.innerWidth < 900; }
 /* ═══ HELPER GLOBALI ═══ */
 function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function isValidDate(s) {
+  if (!s || typeof s !== 'string') return false;
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return false;
+  const d = new Date(+m[1], +m[2]-1, +m[3]);
+  return d.getFullYear()===+m[1] && d.getMonth()===+m[2]-1 && d.getDate()===+m[3];
+}

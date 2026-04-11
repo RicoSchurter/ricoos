@@ -125,9 +125,18 @@ function closePDFModal() {
 function switchProfile() {
   sessionStorage.removeItem('rico_unlocked');
   sessionStorage.removeItem('rico_profile');
-  // Reset chat e briefing
+  // Clear ALL global data to prevent cross-profile bleed
+  items = []; stData = {}; mitData = {}; jasperDiary = {};
   chatHistory = [];
   briefingDate = null;
+  filter = null; weekOff = 0; agDay = null; currentView = 'oggi';
+  qaRes = null; qaMove = null; editingItemId = null;
+  fS = {tipo:'task', area:'lavoro', st:'remychef', cpc:'CCOA', prio:'media'};
+  // Clear UI lists immediately
+  ['dTodayList','mTodayList','dAgList','mAgList'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
   ['d','m'].forEach(p => {
     const msgs=$( p+'ChatMsgs'); if(msgs) msgs.innerHTML='';
     const box=$(p+'AiBox'); if(box){box.innerHTML='';box.classList.remove('show');}

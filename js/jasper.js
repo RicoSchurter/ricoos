@@ -84,6 +84,9 @@ async function renderJasper(){
       v.innerHTML='<div style="padding:40px;text-align:center;color:#6a5030;font-size:28px">🌿</div>';
   });
   try {
+  // Save scroll position before re-render (prevents iOS scroll jump)
+  const _scrollY = window.scrollY || document.documentElement.scrollTop;
+
   const{months,days,totalD}=jasperAgeDetails();
   const today=toISO();
   const entry=await loadJasperDiary(today);
@@ -124,12 +127,12 @@ async function renderJasper(){
   // Tile helper
   function tileHtml(type,ico,name,val,emojis,labels){
     const filled=val>0?'filled':'';
-    return `<div class="jas-tile ${filled}" onclick="jasperSetValue('${type}',${val===0?1:val<5?val+1:1})">
+    return `<button class="jas-tile ${filled}" onclick="jasperSetValue('${type}',${val===0?1:val<5?val+1:1})" type="button">
       <span class="jas-tile-ico">${ico}</span>
       <div class="jas-tile-name">${name}</div>
       <div class="jas-tile-val">${val>0?emojis[val]:'—'}</div>
       <div class="jas-tile-sub">${val>0?labels[val]:''}</div>
-    </div>`;
+    </button>`;
   }
 
   // Grafico 7gg
@@ -186,7 +189,7 @@ async function renderJasper(){
   const am=entry.anissa_mood||0;
   const anissaMoodHtml=aEmojis.slice(1).map((e,i)=>{
     const v=i+1;
-    return `<div class="jas-anissa-emoji ${am===v?'selected':''}" onclick="jasperSetValue('anissa_mood',${v})" title="${aLabels[v]}">${e}</div>`;
+    return `<button class="jas-anissa-emoji ${am===v?'selected':''}" onclick="jasperSetValue('anissa_mood',${v})" title="${aLabels[v]}" type="button">${e}</button>`;
   }).join('');
 
   // Milestone custom
@@ -354,6 +357,8 @@ async function renderJasper(){
     const v=document.getElementById(p==='d'?'dv-jasper':'mv-jasper');
     if(v) v.innerHTML=html;
   });
+  // Restore scroll position after re-render
+  requestAnimationFrame(() => { window.scrollTo(0, _scrollY); });
   // Ripristina tab attivo
   if(jasperTab!=='oggi') setTimeout(()=>jasperSetTab(jasperTab),0);
   } catch(err) {
@@ -410,7 +415,7 @@ async function renderJasperStorico(){
       isSel?'selected':'',
     ].filter(Boolean).join(' ');
     const dot=hasData&&!isFuture?'<div class="jas-cal-dot '+(hasCms?'ms':'')+'"></div>':'';
-    calHtml+=`<div class="jas-cal-day ${cls}" onclick="${isFuture||isPast180?'':`jasperSelCalDay('${iso}')`}">${d}${dot}</div>`;
+    calHtml+=`<button class="jas-cal-day ${cls}" onclick="${isFuture||isPast180?'':`jasperSelCalDay('${iso}')`}" type="button">${d}${dot}</button>`;
   }
   calHtml+='</div>';
 
@@ -526,16 +531,20 @@ async function jasperDeleteWeight(idx){
 }
 
 /* ── Actions ── */
+let _jasperOpQueue = Promise.resolve();
+
 async function jasperSetValue(type,val){
-  try {
-    const today=toISO();
-    const entry=jasperDiary[today]||(await loadJasperDiary(today));
-    entry[type]=val;
-    jasperDiary[today]=entry;
-    document.querySelectorAll('.jas-tile,.jas-anissa-emoji').forEach(t=>t.style.opacity='.6');
-    await saveJasperEntry(today,entry);
-    await renderJasper();
-  } catch(e) { console.error('jasperSetValue:', e); toast('Errore salvataggio','warn'); renderJasper(); }
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const today=toISO();
+      const entry=jasperDiary[today]||(await loadJasperDiary(today));
+      entry[type]=val;
+      jasperDiary[today]=entry;
+      document.querySelectorAll('.jas-tile,.jas-anissa-emoji').forEach(t=>t.style.opacity='.6');
+      await saveJasperEntry(today,entry);
+      await renderJasper();
+    } catch(e) { console.error('jasperSetValue:', e); toast('Errore salvataggio','warn'); renderJasper(); }
+  }).catch(() => {});
 }
 
 async function jasperSaveSleepField(field,val){
@@ -575,8 +584,10 @@ async function jasperLogMeal(ml){
     const today=toISO();
     const entry=jasperDiary[today]||(await loadJasperDiary(today));
     if(!entry.meals)entry.meals=[];
-    const ts=new Date().toISOString();
-    const hhmm=new Date().toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
+    const now=new Date();
+    const hhmm=now.toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
+    const swissDate=now.toLocaleDateString('sv-SE',{timeZone:'Europe/Zurich'});
+    const ts=`${swissDate}T${hhmm}:00`;
     entry.meals.unshift({ml,ts,hhmm});
     entry.lastMeal=ts;entry.lastMealMl=ml;
     jasperDiary[today]=entry;

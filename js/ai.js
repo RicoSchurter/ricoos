@@ -44,18 +44,29 @@ function startVoice(pfx) {
   }
 }
 
+let _swipeInited = false;
 function initSwipe() {
-  document.querySelectorAll('.item:not(.done)').forEach(el => {
-    let sx = 0, dx = 0;
-    el.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, {passive:true});
-    el.addEventListener('touchmove', e => {
+  if (_swipeInited) return;
+  _swipeInited = true;
+  const containers = ['dTodayList','mTodayList','dAgList','mAgList']
+    .map(id => document.getElementById(id)).filter(Boolean);
+  containers.forEach(cont => {
+    let sx = 0, dx = 0, el = null;
+    cont.addEventListener('touchstart', e => {
+      el = e.target.closest('.item:not(.done)');
+      if (!el) return;
+      sx = e.touches[0].clientX; dx = 0;
+    }, {passive:true});
+    cont.addEventListener('touchmove', e => {
+      if (!el) return;
       dx = e.touches[0].clientX - sx;
       if (dx > 0 && dx < 120) el.style.transform = `translateX(${dx}px)`;
     }, {passive:true});
-    el.addEventListener('touchend', () => {
+    cont.addEventListener('touchend', () => {
+      if (!el) return;
       if (dx > 80) { const pid = el.dataset.pid; if (pid) toggle(pid); }
       el.style.transform = '';
-      dx = 0;
+      dx = 0; el = null;
     });
   });
 }
@@ -291,6 +302,12 @@ function resetPills() {
   $('fCpcField').style.display='none';
 }
 
+function toggleAreaPills() {
+  document.querySelectorAll('.area-extra').forEach(p => p.classList.toggle('show'));
+  const tog = document.querySelector('.area-toggle');
+  if (tog) tog.textContent = tog.textContent.includes('+') ? '− Meno' : '+ Altro';
+}
+
 function pill(group, btn) {
   const gmap={tipo:'gTipo',area:'gArea',st:'gSt',cpc:'gCpc',prio:'gPrio'};
   document.querySelectorAll('#'+gmap[group]+' .pill').forEach(p=>{
@@ -315,7 +332,7 @@ function addItem(pre) {
     area:  pre?.area  || fS.area,
     prio:  pre?.prio  || fS.prio,
     ora:   pre?.ora   || $('fOra').value  || '',
-    data:  (pre?.data  || $('fData').value || toISO()).slice(0,10), // always YYYY-MM-DD
+    data:  (isValidDate(pre?.data) ? pre.data : ($('fData').value || toISO())).slice(0,10), // always YYYY-MM-DD
     note:  pre?.note  || $('fNote').value.trim() || '',
     recur: pre?.recur || $('fRecur').value || '',
     done:  false,
@@ -412,6 +429,7 @@ function checkNightReset() {
     chatHistory    = [];
     briefingDate   = null;
     briefingResetDate = swissDateStr;
+    if (typeof scheduledNotifIds !== 'undefined') scheduledNotifIds.clear();
     // Pulisci UI chat
     ['d','m'].forEach(p => {
       const msgs = $(p+'ChatMsgs'); if(msgs) msgs.innerHTML = '';

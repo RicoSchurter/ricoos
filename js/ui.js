@@ -190,7 +190,7 @@ function startLiveClock() {
     if (!el) { clearInterval(_clockInterval); _clockInterval = null; return; }
     const now = new Date();
     el.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-  }, 10000); // ogni 10 secondi
+  }, 1000); // ogni secondo
 }
 
 function emptyOggiHTML() {
@@ -244,10 +244,9 @@ function card(it) {
         </div>
         ${it.note ? `<div class="item-note">${safeNote}</div>` : ''}
         ${rtag}
-        <button class="riprog-btn" onclick="openRiprogramma('${pid}',event)">↻ Riprogramma</button>
       </div>
       <button class="edit-btn" onclick="openEditModal('${pid}');event.stopPropagation()" title="Modifica">✎</button>
-      ${!it.recurChild ? `<button class="del-btn" onclick="delItem('${it.id}',event)">×</button>` : ''}
+      ${!it.recurChild ? `<button class="del-btn" onclick="delItem('${esc(it.id)}',event)">×</button>` : ''}
     </div>
   </div>`;
 }
@@ -289,10 +288,9 @@ function cardNoDate(it) {
         </div>
         ${it.note ? `<div class="item-note">${safeNote}</div>` : ''}
         ${rtag}
-        <button class="riprog-btn" onclick="openRiprogramma('${pid}',event)">↻ Riprogramma</button>
       </div>
       <button class="edit-btn" onclick="openEditModal('${pid}');event.stopPropagation()" title="Modifica">✎</button>
-      ${!it.recurChild ? `<button class="del-btn" onclick="delItem('${it.id}',event)">×</button>` : ''}
+      ${!it.recurChild ? `<button class="del-btn" onclick="delItem('${esc(it.id)}',event)">×</button>` : ''}
     </div>
   </div>`;
 }

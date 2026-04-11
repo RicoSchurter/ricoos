@@ -47,8 +47,13 @@ async function loadAll() {
   const toDelete  = items.filter(i => i.done && i.data < thirtyAgo && !i.recur);
   if (toDelete.length > 0) {
     items = items.filter(i => !(i.done && i.data < thirtyAgo && !i.recur));
-    toDelete.forEach(it => sbFetch('items?id=eq.' + it.id, {method:'DELETE'}).catch(()=>{}));
     localStorage.setItem('rico_items', JSON.stringify(items));
+    Promise.allSettled(
+      toDelete.map(it => sbFetch('items?id=eq.' + it.id, {method:'DELETE'}))
+    ).then(results => {
+      const failed = results.filter(r => r.status === 'rejected');
+      if (failed.length) console.warn('Auto-delete: ' + failed.length + '/' + toDelete.length + ' failed');
+    });
   }
 
   // Mirror to localStorage as offline cache

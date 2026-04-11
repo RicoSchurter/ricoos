@@ -29,7 +29,7 @@ CONVERSAZIONE: ${transcript}`;
       body: JSON.stringify({id: key, data: stData[key]})
     }).catch(()=>{});
     localStorage.setItem('rico_st', JSON.stringify(stData));
-  } catch(e) { /* silenzioso */ }
+  } catch(e) { console.warn('saveMemory:', e); }
 }
 
 function loadMemory() {

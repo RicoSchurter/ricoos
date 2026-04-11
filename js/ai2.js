@@ -176,7 +176,7 @@ function approveChatAction() {
   // Spostamento/eliminazione: elimina item originale
   if (eid) {
     items = items.filter(i => i.id !== eid);
-    sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(()=>{});
+    sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
     saveItems();
   }
 
@@ -189,7 +189,7 @@ function approveChatAction() {
         area:   (it.area && AREAS[it.area]) ? it.area : 'personale_rico',
         prio:   it.prio   || 'media',
         ora:    (it.ora && it.ora !== 'null') ? it.ora : '',
-        data:   (it.data  || toISO()).slice(0,10),
+        data:   (isValidDate(it.data) ? it.data : toISO()).slice(0,10),
         note:   it.note   || '',
         recur:  '',
       });
@@ -292,7 +292,7 @@ FORMATO: testo scorrevole. <strong> su 2-3 parole chiave. Zero markdown. Italian
       try {
         pendingChatAction = JSON.parse(actionMatch[1]);
         showChatConfirm(pendingChatAction);
-      } catch(e) { /* JSON parse failed, ignore */ }
+      } catch(e) { console.warn('AZIONE parse:', e); }
     }
   } catch(e) {
     document.querySelectorAll('.chat-msg.loading').forEach(el => el.remove());
@@ -589,7 +589,7 @@ function confirmQAMove(pfx) {
   const nuovo = qaMove.nuovo;
 
   items = items.filter(i => i.id !== eid);
-  sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(()=>{});
+  sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
 
   addItem({
     titolo: nuovo.titolo,
@@ -597,7 +597,7 @@ function confirmQAMove(pfx) {
     area:   (nuovo.area && AREAS[nuovo.area]) ? nuovo.area : 'personale',
     prio:   nuovo.prio   || 'media',
     ora:    (nuovo.ora   && nuovo.ora !== 'null') ? nuovo.ora : '',
-    data:   (nuovo.data  || toISO()).slice(0,10),
+    data:   (isValidDate(nuovo.data) ? nuovo.data : toISO()).slice(0,10),
     note:   nuovo.note   || '',
     recur:  '',
   });
@@ -617,7 +617,7 @@ function confirmQAMoveDate(pfx) {
   if (!oldIt) { toast('Appuntamento non trovato', 'warn'); rejectQAMove(pfx); return; }
 
   items = items.filter(i => i.id !== eid);
-  sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(()=>{});
+  sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
 
   const newIt = {...oldIt, id:uid(), data:newDate.slice(0,10), ora:newTime, done:false, recur:''};
   items.unshift(newIt);
@@ -632,7 +632,7 @@ function confirmQADelete(pfx) {
   const eid = qaMove.elimina_id;
   const it  = items.find(i => i.id === eid);
   items = items.filter(i => i.id !== eid);
-  sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(()=>{});
+  sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
   saveItems();
   rejectQAMove(pfx);
   renderAll();
@@ -645,7 +645,7 @@ function confirmQADeleteMulti(pfx) {
   const count = ids.filter(id => items.find(i => i.id === id)).length;
   ids.forEach(id => {
     items = items.filter(i => i.id !== id);
-    sbFetch('items?id=eq.' + id, {method:'DELETE'}).catch(()=>{});
+    sbFetch('items?id=eq.' + id, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
   });
   saveItems();
   rejectQAMove(pfx);
