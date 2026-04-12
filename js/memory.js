@@ -52,14 +52,19 @@ function saveChatLocal() {
   } catch(e) { console.warn('saveChatLocal:', e); }
 }
 
-// Detect old briefing template messages (from before hidden:true flag was added)
+// Detect old briefing template messages (from before hidden:true flag was added).
+// Richiede il prefisso "Sono X." E almeno un altro marker strutturale del template
+// per evitare falsi positivi su messaggi legittimi dell'utente.
 function isLegacyBriefingPrompt(content) {
   if (!content || typeof content !== 'string') return false;
-  // Match the user prompt template patterns from doBriefing
-  return /^(Sono Anissa\.|Sono Rico\.)/.test(content)
-      || content.includes('Cosa mi dici per iniziare')
+  if (content.length < 60) return false; // i template veri sono lunghi
+  const hasPrefix = /^(Sono Anissa\.|Sono Rico\.)\s/.test(content);
+  if (!hasPrefix) return false;
+  const hasMarker = content.includes('Cosa mi dici per iniziare')
       || content.includes('Cosa mi dici per oggi')
-      || content.includes('<strong>') && content.includes('Parla a me');
+      || (content.includes('Parla a me') && content.includes('<strong>'))
+      || content.includes('Analizza la mia situazione');
+  return hasMarker;
 }
 
 function loadChatLocal() {

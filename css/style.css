@@ -1053,25 +1053,24 @@ button.jas-tab {
 
 /* Quick add */
 .qa-wrap{margin-bottom:20px;}
-.qa-row{position:relative;}
+.qa-row{display:flex;gap:8px;align-items:center;}
 .qa-inp{
-  width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;
-  color:var(--txt);padding:13px 52px 13px 18px;font-size:16px;outline:none;
+  flex:1;min-width:0;background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;
+  color:var(--txt);padding:13px 18px;font-size:16px;outline:none;
   transition:border-color .2s;
 }
-.qa-inp.has-mic{padding-right:94px;}
+.qa-inp.has-mic{padding-right:18px;}
 .qa-inp:focus{border-color:var(--gold3);}
 .qa-inp:disabled{opacity:.4;cursor:not-allowed;}
 .qa-send{
-  position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  background:var(--gold);border:none;border-radius:8px;color:#111;
-  padding:7px 12px;cursor:pointer;font-size:14px;transition:background .15s;
+  flex-shrink:0;background:var(--gold);border:none;border-radius:10px;color:#111;
+  padding:0 16px;height:44px;cursor:pointer;font-size:15px;font-weight:600;
+  transition:background .15s;
 }
 .qa-send:hover{background:var(--gold2);}
 .qa-mic{
-  position:absolute;right:56px;top:50%;transform:translateY(-50%);
-  background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;
-  width:40px;height:40px;padding:0;cursor:pointer;font-size:18px;
+  flex-shrink:0;background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;
+  width:44px;height:44px;padding:0;cursor:pointer;font-size:18px;
   display:none;align-items:center;justify-content:center;
   transition:all .2s;color:var(--txt2);
   box-shadow:inset 0 1px 3px rgba(0,0,0,.4);
@@ -1084,16 +1083,13 @@ button.jas-tab {
 }
 
 /* Chat mic button (Coach) */
-.chat-inp-row{position:relative;}
-.chat-inp.has-chat-mic{padding-right:96px;}
+.chat-inp.has-chat-mic{padding-right:16px;}
 .chat-mic{
-  position:absolute;right:48px;top:50%;transform:translateY(-50%);
-  background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;
-  width:38px;height:38px;padding:0;cursor:pointer;font-size:16px;
+  flex-shrink:0;background:var(--bg3);border:1px solid var(--bdr);border-radius:50%;
+  width:36px;height:36px;padding:0;cursor:pointer;font-size:15px;
   display:none;align-items:center;justify-content:center;
   transition:all .2s;color:var(--txt2);
   box-shadow:inset 0 1px 3px rgba(0,0,0,.4);
-  flex-shrink:0;
 }
 .chat-mic.show{display:flex;}
 .chat-mic:hover{border-color:var(--gold3);color:var(--gold2);background:var(--bg4);}
@@ -1552,12 +1548,13 @@ select option{background:#181610;}
   .month-dot{width:3px;height:3px;}
   /* Mobile: compact setup banner */
   .setup-banner br,.setup-banner .setup-hint{display:none;}
-  /* Mobile: QA input padding */
-  .qa-inp{padding-right:42px;}
-  .qa-inp.has-mic{padding-right:96px;}
-  .qa-mic{right:48px;width:38px;height:38px;font-size:16px;}
-  .chat-inp.has-chat-mic{padding-right:92px;}
-  .chat-mic{right:44px;width:36px;height:36px;font-size:15px;}
+  /* Mobile: compact buttons */
+  .qa-row{gap:6px;}
+  .qa-inp{padding:12px 14px;font-size:15px;}
+  .qa-send{padding:0 12px;height:42px;font-size:14px;}
+  .qa-mic{width:42px;height:42px;font-size:16px;}
+  .chat-inp-row{gap:6px;}
+  .chat-mic{width:34px;height:34px;font-size:14px;}
   .qa-hint{display:none;}
   /* Mobile: collapse extra area pills */
   .area-extra{display:none;}
