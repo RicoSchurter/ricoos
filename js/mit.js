@@ -17,9 +17,9 @@ async function saveMIT() {
   // Poi su Supabase in background
   sbFetch('startup_data', {
     method:'POST',
-    headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+    prefer:'resolution=merge-duplicates,return=minimal',
     body: JSON.stringify({id: key, data: stData[key]})
-  }).catch(()=>{}); // silenzioso — localStorage è già aggiornato
+  }).catch(e => console.warn('mit sync failed:', e));
 }
 
 function renderMIT() {

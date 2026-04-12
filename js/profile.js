@@ -133,6 +133,14 @@ function switchProfile() {
   filter = null; weekOff = 0; agDay = null; currentView = 'oggi';
   qaRes = null; qaMove = null; editingItemId = null;
   fS = {tipo:'task', area:'lavoro', st:'remychef', cpc:'CCOA', prio:'media'};
+  // Clear Jasper-specific globals
+  if(typeof _popupEditingState !== 'undefined') _popupEditingState = null;
+  if(typeof _editingFoodId !== 'undefined') _editingFoodId = null;
+  if(typeof _selectedFoodFace !== 'undefined') _selectedFoodFace = 3;
+  if(typeof _cibofilter !== 'undefined') _cibofilter = 'all';
+  if(typeof _jasperOpQueue !== 'undefined') _jasperOpQueue = Promise.resolve();
+  if(typeof jasperTab !== 'undefined') jasperTab = 'oggi';
+  if(typeof jasperCalMonth !== 'undefined') jasperCalMonth = null;
   // Clear UI lists immediately
   ['dTodayList','mTodayList','dAgList','mAgList'].forEach(id => {
     const el = document.getElementById(id);

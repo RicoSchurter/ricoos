@@ -32,8 +32,15 @@ const JASPER_PHRASES = [
 let jasperTab = 'oggi';
 let jasperCalMonth = null; // {year, month} per il calendario
 
+let _jasperRendering = false;
+
 function jasperSetTab(tab) {
   jasperTab = tab;
+  // Se renderJasper e ancora in corso, aspetta che finisca prima di renderizzare il sub-tab
+  if (_jasperRendering) {
+    setTimeout(() => jasperSetTab(tab), 50);
+    return;
+  }
   document.querySelectorAll('.jas-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.jas-tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === tab));
   if (tab === 'storico') renderJasperStorico();
@@ -77,6 +84,7 @@ async function saveJasperEntry(date,data){
 
 /* ── Render principale ── */
 async function renderJasper(){
+  _jasperRendering = true;
   // Placeholder solo nell'active container (no ID duplicati)
   const _activePre = jasperActive();
   if(_activePre && !_activePre.querySelector('.jasper-page')){
@@ -211,11 +219,13 @@ async function renderJasper(){
   const inactive = jasperInactive();
   if (active) active.innerHTML = html;
   if (inactive) inactive.innerHTML = ''; // svuota l'altro per evitare duplicati DOM
+  _jasperRendering = false;
   // Restore scroll position after re-render
   requestAnimationFrame(() => { window.scrollTo(0, _scrollY); });
   // Ripristina tab attivo
   if(jasperTab!=='oggi') setTimeout(()=>jasperSetTab(jasperTab),0);
   } catch(err) {
+    _jasperRendering = false;
     console.error('renderJasper error:', err);
     const active = jasperActive();
     if(active) active.innerHTML='<div style="padding:20px;color:#e06060;font-size:13px">Errore caricamento: '+err.message+'</div>';
@@ -387,7 +397,11 @@ const FOOD_FACES = ['','🤮','😣','😐','🙂','😍'];
 const FOOD_LABELS = ['','Vomita','Non gli piace','Neutro','Gli piace','Adora'];
 let _cibofilter = 'all'; // 'all' | '1' | '2' | '3' | '4' | '5'
 
-function jasperFoodsAll(){ return stData['jasper_foods']||{list:[]}; }
+function jasperFoodsAll(){
+  const data = stData['jasper_foods'] || {list:[]};
+  if (!Array.isArray(data.list)) data.list = [];
+  return data;
+}
 
 async function saveJasperFoods(foods){
   stData['jasper_foods']=foods;
@@ -666,26 +680,26 @@ async function jasperLogMealTime(){
   }).catch(() => {});
 }
 
-async function jasperDeleteMeal(idx){
-  try {
-    const today=toISO();
-    const entry=jasperDiary[today]||(await loadJasperDiary(today));
-    if(!entry.meals||idx<0)return;
-    // Sort indice: l'indice e riferito alla lista ordinata discendente per hhmm
-    const sorted=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
-    const toRemove=sorted[idx];
-    if(!toRemove)return;
-    entry.meals=entry.meals.filter(m=>m!==toRemove);
-    // Aggiorna lastMeal al prossimo piu recente
-    if(entry.meals.length){
-      const latest=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''))[0];
-      entry.lastMeal=latest.hhmm;
-    } else { entry.lastMeal=null; }
-    jasperDiary[today]=entry;
-    await saveJasperEntry(today,entry);
-    renderJasper();
-    toast('Pasto rimosso','info');
-  } catch(e) { console.error('jasperDeleteMeal:', e); toast('Errore','warn'); }
+function jasperDeleteMeal(idx){
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const today=toISO();
+      const entry=jasperDiary[today]||(await loadJasperDiary(today));
+      if(!entry.meals||idx<0)return;
+      const sorted=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
+      const toRemove=sorted[idx];
+      if(!toRemove)return;
+      entry.meals=entry.meals.filter(m=>m!==toRemove);
+      if(entry.meals.length){
+        const latest=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''))[0];
+        entry.lastMeal=latest.hhmm;
+      } else { entry.lastMeal=null; }
+      jasperDiary[today]=entry;
+      await saveJasperEntry(today,entry);
+      renderJasper();
+      toast('Pasto rimosso','info');
+    } catch(e) { console.error('jasperDeleteMeal:', e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
 /* ── Popup storico giorno (con edit/delete inline) ── */
@@ -795,7 +809,7 @@ function renderPopupEditForm(iso, state){
       <div class="jas-popup-edit-lbl">Modifica nota</div>
       <textarea id="popupEditFocus" class="jas-popup-edit-inp" rows="3">${esc(data.text||'')}</textarea>
       <div class="jas-popup-edit-btns">
-        <button class="jas-popup-edit-save" onclick="jasperSaveNoteEdit('${iso}',${data.idx},event)" type="button">✓ Salva</button>
+        <button class="jas-popup-edit-save" onclick="jasperSaveNoteEdit('${iso}',event)" type="button">✓ Salva</button>
         <button class="jas-popup-edit-cancel" onclick="jasperCancelPopupEdit('${iso}',event)" type="button">✗ Annulla</button>
       </div>`;
   } else if(type === 'milestone'){
@@ -820,72 +834,80 @@ function renderPopupEditForm(iso, state){
   return `<div class="jas-popup-edit-form">${body}</div>`;
 }
 
-/* ── Popup: delete functions ── */
-async function jasperDeleteMealFromDay(iso, hhmm, event){
-  try {
-    event?.stopPropagation();
-    const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-    if(!entry.meals) return;
-    const idx = entry.meals.findIndex(m => m.hhmm === hhmm);
-    if(idx < 0) return;
-    entry.meals.splice(idx, 1);
-    if(entry.meals.length){
-      const latest = entry.meals.slice().sort((a,b) => (b.hhmm||'').localeCompare(a.hhmm||''))[0];
-      entry.lastMeal = latest.hhmm;
-    } else { entry.lastMeal = null; }
-    await saveJasperEntry(iso, entry);
-    if(iso === toISO()) jasperDiary[iso] = entry;
-    openJasperDayPopup(iso);
-    toast('Pasto rimosso','info');
-  } catch(e) { console.error('jasperDeleteMealFromDay:', e); toast('Errore','warn'); }
+/* ── Popup: delete functions (in queue per evitare race) ── */
+function jasperDeleteMealFromDay(iso, hhmm, event){
+  event?.stopPropagation();
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
+      if(!entry.meals) return;
+      const idx = entry.meals.findIndex(m => m.hhmm === hhmm);
+      if(idx < 0) return;
+      entry.meals.splice(idx, 1);
+      if(entry.meals.length){
+        const latest = entry.meals.slice().sort((a,b) => (b.hhmm||'').localeCompare(a.hhmm||''))[0];
+        entry.lastMeal = latest.hhmm;
+      } else { entry.lastMeal = null; }
+      await saveJasperEntry(iso, entry);
+      if(iso === toISO()) jasperDiary[iso] = entry;
+      openJasperDayPopup(iso);
+      toast('Pasto rimosso','info');
+    } catch(e) { console.error('jasperDeleteMealFromDay:', e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
-async function jasperDeleteNoteFromDay(iso, idx, event){
-  try {
-    event?.stopPropagation();
-    const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-    if(!entry.notes || idx < 0 || idx >= entry.notes.length) return;
-    entry.notes.splice(idx, 1);
-    await saveJasperEntry(iso, entry);
-    if(iso === toISO()) jasperDiary[iso] = entry;
-    openJasperDayPopup(iso);
-    toast('Nota rimossa','info');
-  } catch(e) { console.error('jasperDeleteNoteFromDay:', e); toast('Errore','warn'); }
+function jasperDeleteNoteFromDay(iso, idx, event){
+  event?.stopPropagation();
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
+      if(!entry.notes || idx < 0 || idx >= entry.notes.length) return;
+      entry.notes.splice(idx, 1);
+      await saveJasperEntry(iso, entry);
+      if(iso === toISO()) jasperDiary[iso] = entry;
+      openJasperDayPopup(iso);
+      toast('Nota rimossa','info');
+    } catch(e) { console.error('jasperDeleteNoteFromDay:', e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
-async function jasperDeleteMilestoneFromDay(iso, idx, event){
-  try {
-    event?.stopPropagation();
-    const cms = jasperCustomMilestones();
-    const dayMs = cms.list.filter(m => m.date === iso);
-    if(idx < 0 || idx >= dayMs.length) return;
-    const toRemove = dayMs[idx];
-    cms.list = cms.list.filter(m => !(m.date === iso && m.text === toRemove.text));
-    stData['jasper_milestones'] = cms;
-    localStorage.setItem('rico_st', JSON.stringify(stData));
-    sbFetch('startup_data', {
-      method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
-      body: JSON.stringify({id:'jasper_milestones', data:cms})
-    }).catch(e => console.warn('jasper_milestones sync failed:', e));
-    openJasperDayPopup(iso);
-    toast('Milestone rimossa','info');
-  } catch(e) { console.error('jasperDeleteMilestoneFromDay:', e); toast('Errore','warn'); }
+function jasperDeleteMilestoneFromDay(iso, idx, event){
+  event?.stopPropagation();
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const cms = jasperCustomMilestones();
+      const dayMs = cms.list.filter(m => m.date === iso);
+      if(idx < 0 || idx >= dayMs.length) return;
+      const toRemove = dayMs[idx];
+      cms.list = cms.list.filter(m => !(m.date === iso && m.text === toRemove.text));
+      stData['jasper_milestones'] = cms;
+      localStorage.setItem('rico_st', JSON.stringify(stData));
+      sbFetch('startup_data', {
+        method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
+        body: JSON.stringify({id:'jasper_milestones', data:cms})
+      }).catch(e => console.warn('jasper_milestones sync failed:', e));
+      openJasperDayPopup(iso);
+      toast('Milestone rimossa','info');
+    } catch(e) { console.error('jasperDeleteMilestoneFromDay:', e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
-async function jasperDeleteWeightFromDay(iso, weightDate, event){
-  try {
-    event?.stopPropagation();
-    const ws = stData['jasper_weights']||{list:[]};
-    ws.list = ws.list.filter(w => w.date !== weightDate);
-    stData['jasper_weights'] = ws;
-    localStorage.setItem('rico_st', JSON.stringify(stData));
-    sbFetch('startup_data', {
-      method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
-      body: JSON.stringify({id:'jasper_weights', data:ws})
-    }).catch(e => console.warn('jasper_weights sync failed:', e));
-    openJasperDayPopup(iso);
-    toast('Peso rimosso','info');
-  } catch(e) { console.error('jasperDeleteWeightFromDay:', e); toast('Errore','warn'); }
+function jasperDeleteWeightFromDay(iso, weightDate, event){
+  event?.stopPropagation();
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const ws = stData['jasper_weights']||{list:[]};
+      ws.list = ws.list.filter(w => w.date !== weightDate);
+      stData['jasper_weights'] = ws;
+      localStorage.setItem('rico_st', JSON.stringify(stData));
+      sbFetch('startup_data', {
+        method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
+        body: JSON.stringify({id:'jasper_weights', data:ws})
+      }).catch(e => console.warn('jasper_weights sync failed:', e));
+      openJasperDayPopup(iso);
+      toast('Peso rimosso','info');
+    } catch(e) { console.error('jasperDeleteWeightFromDay:', e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
 /* ── Popup: edit triggers ── */
@@ -899,7 +921,9 @@ function jasperEditNoteFromDay(iso, idx, event){
   event?.stopPropagation();
   const entry = stData[jasperDiaryKey(iso)];
   if(!entry || !entry.notes || idx < 0 || idx >= entry.notes.length) return;
-  _popupEditingState = {type:'note', iso, data:{idx, text:entry.notes[idx].text}};
+  // Salva il testo originale + ts per identificare la nota anche se l'indice cambia
+  const original = entry.notes[idx];
+  _popupEditingState = {type:'note', iso, data:{originalText:original.text, originalTs:original.ts||'', text:original.text}};
   openJasperDayPopup(iso);
 }
 
@@ -929,100 +953,118 @@ function jasperCancelPopupEdit(iso, event){
   openJasperDayPopup(iso);
 }
 
-/* ── Popup: save edit functions ── */
-async function jasperSaveMealEdit(iso, oldHhmm, event){
-  try {
-    event?.stopPropagation();
-    const newHhmm = document.getElementById('popupEditFocus')?.value;
-    if(!newHhmm){ toast('Seleziona un orario','warn'); return; }
-    const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-    const mealIdx = entry.meals.findIndex(m => m.hhmm === oldHhmm);
-    if(mealIdx < 0) return;
-    if(entry.meals.some((m,i) => m.hhmm === newHhmm && i !== mealIdx)){
-      toast('Pasto gia registrato a '+newHhmm,'warn');
-      return;
-    }
-    entry.meals[mealIdx].hhmm = newHhmm;
-    const latest = entry.meals.slice().sort((a,b) => (b.hhmm||'').localeCompare(a.hhmm||''))[0];
-    entry.lastMeal = latest.hhmm;
-    await saveJasperEntry(iso, entry);
-    if(iso === toISO()) jasperDiary[iso] = entry;
-    _popupEditingState = null;
-    openJasperDayPopup(iso);
-    toast('Pasto aggiornato ✓','success');
-  } catch(e) { console.error('jasperSaveMealEdit:', e); toast('Errore','warn'); }
+/* ── Popup: save edit functions (in queue per evitare race) ── */
+function jasperSaveMealEdit(iso, oldHhmm, event){
+  event?.stopPropagation();
+  // Snapshot del nuovo valore PRIMA di entrare in queue (evita problemi se popup re-rendered)
+  const newHhmm = document.getElementById('popupEditFocus')?.value;
+  if(!newHhmm){ toast('Seleziona un orario','warn'); return; }
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
+      const mealIdx = entry.meals.findIndex(m => m.hhmm === oldHhmm);
+      if(mealIdx < 0) return;
+      if(entry.meals.some((m,i) => m.hhmm === newHhmm && i !== mealIdx)){
+        toast('Pasto gia registrato a '+newHhmm,'warn');
+        return;
+      }
+      entry.meals[mealIdx].hhmm = newHhmm;
+      const latest = entry.meals.slice().sort((a,b) => (b.hhmm||'').localeCompare(a.hhmm||''))[0];
+      entry.lastMeal = latest.hhmm;
+      await saveJasperEntry(iso, entry);
+      if(iso === toISO()) jasperDiary[iso] = entry;
+      _popupEditingState = null;
+      openJasperDayPopup(iso);
+      toast('Pasto aggiornato ✓','success');
+    } catch(e) { console.error('jasperSaveMealEdit:', e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
-async function jasperSaveNoteEdit(iso, idx, event){
-  try {
-    event?.stopPropagation();
-    const newText = document.getElementById('popupEditFocus')?.value.trim();
-    if(!newText){ toast('Scrivi la nota','warn'); return; }
-    const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-    if(!entry.notes || idx < 0 || idx >= entry.notes.length) return;
-    entry.notes[idx].text = newText;
-    await saveJasperEntry(iso, entry);
-    if(iso === toISO()) jasperDiary[iso] = entry;
-    _popupEditingState = null;
-    openJasperDayPopup(iso);
-    toast('Nota aggiornata ✓','success');
-  } catch(e) { console.error('jasperSaveNoteEdit:', e); toast('Errore','warn'); }
+function jasperSaveNoteEdit(iso, event){
+  event?.stopPropagation();
+  const newText = document.getElementById('popupEditFocus')?.value.trim();
+  if(!newText){ toast('Scrivi la nota','warn'); return; }
+  const state = _popupEditingState;
+  if(!state || state.type !== 'note') return;
+  const {originalText, originalTs} = state.data;
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
+      if(!entry.notes || !entry.notes.length) return;
+      const idx = entry.notes.findIndex(n => n.text === originalText && (n.ts||'') === (originalTs||''));
+      if(idx < 0){ toast('Nota non trovata','warn'); return; }
+      entry.notes[idx].text = newText;
+      await saveJasperEntry(iso, entry);
+      if(iso === toISO()) jasperDiary[iso] = entry;
+      _popupEditingState = null;
+      openJasperDayPopup(iso);
+      toast('Nota aggiornata ✓','success');
+    } catch(e) { console.error('jasperSaveNoteEdit:', e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
-async function jasperSaveMilestoneEdit(iso, globalIdx, event){
-  try {
-    event?.stopPropagation();
-    const newText = document.getElementById('popupEditFocus')?.value.trim();
-    const newDate = document.getElementById('popupEditMsDate')?.value;
-    if(!newText){ toast('Scrivi la milestone','warn'); return; }
-    const cms = jasperCustomMilestones();
-    if(globalIdx < 0 || globalIdx >= cms.list.length) return;
-    const date = newDate || iso;
-    cms.list[globalIdx] = {
-      text: newText,
-      date,
-      label: new Date(date+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'})
-    };
-    stData['jasper_milestones'] = cms;
-    localStorage.setItem('rico_st', JSON.stringify(stData));
-    sbFetch('startup_data', {
-      method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
-      body: JSON.stringify({id:'jasper_milestones', data:cms})
-    }).catch(e => console.warn('jasper_milestones sync failed:', e));
-    _popupEditingState = null;
-    openJasperDayPopup(date); // riapri sulla nuova data se cambiata
-    toast('Milestone aggiornata ✓','success');
-  } catch(e) { console.error('jasperSaveMilestoneEdit:', e); toast('Errore','warn'); }
+function jasperSaveMilestoneEdit(iso, globalIdx, event){
+  event?.stopPropagation();
+  const newText = document.getElementById('popupEditFocus')?.value.trim();
+  const newDate = document.getElementById('popupEditMsDate')?.value;
+  if(!newText){ toast('Scrivi la milestone','warn'); return; }
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const cms = jasperCustomMilestones();
+      if(globalIdx < 0 || globalIdx >= cms.list.length) return;
+      const date = newDate || iso;
+      cms.list[globalIdx] = {
+        text: newText,
+        date,
+        label: new Date(date+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'})
+      };
+      stData['jasper_milestones'] = cms;
+      localStorage.setItem('rico_st', JSON.stringify(stData));
+      sbFetch('startup_data', {
+        method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
+        body: JSON.stringify({id:'jasper_milestones', data:cms})
+      }).catch(e => console.warn('jasper_milestones sync failed:', e));
+      _popupEditingState = null;
+      openJasperDayPopup(date); // riapri sulla nuova data se cambiata
+      toast('Milestone aggiornata ✓','success');
+    } catch(e) { console.error('jasperSaveMilestoneEdit:', e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
-async function jasperSaveWeightEdit(iso, oldDate, event){
-  try {
-    event?.stopPropagation();
-    const raw = (document.getElementById('popupEditFocus')?.value||'').replace(',','.').trim();
-    const newKg = parseFloat(raw);
-    const newNote = (document.getElementById('popupEditWNote')?.value||'').trim();
-    if(isNaN(newKg) || newKg < 0.5 || newKg > 25){
-      toast('Inserisci un peso valido (0.5 - 25 kg)','warn');
-      return;
-    }
-    const ws = stData['jasper_weights']||{list:[]};
-    const idx = ws.list.findIndex(w => w.date === oldDate);
-    if(idx < 0) return;
-    ws.list[idx] = {kg:newKg, date:oldDate, note:newNote};
-    ws.list.sort((a,b) => a.date.localeCompare(b.date));
-    stData['jasper_weights'] = ws;
-    localStorage.setItem('rico_st', JSON.stringify(stData));
-    sbFetch('startup_data', {
-      method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
-      body: JSON.stringify({id:'jasper_weights', data:ws})
-    }).catch(e => console.warn('jasper_weights sync failed:', e));
-    _popupEditingState = null;
-    openJasperDayPopup(iso);
-    toast('Peso aggiornato ✓','success');
-  } catch(e) { console.error('jasperSaveWeightEdit:', e); toast('Errore','warn'); }
+function jasperSaveWeightEdit(iso, oldDate, event){
+  event?.stopPropagation();
+  const raw = (document.getElementById('popupEditFocus')?.value||'').replace(',','.').trim();
+  const newKg = parseFloat(raw);
+  const newNote = (document.getElementById('popupEditWNote')?.value||'').trim();
+  if(isNaN(newKg) || newKg < 0.5 || newKg > 25){
+    toast('Inserisci un peso valido (0.5 - 25 kg)','warn');
+    return;
+  }
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const ws = stData['jasper_weights']||{list:[]};
+      const idx = ws.list.findIndex(w => w.date === oldDate);
+      if(idx < 0) return;
+      ws.list[idx] = {kg:newKg, date:oldDate, note:newNote};
+      ws.list.sort((a,b) => a.date.localeCompare(b.date));
+      stData['jasper_weights'] = ws;
+      localStorage.setItem('rico_st', JSON.stringify(stData));
+      sbFetch('startup_data', {
+        method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
+        body: JSON.stringify({id:'jasper_weights', data:ws})
+      }).catch(e => console.warn('jasper_weights sync failed:', e));
+      _popupEditingState = null;
+      openJasperDayPopup(iso);
+      toast('Peso aggiornato ✓','success');
+    } catch(e) { console.error('jasperSaveWeightEdit:', e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
-function jasperCustomMilestones(){return stData['jasper_milestones']||{list:[]};}
+function jasperCustomMilestones(){
+  const data = stData['jasper_milestones'] || {list:[]};
+  if (!Array.isArray(data.list)) data.list = [];
+  return data;
+}
 
 async function jasperAddMilestone(){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
@@ -1050,42 +1092,59 @@ async function jasperAddMilestone(){
   }).catch(() => {});
 }
 
-async function jasperDeleteMilestone(idx){
-  const ms=jasperCustomMilestones();
-  ms.list.splice(idx,1);
-  stData['jasper_milestones']=ms;
-  localStorage.setItem('rico_st',JSON.stringify(stData));
-  sbFetch('startup_data',{method:'POST',headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:'jasper_milestones',data:ms})}).catch(()=>{});
-  renderJasper();
+function jasperDeleteMilestone(idx){
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const ms=jasperCustomMilestones();
+      if(idx<0||idx>=ms.list.length)return;
+      ms.list.splice(idx,1);
+      stData['jasper_milestones']=ms;
+      localStorage.setItem('rico_st',JSON.stringify(stData));
+      sbFetch('startup_data',{
+        method:'POST',
+        prefer:'resolution=merge-duplicates,return=minimal',
+        body:JSON.stringify({id:'jasper_milestones',data:ms})
+      }).catch(e=>console.warn('milestone sync:',e));
+      renderJasperCrescita();
+      toast('Milestone rimossa','info');
+    } catch(e){ console.error('jasperDeleteMilestone:',e); toast('Errore','warn'); }
+  }).catch(() => {});
 }
 
-async function jasperSaveNote(){
-  try {
-    const inp=document.getElementById('jasNoteInp');
-    if(!inp||!inp.value.trim())return;
-    const today=toISO();
-    const entry=jasperDiary[today]||(await loadJasperDiary(today));
-    if(!entry.notes)entry.notes=[];
-    const ts=new Date().toLocaleString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
-    entry.notes.push({text:inp.value.trim(),ts});
-    jasperDiary[today]=entry;
-    inp.value='';
-    await saveJasperEntry(today,entry);
-    renderJasper();
-    toast('Nota salvata ✓','success');
-  } catch(e) { console.error('jasperSaveNote:', e); toast('Errore salvataggio nota','warn'); }
+function jasperSaveNote(){
+  // Snapshot del valore PRIMA di entrare in queue
+  const active = jasperActive();
+  const inp = active?.querySelector('#jasNoteInp') || document.getElementById('jasNoteInp');
+  if(!inp||!inp.value.trim()){toast('Scrivi una nota','warn');return;}
+  const noteText = inp.value.trim();
+  inp.value = '';
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const today=toISO();
+      const entry=jasperDiary[today]||(await loadJasperDiary(today));
+      if(!entry.notes) entry.notes=[];
+      const ts=new Date().toLocaleString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
+      entry.notes.push({text:noteText,ts});
+      jasperDiary[today]=entry;
+      await saveJasperEntry(today,entry);
+      renderJasper();
+      toast('Nota salvata ✓','success');
+    } catch(e) { console.error('jasperSaveNote:', e); toast('Errore salvataggio nota','warn'); }
+  }).catch(() => {});
 }
 
-async function jasperDeleteNote(idx, _ignore){
-  try {
-    const today=toISO();
-    const entry=jasperDiary[today]||(await loadJasperDiary(today));
-    if(!entry.notes||idx<0||idx>=entry.notes.length)return;
-    entry.notes.splice(idx,1);
-    jasperDiary[today]=entry;
-    await saveJasperEntry(today,entry);
-    renderJasper();
-  } catch(e){ console.error('jasperDeleteNote:',e); }
+function jasperDeleteNote(idx, _ignore){
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const today=toISO();
+      const entry=jasperDiary[today]||(await loadJasperDiary(today));
+      if(!entry.notes||idx<0||idx>=entry.notes.length)return;
+      entry.notes.splice(idx,1);
+      jasperDiary[today]=entry;
+      await saveJasperEntry(today,entry);
+      renderJasper();
+    } catch(e){ console.error('jasperDeleteNote:',e); }
+  }).catch(() => {});
 }
 
 

@@ -25,9 +25,9 @@ CONVERSAZIONE: ${transcript}`;
     stData[key] = {summary: summary.trim(), date: yesterday};
     await sbFetch('startup_data', {
       method:'POST',
-      headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+      prefer:'resolution=merge-duplicates,return=minimal',
       body: JSON.stringify({id: key, data: stData[key]})
-    }).catch(()=>{});
+    }).catch(e => console.warn('memory sync failed:', e));
     localStorage.setItem('rico_st', JSON.stringify(stData));
   } catch(e) { console.warn('saveMemory:', e); }
 }
