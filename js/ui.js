@@ -12,7 +12,7 @@ function renderAll() {
 /* ═══ SIDEBAR ═══ */
 function renderSidebar() {
   const t     = toISO();
-  const tAll  = expand().filter(i => i.data === t);
+  const tAll  = expand().filter(i => i.data === t && (currentProfile !== 'anissa' || i.area !== 'startup'));
   const done  = tAll.filter(i => i.done).length;
   const total = tAll.length;
 

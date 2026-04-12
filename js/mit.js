@@ -113,7 +113,7 @@ function toggleMIT() {
   if (mitData.done) {
     toast('◈ Focus completato — ottimo lavoro!', 'success');
     // Confetti se tutto il giorno è anche completato
-    const todayAll = expand().filter(i => i.data === toISO());
+    const todayAll = expand().filter(i => i.data === toISO() && (currentProfile !== 'anissa' || i.area !== 'startup'));
     if (todayAll.length && todayAll.every(i => i.done)) {
       if (typeof confetti === 'function') confetti({particleCount:80,spread:60,origin:{y:.6}});
     }

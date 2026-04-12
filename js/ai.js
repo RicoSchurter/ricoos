@@ -162,7 +162,7 @@ function renderAgenda() {
   $('dWkGrid').innerHTML = dh;
   $('mWkGrid').innerHTML = dh;
 
-  let list = expanded.filter(i => i.data === agDay);
+  let list = expanded.filter(i => i.data === agDay && (currentProfile !== 'anissa' || i.area !== 'startup'));
   if (filter) list = list.filter(i => i.area === filter);
   list.sort((a,b) => (a.ora||'99:99').localeCompare(b.ora||'99:99'));
 
