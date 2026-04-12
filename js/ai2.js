@@ -1082,13 +1082,18 @@ function jumpTo(date) {
 }
 
 /* ═══════════════════════════════════════
-   PDF SETTIMANA
+   PDF SETTIMANA — download diretto via jsPDF
 ═══════════════════════════════════════ */
 function printWeekPDF(days = 7) {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    toast('PDF library non caricata, riprova tra qualche secondo', 'warn');
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+
   const today = new Date();
   today.setHours(0,0,0,0);
-
-  const dayNames = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+  const dayNames = ['Domenica','Lunedi','Martedi','Mercoledi','Giovedi','Venerdi','Sabato'];
   const t = toISO();
   const expanded = expand();
 
@@ -1105,72 +1110,138 @@ function printWeekPDF(days = 7) {
 
   const endDate = daysList[daysList.length-1].date;
   const periodLabel = days === 7 ? 'Settimana' : days === 15 ? '15 giorni' : 'Mese';
+  const profileName = (typeof currentProfile !== 'undefined' && currentProfile === 'anissa') ? 'Anissa' : 'Rico';
 
-  let html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
-  <title>Rico OS — Agenda ${periodLabel}</title>
-  <style>
-    @page{margin:12mm;size:A4 portrait;}
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:Arial,sans-serif;color:#1a1a1a;font-size:11px;background:#fff;}
-    h1{font-size:18px;color:#2E5A9C;margin-bottom:3px;font-weight:bold;}
-    .sub{font-size:11px;color:#666;margin-bottom:18px;}
-    .day{margin-bottom:12px;break-inside:avoid;}
-    .day-hdr{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:4px;margin-bottom:5px;}
-    .day-hdr.future{background:#2E5A9C;color:#fff;}
-    .day-hdr.past{background:#888;color:#fff;}
-    .day-hdr.today{background:#d4a843;color:#111;}
-    .day-name{font-size:12px;font-weight:bold;}
-    .day-date{font-size:10px;opacity:.85;}
-    .day-count{font-size:10px;opacity:.75;margin-left:auto;}
-    .item{display:flex;gap:8px;padding:4px 10px;border-left:3px solid #ddd;margin-bottom:3px;align-items:flex-start;}
-    .item.done{opacity:.4;}
-    .itime{font-size:10px;color:#777;min-width:36px;padding-top:1px;}
-    .ititle{font-size:11px;font-weight:500;}
-    .ititle.done-title{text-decoration:line-through;}
-    .imeta{font-size:10px;color:#999;margin-top:1px;}
-    .empty{color:#bbb;font-style:italic;padding:3px 10px;font-size:10px;}
-    .footer{margin-top:20px;font-size:9px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:8px;}
-  </style></head><body>
-  <h1>📅 Rico OS — Agenda ${periodLabel}</h1>
-  <div class="sub">${today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})} → ${endDate.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})} · Generato ${new Date().toLocaleString('it-IT',{timeZone:'Europe/Zurich',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>`;
+  // Init PDF
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const pageW = 210, pageH = 297, margin = 14;
+  const contentW = pageW - margin*2;
+
+  // Header
+  doc.setFontSize(20);
+  doc.setTextColor(46, 90, 156);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Rico OS - Agenda ${periodLabel}`, margin, 18);
+
+  doc.setFontSize(10);
+  doc.setTextColor(102, 102, 102);
+  doc.setFont('helvetica', 'normal');
+  const startStr = today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+  const endStr = endDate.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  const genStr = new Date().toLocaleString('it-IT',{timeZone:'Europe/Zurich',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  doc.text(`${startStr} -> ${endStr}`, margin, 24);
+  doc.text(`Profilo: ${profileName} · Generato il ${genStr}`, margin, 29);
+
+  // Linea separatrice
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.3);
+  doc.line(margin, 32, pageW - margin, 32);
+
+  let y = 38;
+  const lineH = 4.5;
+
+  function checkPageBreak(neededSpace) {
+    if (y + neededSpace > pageH - 15) {
+      doc.addPage();
+      y = 20;
+    }
+  }
 
   daysList.forEach(({date, iso, items: dayItems}) => {
-    const isPast  = iso < t;
+    checkPageBreak(15);
+
+    // Header giorno colorato
+    const isPast = iso < t;
     const isToday = iso === t;
-    const cls = isPast ? 'past' : isToday ? 'today' : 'future';
-    html += `<div class="day"><div class="day-hdr ${cls}">
-      <span class="day-name">${dayNames[date.getDay()]}</span>
-      <span class="day-date">${date.toLocaleDateString('it-IT',{day:'numeric',month:'long'})}</span>
-      ${dayItems.length ? `<span class="day-count">${dayItems.length} elemento${dayItems.length>1?'i':''}</span>` : ''}
-    </div>`;
+    let bgColor;
+    if (isToday) bgColor = [212, 168, 67];      // gold
+    else if (isPast) bgColor = [180, 180, 180]; // grey
+    else bgColor = [46, 90, 156];               // blue
+
+    doc.setFillColor(...bgColor);
+    doc.rect(margin, y, contentW, 7, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    const dayName = dayNames[date.getDay()];
+    const dayDate = date.toLocaleDateString('it-IT', {day:'numeric', month:'long'});
+    doc.text(`${dayName} ${dayDate}`, margin + 3, y + 5);
+
+    if (dayItems.length) {
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const countStr = `${dayItems.length} elemento${dayItems.length > 1 ? 'i' : ''}`;
+      doc.text(countStr, pageW - margin - 3, y + 5, {align: 'right'});
+    }
+    y += 9;
+
     if (!dayItems.length) {
-      html += `<div class="empty">Nessun impegno</div>`;
+      doc.setTextColor(180, 180, 180);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'italic');
+      doc.text('Nessun impegno', margin + 4, y + 1);
+      y += 6;
     } else {
       dayItems.forEach(it => {
-        const areaColor = AREAS[it.area]?.c || '#999';
-        const areaName  = AREAS[it.area]?.l || it.area;
-        html += `<div class="item ${it.done?'done':''}" style="border-left-color:${areaColor}">
-          <div class="itime">${it.ora||'—'}</div>
-          <div class="ibody">
-            <div class="ititle ${it.done?'done-title':''}">${it.titolo}${it.done?' ✓':''}</div>
-            <div class="imeta">${areaName} · ${it.tipo}${it.prio==='alta'?' · ⚠ Alta':it.prio==='bassa'?' · bassa':''}${it.note?' · '+it.note.slice(0,50):''}</div>
-          </div>
-        </div>`;
+        checkPageBreak(8);
+
+        // Bordo sx colorato per area
+        const areaColor = hexToRgb(AREAS[it.area]?.c || '#999');
+        doc.setFillColor(...areaColor);
+        doc.rect(margin + 2, y - 2, 1.5, 7, 'F');
+
+        // Riga item: ora + titolo
+        doc.setTextColor(50, 50, 50);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', it.done ? 'normal' : 'bold');
+        const time = it.ora || '--';
+        doc.text(time, margin + 6, y + 1);
+
+        const titleX = margin + 18;
+        const titleMaxW = contentW - 22;
+        const title = it.titolo + (it.done ? ' (fatto)' : '');
+        const titleLines = doc.splitTextToSize(title, titleMaxW);
+        doc.text(titleLines[0] || title, titleX, y + 1);
+        y += lineH;
+
+        // Meta sotto
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(140, 140, 140);
+        const areaName = AREAS[it.area]?.l || it.area;
+        let meta = `${areaName} · ${it.tipo}`;
+        if (it.prio === 'alta') meta += ' · alta priorita';
+        if (it.note) meta += ' · ' + it.note.slice(0, 60);
+        const metaLines = doc.splitTextToSize(meta, titleMaxW);
+        doc.text(metaLines[0] || meta, titleX, y);
+        y += lineH;
       });
     }
-    html += `</div>`;
+    y += 3;
   });
 
-  html += `<div class="footer">Rico OS — ricoschurter.github.io/ricoos</div></body></html>`;
+  // Footer su tutte le pagine
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(170, 170, 170);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Rico OS · ricoschurter.github.io/ricoos', pageW/2, pageH - 8, {align:'center'});
+    doc.text(`${i} / ${totalPages}`, pageW - margin, pageH - 8, {align:'right'});
+  }
 
-  const win = window.open('', '_blank');
-  if (!win) { toast('Abilita i popup per il PDF', 'warn'); return; }
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  win.addEventListener('afterprint', () => win.close());
-  setTimeout(() => win.print(), 500);
-  toast(`PDF ${periodLabel} pronto ✓`, 'success');
+  // Salva = trigger download
+  const filename = `rico-os-agenda-${days}gg-${toISO()}.pdf`;
+  doc.save(filename);
+  toast(`PDF ${periodLabel} scaricato ✓`, 'success');
+}
+
+// Helper hex -> rgb tuple
+function hexToRgb(hex) {
+  const m = (hex||'').replace('#','').match(/^([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i);
+  if (!m) return [150, 150, 150];
+  return [parseInt(m[1],16), parseInt(m[2],16), parseInt(m[3],16)];
 }
 
 

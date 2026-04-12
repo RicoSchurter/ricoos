@@ -342,7 +342,7 @@ async function renderJasperCrescita(){
   const html=`<div>
     <div class="jas-section-lbl">⚖ Registra peso</div>
     <div class="jas-weight-inp-row">
-      <input class="jas-weight-inp" type="number" id="jasWeightKg" step="0.01" min="2" max="30" placeholder="es. 7.25" inputmode="decimal" style="width:100px">
+      <input class="jas-weight-inp" id="jasWeightKg" placeholder="es. 7.25" inputmode="decimal" autocomplete="off" style="width:100px">
       <input class="jas-weight-inp" type="date" id="jasWeightDate" value="${toISO()}" max="${toISO()}">
       <input class="jas-weight-inp" id="jasWeightNote" placeholder="nota opzionale (es. Pediatra)" style="flex:1">
     </div>
@@ -356,11 +356,10 @@ async function renderJasperCrescita(){
     <div class="jas-custom-ms" style="margin-top:28px">
       <div class="jas-section-lbl">✦ Le tue milestone</div>
       <div class="jas-custom-ms-list">${cmsHtml}</div>
-      <div class="jas-ms-add-row">
-        <input class="jas-ms-inp" id="jasMsInp" autocomplete="off" autocorrect="off" autocapitalize="sentences" placeholder='es. "Prima volta che ha riso" · "Ha detto mamma"'
-          onkeydown="if(event.key==='Enter'){event.preventDefault();jasperAddMilestone()}" maxlength="60">
-        <button onclick="jasperAddMilestone()" style="padding:8px 14px;background:#221608;border:1px solid #6a5030;border-radius:10px;color:#a08040;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">+ Aggiungi</button>
-      </div>
+      <input class="jas-ms-inp" id="jasMsInp" autocomplete="off" autocorrect="off" autocapitalize="sentences" placeholder='es. "Prima volta che ha riso" · "Ha detto mamma"'
+        maxlength="60" style="width:100%;margin-bottom:10px">
+      <input class="jas-ms-inp" type="date" id="jasMsDate" value="${toISO()}" max="${toISO()}" style="width:100%;margin-bottom:10px">
+      <button onclick="jasperAddMilestone()" class="jas-ms-save-btn">💾 Salva milestone</button>
     </div>
   </div>`;
   panes.forEach(p=>p.innerHTML=html);
@@ -373,7 +372,7 @@ async function renderJasperCrescita(){
    ════════════════════════════════════════ */
 const FOOD_FACES = ['','🤮','😣','😐','🙂','😍'];
 const FOOD_LABELS = ['','Vomita','Non gli piace','Neutro','Gli piace','Adora'];
-let _cibofilter = 'all'; // 'all' | 'love' | 'hate' | 'recent'
+let _cibofilter = 'all'; // 'all' | '1' | '2' | '3' | '4' | '5'
 
 function jasperFoodsAll(){ return stData['jasper_foods']||{list:[]}; }
 
@@ -394,12 +393,20 @@ async function renderJasperCibo(){
 
   // Filter
   let filtered=list;
-  if(_cibofilter==='love') filtered=list.filter(f=>f.reaction>=4);
-  else if(_cibofilter==='hate') filtered=list.filter(f=>f.reaction<=2);
-  else if(_cibofilter==='recent') filtered=list.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,20);
+  // Filter by exact reaction (1-5)
+  const fnum = parseInt(_cibofilter);
+  if(!isNaN(fnum) && fnum>=1 && fnum<=5) {
+    filtered = list.filter(f => (f.reaction||3) === fnum);
+  }
 
-  // Sort by reaction (love first) for "all" view
-  if(_cibofilter==='all') filtered=filtered.slice().sort((a,b)=>(b.reaction||0)-(a.reaction||0));
+  // Sort
+  if(_cibofilter==='all') {
+    // Tutti: ordina per reazione discendente (love prima)
+    filtered = filtered.slice().sort((a,b)=>(b.reaction||0)-(a.reaction||0));
+  } else {
+    // Filtri specifici: ordina per data discendente (piu recenti prima)
+    filtered = filtered.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  }
 
   const cardsHtml=filtered.length
     ? filtered.map(f=>{
@@ -473,9 +480,7 @@ async function renderJasperCibo(){
     <!-- Filtri -->
     <div class="jas-cibo-filters">
       <button class="jas-cibo-filter ${_cibofilter==='all'?'on':''}" onclick="jasperSetCiboFilter('all')" type="button">Tutti</button>
-      <button class="jas-cibo-filter ${_cibofilter==='love'?'on':''}" onclick="jasperSetCiboFilter('love')" type="button">😍 Piace</button>
-      <button class="jas-cibo-filter ${_cibofilter==='hate'?'on':''}" onclick="jasperSetCiboFilter('hate')" type="button">🤮 No</button>
-      <button class="jas-cibo-filter ${_cibofilter==='recent'?'on':''}" onclick="jasperSetCiboFilter('recent')" type="button">⏱ Recenti</button>
+      ${[1,2,3,4,5].map(v=>`<button class="jas-cibo-filter face ${_cibofilter===String(v)?'on':''}" onclick="jasperSetCiboFilter('${v}')" type="button">${FOOD_FACES[v]}</button>`).join('')}
     </div>
 
     <!-- Lista -->
@@ -562,10 +567,11 @@ async function jasperDeleteFoodEntry(id){
 }
 
 async function jasperLogWeight(){
-  const kg=parseFloat(document.getElementById('jasWeightKg')?.value);
+  const raw=(document.getElementById('jasWeightKg')?.value||'').replace(',','.').trim();
+  const kg=parseFloat(raw);
   const date=document.getElementById('jasWeightDate')?.value||toISO();
   const note=(document.getElementById('jasWeightNote')?.value||'').trim();
-  if(!kg||kg<1||kg>30){toast('Inserisci un peso valido (es. 7.25)','warn');return;}
+  if(isNaN(kg)||kg<0.5||kg>25){toast('Inserisci un peso valido (0.5 - 25 kg)','warn');return;}
   const ws=stData['jasper_weights']||{list:[]};
   ws.list=ws.list.filter(w=>w.date!==date);
   ws.list.push({kg,date,note});
@@ -672,17 +678,18 @@ function jasperCustomMilestones(){return stData['jasper_milestones']||{list:[]};
 
 async function jasperAddMilestone(){
   const inp=document.getElementById('jasMsInp');
-  if(!inp||!inp.value.trim())return;
+  const dateInp=document.getElementById('jasMsDate');
+  if(!inp||!inp.value.trim()){toast('Scrivi la milestone','warn');return;}
   const ms=jasperCustomMilestones();
-  const today=toISO();
-  const hhmm=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'short'});
-  ms.list.unshift({text:inp.value.trim(),date:today,label:hhmm});
-  if(ms.list.length>20)ms.list=ms.list.slice(0,20);
+  const date=(dateInp?.value)||toISO();
+  const label=new Date(date+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+  ms.list.unshift({text:inp.value.trim(),date,label});
+  if(ms.list.length>50)ms.list=ms.list.slice(0,50);
   stData['jasper_milestones']=ms;
   localStorage.setItem('rico_st',JSON.stringify(stData));
-  sbFetch('startup_data',{method:'POST',headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:'jasper_milestones',data:ms})}).catch(()=>{});
+  sbFetch('startup_data',{method:'POST',prefer:'resolution=merge-duplicates,return=minimal',body:JSON.stringify({id:'jasper_milestones',data:ms})}).catch(e=>console.warn('milestone sync:',e));
   inp.value='';
-  renderJasper();
+  renderJasperCrescita();
   toast('✦ Milestone salvata!','success');
 }
 

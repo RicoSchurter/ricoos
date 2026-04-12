@@ -656,16 +656,32 @@ button.jas-tab {
 /* Filtri */
 .jas-cibo-filters{
   display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;
+  align-items:center;
 }
 .jas-cibo-filter{
   padding:8px 14px;background:#1a1208;border:1px solid #3a2a10;
   border-radius:20px;color:#8a7040;font-size:12px;cursor:pointer;
-  font-family:inherit;transition:all .15s;
+  font-family:inherit;transition:all .15s;min-height:40px;
+}
+.jas-cibo-filter.face{
+  padding:6px 10px;font-size:22px;line-height:1;
+  min-width:44px;display:flex;align-items:center;justify-content:center;
 }
 .jas-cibo-filter:hover{border-color:#6a5030;color:#a08040;}
 .jas-cibo-filter.on{
   background:#d4a843;border-color:#d4a843;color:#111;font-weight:600;
+  transform:scale(1.05);
 }
+.jas-cibo-filter.face.on{background:#221608;border-color:#d4a843;}
+
+/* Milestone save button (Crescita) */
+.jas-ms-save-btn{
+  width:100%;padding:12px;background:#d4a843;border:none;
+  border-radius:12px;color:#111;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:background .15s;
+  min-height:44px;
+}
+.jas-ms-save-btn:hover{background:#f0c860;}
 
 /* Lista cibi */
 .jas-cibo-list{
