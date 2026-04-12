@@ -263,7 +263,10 @@ function checkSmartNotifs() {
    API CALL
 ═══════════════════════════════════════ */
 async function apiCall(messages, maxTokens=500, system=null) {
-  const body = {model:'claude-sonnet-4-6', max_tokens:maxTokens, messages};
+  // Sanifica messages: Anthropic accetta solo {role, content}.
+  // chatHistory puo contenere campi extra (es. hidden:true) che fanno fallire la richiesta.
+  const cleanMessages = (messages||[]).map(m => ({role:m.role, content:m.content}));
+  const body = {model:'claude-sonnet-4-6', max_tokens:maxTokens, messages:cleanMessages};
   if (system) body.system = system;
   const r=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
