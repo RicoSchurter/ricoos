@@ -5,7 +5,7 @@ let _voiceActive      = false;
 function initVoice() {
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRec) return;
-  ['d','m'].forEach(p => { const mic=$(p+'QaMic'); if(mic) mic.style.display='block'; });
+  ['d','m'].forEach(p => { const mic=$(p+'QaMic'); if(mic) mic.classList.add('show'); });
   _voiceRecognition = new SpeechRec();
   _voiceRecognition.lang = 'it-IT';
   _voiceRecognition.continuous = false;
@@ -417,12 +417,11 @@ let briefingLoading = false;
 let briefingDate    = null;
 let briefingResetDate = null; // data dell'ultimo reset notturno
 
-/* Reset chat alle 3:00 svizzere: ogni mattina la chat parte pulita */
+/* Reset chat alle 4:00 svizzere: notte profonda, garantito chat nuova al mattino */
 function checkNightReset() {
   const swissH = parseInt(new Date().toLocaleString('en-US', {timeZone:'Europe/Zurich', hour:'2-digit', hour12:false}));
   const swissDateStr = new Date().toLocaleDateString('sv-SE', {timeZone:'Europe/Zurich'}); // YYYY-MM-DD
-  // Resetta se: ora >= 6:00 (non alle 3 — Jasper potrebbe svegliarsi alle 5)
-  if (swissH >= 6 && briefingResetDate !== swissDateStr) {
+  if (swissH >= 4 && briefingResetDate !== swissDateStr) {
     // Salva memoria PRIMA di resettare — copia snapshot sincrona
     const _histSnap = chatHistory.slice();
     saveMemory(_histSnap).catch(()=>{});
@@ -430,6 +429,8 @@ function checkNightReset() {
     briefingDate   = null;
     briefingResetDate = swissDateStr;
     if (typeof scheduledNotifIds !== 'undefined') scheduledNotifIds.clear();
+    // Purge chat localStorage dei giorni precedenti
+    if (typeof purgeOldChats === 'function') purgeOldChats();
     // Pulisci UI chat
     ['d','m'].forEach(p => {
       const msgs = $(p+'ChatMsgs'); if(msgs) msgs.innerHTML = '';

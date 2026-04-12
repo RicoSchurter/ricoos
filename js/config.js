@@ -142,3 +142,14 @@ function isValidDate(s) {
   const d = new Date(+m[1], +m[2]-1, +m[3]);
   return d.getFullYear()===+m[1] && d.getMonth()===+m[2]-1 && d.getDate()===+m[3];
 }
+
+/* ═══ AREA FILTERING PER PROFILO ═══ */
+const SHARED_AREAS = ['famiglia','coppia','vacanza','jasper'];
+const RICO_AREAS   = ['lavoro','cpc','formatore','startup','personale_rico'];
+const ANISSA_AREAS = ['personale_anissa'];
+
+function isProfileArea(area) {
+  if (SHARED_AREAS.includes(area)) return true;
+  if (currentProfile === 'anissa') return ANISSA_AREAS.includes(area);
+  return RICO_AREAS.includes(area);
+}

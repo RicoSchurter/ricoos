@@ -100,6 +100,7 @@ function checkPin() {
     ['mobDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();});
     updateKeyUI();
     loadMIT();
+    loadChatLocal();
     renderAll();
     document.getElementById('pinScreen').classList.add('hidden');
   } else {

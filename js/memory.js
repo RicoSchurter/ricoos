@@ -38,3 +38,48 @@ function loadMemory() {
   const key = 'memory_' + currentProfile + '_' + yesterday;
   return stData[key]?.summary || null;
 }
+
+/* ═══ CHAT PERSISTENCE (localStorage) ═══ */
+function chatKey() { return 'rico_chat_' + currentProfile + '_' + toISO(); }
+
+function saveChatLocal() {
+  if (!chatHistory || !chatHistory.length) return;
+  try {
+    localStorage.setItem(chatKey(), JSON.stringify({
+      history: chatHistory,
+      briefingDate: briefingDate
+    }));
+  } catch(e) { console.warn('saveChatLocal:', e); }
+}
+
+function loadChatLocal() {
+  try {
+    const raw = localStorage.getItem(chatKey());
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data.history || !data.history.length) return false;
+    chatHistory = data.history;
+    briefingDate = data.briefingDate || null;
+    // Restore messages to UI
+    chatHistory.forEach(m => {
+      if (m.role === 'assistant') addChatMessage('all', 'ai', m.content);
+      else if (m.role === 'user') addChatMessage('all', 'user', esc(m.content));
+    });
+    // Update button label if briefing already generated
+    if (briefingDate === toISO()) {
+      ['d','m'].forEach(p => {
+        const lbl = $(p+'AiBtnLbl'); if(lbl) lbl.textContent = '↻ Aggiorna briefing';
+      });
+    }
+    return true;
+  } catch(e) { console.warn('loadChatLocal:', e); return false; }
+}
+
+function purgeOldChats() {
+  const today = toISO();
+  Object.keys(localStorage).filter(k => k.startsWith('rico_chat_')).forEach(k => {
+    const parts = k.split('_');
+    const date = parts[parts.length - 1];
+    if (date < today) localStorage.removeItem(k);
+  });
+}

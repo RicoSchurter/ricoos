@@ -96,21 +96,6 @@ async function renderJasper(){
   const ageEmoji=months<3?'👶':months<6?'🍼':months<9?'🧸':months<12?'🐣':'👦';
   const ageStr=months+' mes'+(months===1?'e':'i')+(days>0?' e '+days+' giorn'+(days===1?'o':'i'):'');
 
-  const pct=Math.min(100,Math.round((months/24)*100));
-  const futureMs=JASPER_MILESTONES.filter(m=>m.m>months);
-  const nextMs=futureMs[0];
-  const dotHtml=JASPER_MILESTONES.map(ms=>{
-    const left=Math.round((ms.m/24)*100);
-    const cls=ms.m<months?'past':ms.m===months?'current':'';
-    return `<div class="jas-tl-dot ${cls}" style="left:${left}%" title="${ms.e} ${ms.l}"><div class="jas-tl-dot-circle"></div></div>`;
-  }).join('');
-  const pillsHtml=JASPER_MILESTONES.slice(0,8).map(ms=>{
-    const cls=ms.m<months?'past':ms.m===months?'current':'';
-    return `<span class="jas-ms-pill ${cls}">${ms.e} ${ms.l}</span>`;
-  }).join('');
-
-  const diaryDate=new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
-
   // Timer pasto
   function jasperTimerAgo_l(isoTs){
     if(!isoTs)return null;
@@ -135,68 +120,13 @@ async function renderJasper(){
     </button>`;
   }
 
-  // Grafico 7gg
-  const days7=[];
-  for(let i=6;i>=0;i--){
-    const d=new Date();d.setDate(d.getDate()-i);
-    const iso=dateToISO(d);
-    const e=stData[jasperDiaryKey(iso)]||{};
-    days7.push({day:d.toLocaleDateString('it-IT',{weekday:'short'}).slice(0,2).toUpperCase(),sleep:e.sleep||0,mood:e.mood||0,iso});
-  }
-  const chartHtml=days7.map(d=>{
-    const sh=d.sleep>0?Math.round((d.sleep/5)*100):0;
-    const mh=d.mood>0?Math.round((d.mood/5)*100):0;
-    const isToday=d.iso===today;
-    return `<div class="jas-chart-col">
-      <div class="jas-chart-bar-wrap">
-        <div style="display:flex;gap:2px;height:100%;align-items:flex-end">
-          <div class="jas-chart-bar" style="height:${sh}%;background:#6a5030;flex:1"></div>
-          <div class="jas-chart-bar" style="height:${mh}%;background:#d4a843;flex:1"></div>
-        </div>
-      </div>
-      <div class="jas-chart-day" style="${isToday?'color:#f0c860;font-weight:bold':''}">${d.day}</div>
-    </div>`;
-  }).join('');
-
-  // Note oggi + storiche
+  // Note oggi
   const notesHtml=(entry.notes||[]).slice().reverse().slice(0,5).map((n,i)=>
     `<div class="jas-note-item">
       <span class="jas-note-ts">${n.ts}</span>${esc(n.text)}
       <button class="jas-note-del" onclick="jasperDeleteNote(${entry.notes.length-1-i},'today')">×</button>
     </div>`
   ).join('');
-  const histNotes=[];
-  for(let di=1;di<=2;di++){
-    const pd=new Date();pd.setDate(pd.getDate()-di);
-    const piso=dateToISO(pd);
-    const pe=stData[jasperDiaryKey(piso)]||{};
-    if(pe.notes&&pe.notes.length){
-      const dlbl=di===1?'Ieri':pd.toLocaleDateString('it-IT',{weekday:'long'});
-      histNotes.push('<div class="jas-notes-day-hdr">'+dlbl+'</div>'+
-        pe.notes.slice(-2).reverse().map(n=>`<div class="jas-note-item" style="opacity:.55"><span class="jas-note-ts">${n.ts}</span>${esc(n.text)}</div>`).join(''));
-    }
-  }
-
-  // Svezzamento oggi
-  const foods=entry.foods||[];
-  const foodsHtml=foods.length
-    ?foods.map((f,i)=>`<div class="jas-food-tag ${f.reaction||'new'}">${esc(f.name)}<button onclick="jasperDeleteFood(${i})" style="background:none;border:none;color:inherit;cursor:pointer;padding:0;font-size:12px">×</button></div>`).join('')
-    :'<span style="font-size:12px;color:#4a3820">Nessun alimento oggi</span>';
-
-  // Umore Anissa
-  const aEmojis=['','😩','😔','😐','😊','🌟'];
-  const aLabels=['','Difficile','Faticoso','Nella norma','Bene','Benissimo'];
-  const am=entry.anissa_mood||0;
-  const anissaMoodHtml=aEmojis.slice(1).map((e,i)=>{
-    const v=i+1;
-    return `<button class="jas-anissa-emoji ${am===v?'selected':''}" onclick="jasperSetValue('anissa_mood',${v})" title="${aLabels[v]}" type="button">${e}</button>`;
-  }).join('');
-
-  // Milestone custom
-  const cms=jasperCustomMilestones();
-  const cmsHtml=cms.list.length
-    ?cms.list.map((m,i)=>`<div class="jas-custom-ms-item"><span>✦</span><span>${esc(m.text)}</span><span class="jas-custom-ms-date">${m.label||m.date}</span><button class="jas-custom-ms-del" onclick="jasperDeleteMilestone(${i})">×</button></div>`).join('')
-    :'<div style="font-size:12px;color:#4a3820;padding:8px 0">Nessuna milestone personale ancora</div>';
 
   const html=`<div class="jasper-page">
     <!-- Header -->
@@ -214,131 +144,66 @@ async function renderJasper(){
       <button class="jas-tab" data-tab="crescita" onclick="jasperSetTab('crescita')">📊 Crescita</button>
     </div>
 
-    <!-- TAB OGGI -->
+    <!-- TAB OGGI — Solo l'essenziale -->
     <div class="jas-tab-pane active" data-pane="oggi">
-      <!-- Timeline -->
-      <div class="jas-timeline">
-        <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-          📍 Dove siamo <span style="font-size:11px;color:#a08040;letter-spacing:0;text-transform:none">→ ${nextMs?nextMs.e+' '+nextMs.l+' ('+nextMs.m+'m)':'🏆 2 anni!'}</span>
+      <!-- Timer pasto -->
+      <div class="jas-timer-strip">
+        <div class="jas-timer-card" style="flex:1.4">
+          <div class="jas-timer-lbl">⏱ Ultimo pasto</div>
+          <div class="jas-timer-val">${timerAgo||'—'}</div>
+          <div class="jas-timer-sub">${entry.lastMealMl?entry.lastMealMl+'ml · ':''} ${entry.lastMeal?new Date(entry.lastMeal).toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'}):'non registrato'}</div>
         </div>
-        <div class="jas-tl-bar-wrap"><div class="jas-tl-bar-fill" style="width:${pct}%"></div></div>
-        <div class="jas-tl-dots">${dotHtml}</div>
-        <div class="jas-ms-list">${pillsHtml}</div>
+        <div class="jas-timer-card" style="flex:1">
+          <div class="jas-timer-lbl">🍼 Pasti oggi</div>
+          <div class="jas-timer-val">${todayMeals.length||'—'}</div>
+          <div class="jas-timer-sub">${todayMeals.length?todayMeals.reduce((s,m)=>s+(m.ml||0),0)+'ml tot':'nessuno'}</div>
+        </div>
+      </div>
+      <div class="jas-ml-row">
+        ${[120,150,180,200].map(ml=>`<button class="jas-ml-btn" onclick="jasperLogMeal(${ml})">${ml}ml</button>`).join('')}
+        <button class="jas-ml-btn" onclick="jasperLogMealCustom()" style="margin-left:auto">+ altro</button>
       </div>
 
-      <!-- Come sta Anissa -->
-      <div class="jas-anissa-mood">
-        <div class="jas-anissa-lbl">come stai tu oggi?</div>
-        <div class="jas-anissa-emojis">${anissaMoodHtml}</div>
-        ${am>0?`<div style="text-align:center;font-size:11px;color:#6a5030;margin-top:6px">${aLabels[am]}</div>`:''}
+      <!-- Tile Jasper -->
+      <div class="jas-tiles" style="margin-top:16px">
+        ${tileHtml('sleep','😴','Sonno',entry.sleep||0,SLEEP_EMOJIS,SLEEP_LABELS)}
+        ${tileHtml('feed','🍼','Pasto',entry.feed||0,FEED_EMOJIS,FEED_LABELS)}
+        ${tileHtml('mood','☀️','Umore',entry.mood||0,MOOD_EMOJIS,MOOD_LABELS)}
       </div>
 
-      <!-- Diario -->
-      <div class="jas-diary">
-        <div class="jas-diary-date">${diaryDate}</div>
-
-        <!-- Timer biberon -->
-        <div class="jas-timer-strip">
-          <div class="jas-timer-card" style="flex:1.4">
-            <div class="jas-timer-lbl">⏱ Ultimo pasto</div>
-            <div class="jas-timer-val">${timerAgo||'—'}</div>
-            <div class="jas-timer-sub">${entry.lastMealMl?entry.lastMealMl+'ml · ':''} ${entry.lastMeal?new Date(entry.lastMeal).toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'}):'non registrato'}</div>
-          </div>
-          <div class="jas-timer-card" style="flex:1">
-            <div class="jas-timer-lbl">🍼 Pasti oggi</div>
-            <div class="jas-timer-val">${todayMeals.length||'—'}</div>
-            <div class="jas-timer-sub">${todayMeals.length?todayMeals.reduce((s,m)=>s+(m.ml||0),0)+'ml tot':'nessuno'}</div>
-          </div>
+      <!-- Sonno notturno -->
+      <div style="font-size:10px;letter-spacing:1.5px;color:#6a5030;text-transform:uppercase;margin:18px 0 8px">😴 Sonno di stanotte</div>
+      <div class="jas-sleep-row">
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+          <span style="font-size:9px;color:#6a5030">Addormentato</span>
+          <input class="jas-sleep-inp" type="time" id="jasSleepStart" value="${esc(entry.sleep_start||'')}"
+            onchange="jasperSaveSleepField('sleep_start',this.value)">
         </div>
-        <div class="jas-ml-row">
-          ${[120,150,180,200].map(ml=>`<button class="jas-ml-btn" onclick="jasperLogMeal(${ml})">${ml}ml</button>`).join('')}
-          <button class="jas-ml-btn" onclick="jasperLogMealCustom()" style="margin-left:auto">+ altro</button>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+          <span style="font-size:9px;color:#6a5030">Svegliato</span>
+          <input class="jas-sleep-inp" type="time" id="jasSleepEnd" value="${esc(entry.sleep_end||'')}"
+            onchange="jasperSaveSleepField('sleep_end',this.value)">
         </div>
-
-        <!-- Tile Jasper -->
-        <div class="jas-tiles" style="margin-top:14px">
-          ${tileHtml('sleep','😴','Sonno',entry.sleep||0,SLEEP_EMOJIS,SLEEP_LABELS)}
-          ${tileHtml('feed','🍼','Pasto',entry.feed||0,FEED_EMOJIS,FEED_LABELS)}
-          ${tileHtml('mood','☀️','Umore',entry.mood||0,MOOD_EMOJIS,MOOD_LABELS)}
-        </div>
-
-        <!-- Sonno notturno -->
-        <div style="font-size:10px;letter-spacing:1.5px;color:#6a5030;text-transform:uppercase;margin:14px 0 8px">😴 Sonno di stanotte</div>
-        <div class="jas-sleep-row">
-          <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
-            <span style="font-size:9px;color:#6a5030">Si è addormentato</span>
-            <input class="jas-sleep-inp" type="time" id="jasSleepStart" value="${esc(entry.sleep_start||'')}"
-              onchange="jasperSaveSleepField('sleep_start',this.value)">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
-            <span style="font-size:9px;color:#6a5030">Si è svegliato</span>
-            <input class="jas-sleep-inp" type="time" id="jasSleepEnd" value="${esc(entry.sleep_end||'')}"
-              onchange="jasperSaveSleepField('sleep_end',this.value)">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
-            <span style="font-size:9px;color:#6a5030">Risvegli</span>
-            <input class="jas-sleep-inp" type="number" id="jasSleepWakes" min="0" max="20" inputmode="numeric"
-              value="${entry.sleep_wakes!==''?entry.sleep_wakes:''}" placeholder="0"
-              onchange="jasperSaveSleepField('sleep_wakes',this.value)"
-              style="width:64px">
-          </div>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+          <span style="font-size:9px;color:#6a5030">Risvegli</span>
+          <input class="jas-sleep-inp" type="number" id="jasSleepWakes" min="0" max="20" inputmode="numeric"
+            value="${entry.sleep_wakes!==''?entry.sleep_wakes:''}" placeholder="0"
+            onchange="jasperSaveSleepField('sleep_wakes',this.value)"
+            style="width:64px">
         </div>
       </div>
 
-      <!-- Svezzamento -->
-      <div style="margin-bottom:16px">
-        <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px">🥕 Svezzamento oggi</div>
-        <div class="jas-food-tags">${foodsHtml}</div>
-        <div class="jas-ms-add-row">
-          <input class="jas-ms-inp" id="jasFoodInp" autocomplete="off" autocorrect="off" autocapitalize="sentences" placeholder='es. "Carota" · "Broccoli" · "Mela"'
-            onkeydown="if(event.key==='Enter'){event.preventDefault();jasperAddFood()}" maxlength="30">
-          <select id="jasFoodReaction" style="background:#160f04;border:1px solid #3a2a10;border-radius:10px;color:#a08040;padding:8px;font-size:14px;font-family:inherit;outline:none">
-            <option value="new">🆕 Nuovo</option>
-            <option value="ok">✅ Mangiato</option>
-            <option value="no">❌ Non gradito</option>
-          </select>
-          <button onclick="jasperAddFood()" style="padding:8px 12px;background:#221608;border:1px solid #6a5030;border-radius:10px;color:#a08040;font-size:12px;cursor:pointer;font-family:inherit">+</button>
-        </div>
-      </div>
-
-      <!-- Grafico 7gg -->
-      <div class="jas-chart" style="margin-bottom:16px">
-        <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px;display:flex;gap:12px;align-items:center">
-          📊 Settimana
-          <span style="display:flex;gap:8px;font-size:9px;letter-spacing:0;text-transform:none">
-            <span><span style="display:inline-block;width:8px;height:8px;background:#6a5030;border-radius:1px;margin-right:3px"></span>Sonno</span>
-            <span><span style="display:inline-block;width:8px;height:8px;background:#d4a843;border-radius:1px;margin-right:3px"></span>Umore</span>
-          </span>
-        </div>
-        ${days7.every(d=>!d.sleep&&!d.mood)
-          ?'<div style="text-align:center;padding:16px 0;color:#4a3820;font-size:13px;font-style:italic">Inizia oggi — il grafico prenderà forma 🌱</div>'
-          :'<div class="jas-chart-grid">'+chartHtml+'</div>'
-        }
-      </div>
-
-      <!-- Milestone custom -->
-      <div class="jas-custom-ms">
-        <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px">✦ Le tue milestone</div>
-        <div class="jas-custom-ms-list">${cmsHtml}</div>
-        <div class="jas-ms-add-row">
-          <input class="jas-ms-inp" id="jasMsInp" autocomplete="off" autocorrect="off" autocapitalize="sentences" placeholder='es. "Prima volta che ha riso" · "Ha detto mamma"'
-            onkeydown="if(event.key==='Enter'){event.preventDefault();jasperAddMilestone()}" maxlength="60">
-          <button onclick="jasperAddMilestone()" style="padding:8px 14px;background:#221608;border:1px solid #6a5030;border-radius:10px;color:#a08040;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">+ Aggiungi</button>
-        </div>
-      </div>
-
-      <!-- Note -->
-      <div>
+      <!-- Note veloci -->
+      <div style="margin-top:18px">
         <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px">📝 Note di oggi</div>
         <textarea class="jas-note-inp" id="jasNoteInp" rows="2"
-          placeholder='es. "Ha riso tanto stamattina" · "Primo dentino!" · "Ha dormito 6h di fila"'
+          placeholder='es. "Ha riso tanto" · "Primo dentino" · "6h di fila"'
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();jasperSaveNote();}"
           oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
         <div style="display:flex;justify-content:flex-end;margin-top:6px">
           <button onclick="jasperSaveNote()" style="padding:7px 16px;background:#221608;border:1px solid #6a5030;border-radius:20px;color:#a08040;font-size:12px;cursor:pointer;font-family:inherit">Salva nota</button>
         </div>
         <div class="jas-note-saved">${notesHtml}</div>
-        ${histNotes.join('')}
       </div>
     </div>
 
@@ -370,7 +235,7 @@ async function renderJasper(){
   }
 }
 
-/* ── Storico calendario ── */
+/* ── Storico calendario + Timeline milestone + Chart 7gg + Umore Anissa ── */
 async function renderJasperStorico(){
   const panes=document.querySelectorAll('[data-pane="storico"]');
   const now=new Date();
@@ -380,6 +245,80 @@ async function renderJasperStorico(){
   const lastDay=new Date(year,month+1,0);
   const today=toISO();
   const limit180=dateToISO(new Date(Date.now()-180*86400000));
+  const entryToday=stData[jasperDiaryKey(today)]||{};
+
+  // ── Timeline milestone ──
+  const {months:jMonths}=jasperAgeDetails();
+  const pct=Math.min(100,Math.round((jMonths/24)*100));
+  const futureMs=JASPER_MILESTONES.filter(m=>m.m>jMonths);
+  const nextMs=futureMs[0];
+  const dotHtml=JASPER_MILESTONES.map(ms=>{
+    const left=Math.round((ms.m/24)*100);
+    const cls=ms.m<jMonths?'past':ms.m===jMonths?'current':'';
+    return `<div class="jas-tl-dot ${cls}" style="left:${left}%" title="${ms.e} ${ms.l}"><div class="jas-tl-dot-circle"></div></div>`;
+  }).join('');
+  const pillsHtml=JASPER_MILESTONES.slice(0,8).map(ms=>{
+    const cls=ms.m<jMonths?'past':ms.m===jMonths?'current':'';
+    return `<span class="jas-ms-pill ${cls}">${ms.e} ${ms.l}</span>`;
+  }).join('');
+  const timelineHtml=`<div class="jas-timeline">
+    <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      📍 Dove siamo <span style="font-size:11px;color:#a08040;letter-spacing:0;text-transform:none">→ ${nextMs?nextMs.e+' '+nextMs.l+' ('+nextMs.m+'m)':'🏆 2 anni!'}</span>
+    </div>
+    <div class="jas-tl-bar-wrap"><div class="jas-tl-bar-fill" style="width:${pct}%"></div></div>
+    <div class="jas-tl-dots">${dotHtml}</div>
+    <div class="jas-ms-list">${pillsHtml}</div>
+  </div>`;
+
+  // ── Chart 7gg sonno/umore ──
+  const days7=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const iso=dateToISO(d);
+    const e=stData[jasperDiaryKey(iso)]||{};
+    days7.push({day:d.toLocaleDateString('it-IT',{weekday:'short'}).slice(0,2).toUpperCase(),sleep:e.sleep||0,mood:e.mood||0,iso});
+  }
+  const chartHtml=days7.map(d=>{
+    const sh=d.sleep>0?Math.round((d.sleep/5)*100):0;
+    const mh=d.mood>0?Math.round((d.mood/5)*100):0;
+    const isToday=d.iso===today;
+    return `<div class="jas-chart-col">
+      <div class="jas-chart-bar-wrap">
+        <div style="display:flex;gap:2px;height:100%;align-items:flex-end">
+          <div class="jas-chart-bar" style="height:${sh}%;background:#6a5030;flex:1"></div>
+          <div class="jas-chart-bar" style="height:${mh}%;background:#d4a843;flex:1"></div>
+        </div>
+      </div>
+      <div class="jas-chart-day" style="${isToday?'color:#f0c860;font-weight:bold':''}">${d.day}</div>
+    </div>`;
+  }).join('');
+  const weekChartHtml=`<div class="jas-chart" style="margin-bottom:20px">
+    <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px;display:flex;gap:12px;align-items:center">
+      📊 Settimana
+      <span style="display:flex;gap:8px;font-size:9px;letter-spacing:0;text-transform:none">
+        <span><span style="display:inline-block;width:8px;height:8px;background:#6a5030;border-radius:1px;margin-right:3px"></span>Sonno</span>
+        <span><span style="display:inline-block;width:8px;height:8px;background:#d4a843;border-radius:1px;margin-right:3px"></span>Umore</span>
+      </span>
+    </div>
+    ${days7.every(d=>!d.sleep&&!d.mood)
+      ?'<div style="text-align:center;padding:16px 0;color:#4a3820;font-size:13px;font-style:italic">Inizia oggi — il grafico prenderà forma 🌱</div>'
+      :'<div class="jas-chart-grid">'+chartHtml+'</div>'
+    }
+  </div>`;
+
+  // ── Umore Anissa ──
+  const aEmojis=['','😩','😔','😐','😊','🌟'];
+  const aLabels=['','Difficile','Faticoso','Nella norma','Bene','Benissimo'];
+  const am=entryToday.anissa_mood||0;
+  const anissaMoodHtml=aEmojis.slice(1).map((e,i)=>{
+    const v=i+1;
+    return `<button class="jas-anissa-emoji ${am===v?'selected':''}" onclick="jasperSetValue('anissa_mood',${v})" title="${aLabels[v]}" type="button">${e}</button>`;
+  }).join('');
+  const anissaMoodBlock=`<div class="jas-anissa-mood" style="margin-bottom:20px">
+    <div class="jas-anissa-lbl">come stai tu oggi?</div>
+    <div class="jas-anissa-emojis">${anissaMoodHtml}</div>
+    ${am>0?`<div style="text-align:center;font-size:11px;color:#6a5030;margin-top:6px">${aLabels[am]}</div>`:''}
+  </div>`;
 
   // Intestazione mese
   const mLbl=firstDay.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
@@ -441,7 +380,7 @@ async function renderJasperStorico(){
     </div>`;
   }
 
-  const html=calHtml+detailHtml;
+  const html=timelineHtml+weekChartHtml+anissaMoodBlock+calHtml+detailHtml;
   panes.forEach(p=>p.innerHTML=html);
 }
 
@@ -459,13 +398,15 @@ function jasperSelCalDay(iso){
   renderJasperStorico();
 }
 
-/* ── Crescita peso ── */
+/* ── Crescita: peso + milestone custom + svezzamento ── */
 async function renderJasperCrescita(){
   const panes=document.querySelectorAll('[data-pane="crescita"]');
   const weights=(stData['jasper_weights']||{list:[]}).list;
   const sorted=[...weights].sort((a,b)=>a.date.localeCompare(b.date));
   const maxW=sorted.length?Math.max(...sorted.map(w=>w.kg)):6;
   const minW=sorted.length?Math.min(...sorted.map(w=>w.kg))-0.5:3;
+  const today=toISO();
+  const entryToday=stData[jasperDiaryKey(today)]||{};
 
   const barHtml=sorted.slice(-10).map(w=>{
     const pct=Math.round(((w.kg-minW)/(maxW-minW+0.1))*100);
@@ -487,6 +428,18 @@ async function renderJasperCrescita(){
     </div>`;
   }).join('');
 
+  // ── Svezzamento ──
+  const foods=entryToday.foods||[];
+  const foodsHtml=foods.length
+    ?foods.map((f,i)=>`<div class="jas-food-tag ${f.reaction||'new'}">${esc(f.name)}<button onclick="jasperDeleteFood(${i})" style="background:none;border:none;color:inherit;cursor:pointer;padding:0;font-size:12px">×</button></div>`).join('')
+    :'<span style="font-size:12px;color:#4a3820">Nessun alimento oggi</span>';
+
+  // ── Milestone custom ──
+  const cms=jasperCustomMilestones();
+  const cmsHtml=cms.list.length
+    ?cms.list.map((m,i)=>`<div class="jas-custom-ms-item"><span>✦</span><span>${esc(m.text)}</span><span class="jas-custom-ms-date">${m.label||m.date}</span><button class="jas-custom-ms-del" onclick="jasperDeleteMilestone(${i})">×</button></div>`).join('')
+    :'<div style="font-size:12px;color:#4a3820;padding:8px 0">Nessuna milestone personale ancora</div>';
+
   const html=`<div>
     <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:14px">⚖ Registra peso</div>
     <div class="jas-weight-inp-row">
@@ -501,6 +454,33 @@ async function renderJasperCrescita(){
     <div class="jas-weight-bar-wrap">${barHtml}</div>`:''}
     <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:8px">📋 Storico pesi</div>
     ${listHtml||'<div style="font-size:13px;color:#4a3820;font-style:italic;padding:8px 0">Nessun peso registrato ancora</div>'}
+
+    <!-- Svezzamento -->
+    <div style="margin-top:28px">
+      <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px">🥕 Svezzamento oggi</div>
+      <div class="jas-food-tags">${foodsHtml}</div>
+      <div class="jas-ms-add-row">
+        <input class="jas-ms-inp" id="jasFoodInp" autocomplete="off" autocorrect="off" autocapitalize="sentences" placeholder='es. "Carota" · "Broccoli" · "Mela"'
+          onkeydown="if(event.key==='Enter'){event.preventDefault();jasperAddFood()}" maxlength="30">
+        <select id="jasFoodReaction" style="background:#160f04;border:1px solid #3a2a10;border-radius:10px;color:#a08040;padding:8px;font-size:14px;font-family:inherit;outline:none">
+          <option value="new">🆕 Nuovo</option>
+          <option value="ok">✅ Mangiato</option>
+          <option value="no">❌ Non gradito</option>
+        </select>
+        <button onclick="jasperAddFood()" style="padding:8px 12px;background:#221608;border:1px solid #6a5030;border-radius:10px;color:#a08040;font-size:12px;cursor:pointer;font-family:inherit">+</button>
+      </div>
+    </div>
+
+    <!-- Milestone custom -->
+    <div class="jas-custom-ms" style="margin-top:28px">
+      <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px">✦ Le tue milestone</div>
+      <div class="jas-custom-ms-list">${cmsHtml}</div>
+      <div class="jas-ms-add-row">
+        <input class="jas-ms-inp" id="jasMsInp" autocomplete="off" autocorrect="off" autocapitalize="sentences" placeholder='es. "Prima volta che ha riso" · "Ha detto mamma"'
+          onkeydown="if(event.key==='Enter'){event.preventDefault();jasperAddMilestone()}" maxlength="60">
+        <button onclick="jasperAddMilestone()" style="padding:8px 14px;background:#221608;border:1px solid #6a5030;border-radius:10px;color:#a08040;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">+ Aggiungi</button>
+      </div>
+    </div>
   </div>`;
   panes.forEach(p=>p.innerHTML=html);
 }

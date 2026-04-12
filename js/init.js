@@ -23,7 +23,8 @@
   $('fData').value = toISO();
 
   updateKeyUI();
-  checkNightReset(); // resetta chat se siamo dopo le 6:00 svizzere di un nuovo giorno
+  checkNightReset(); // resetta chat se siamo dopo le 4:00 svizzere di un nuovo giorno
+  loadChatLocal(); // ripristina chat di oggi se presente in localStorage
   renderAll();
   checkSmartNotifs();
   scheduleNotifs();

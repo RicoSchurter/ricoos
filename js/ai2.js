@@ -1,6 +1,8 @@
-async function doBriefing() {
+async function doBriefing(forceNew) {
   if (!apiKey) { openSettings(); return; }
   if (briefingLoading) return;
+  // Se il briefing di oggi e gia stato generato e non e un refresh forzato, non rigenerare
+  if (!forceNew && briefingDate === toISO() && chatHistory.length > 0) return;
   briefingLoading = true;
   [$('dAiBtn'), $('mAiBtn')].forEach(b => { if(b) b.classList.add('loading'); });
 
@@ -8,9 +10,9 @@ async function doBriefing() {
   const sw     = swissNow();
   const oggi   = new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   const isMon  = new Date().getDay() === 1;
-  const tItems = expand().filter(i => i.data === t && (currentProfile !== 'anissa' || i.area !== 'startup'));
-  const pend   = items.filter(i => !i.done && i.data < t && !i.recur && (currentProfile !== 'anissa' || i.area !== 'startup')).slice(0, 5);
-  const weekItems = expand().filter(i => i.data > t && i.data <= dateToISO(new Date(Date.now()+7*86400000)) && (currentProfile !== 'anissa' || i.area !== 'startup'));
+  const tItems = expand().filter(i => i.data === t && isProfileArea(i.area));
+  const pend   = items.filter(i => !i.done && i.data < t && !i.recur && isProfileArea(i.area)).slice(0, 5);
+  const weekItems = expand().filter(i => i.data > t && i.data <= dateToISO(new Date(Date.now()+7*86400000)) && isProfileArea(i.area));
   const agenda = tItems.length
     ? tItems.map(i => `${i.ora?i.ora+' ':''}"${i.titolo}" [${AREAS[i.area]?.l}]${i.prio==='alta'?' ⚠':''}${i.done?' ✓':''}`).join(', ')
     : 'niente in agenda oggi';
@@ -28,6 +30,8 @@ CHI È ANISSA: ha 27 anni, vive a Tenero (Canton Ticino). È mamma di Jasper, ${
 COME PARLI: in modo caldo, diretto, sincero. Come una persona vera — non un coach da manuale. Ogni tanto un tocco leggero, una battuta. Mai sermoni. Mai elenchi puntati. Mai frasi oltre 12 parole.
 
 QUANDO VEDI IL CALENDARIO: analizzalo. Se c'è qualcosa che ti sembra stressante, troppe cose, o una cosa importante che manca — dilla. Non aspettare che te lo chiedano.
+
+IMPORTANTE — AMBITI: non menzionare mai appuntamenti o impegni di Rico (lavoro, CPC, formatore, Easy Call, EasyConnect, avvocato, startup). Quelli non sono tuoi. Parla solo di ciò che riguarda Anissa, Jasper, la famiglia, il tempo insieme, la casa, il tempo per sé.
 
 FORMATO: testo scorrevole. Vai a capo con paragrafi. Usa <strong> solo su 2-3 parole chiave importanti. Zero markdown. Zero emoji.`;
 
@@ -87,6 +91,7 @@ Analizza la mia situazione. Dimmi cosa conta davvero oggi e come mi organizzo. S
     addChatMessage('all', 'ai', r);
 
     briefingDate = toISO();
+    saveChatLocal();
     // Aggiorna pulsante
     ['d','m'].forEach(p => {
       const lbl = $(p+'AiBtnLbl'); if(lbl) lbl.textContent = '↻ Aggiorna briefing';
@@ -236,7 +241,7 @@ async function doChat(pfx) {
 
   // Tutti gli item rilevanti con ID (aperti + completati 7gg), ordinati per data
   const allItemsCtx = items
-    .filter(i => (!i.done || i.data >= sevenAgoCtx) && (currentProfile !== 'anissa' || i.area !== 'startup'))
+    .filter(i => (!i.done || i.data >= sevenAgoCtx) && isProfileArea(i.area))
     .sort((a,b) => a.data.localeCompare(b.data))
     .slice(0, 120)
     .map(i => `[${i.id}] ${AREAS[i.area]?.e||''} ${i.area} | ${i.titolo} | ${i.data}${i.ora?' '+i.ora:''}${i.done?' ✓fatto':''}`)
@@ -252,6 +257,11 @@ CHI È ANISSA: ha 27 anni, vive a Tenero (Canton Ticino, CH). È mamma di Jasper
 
 COME PARLI: caldo, diretto, sincero. Come una persona vera. Ogni tanto un tocco leggero. Mai sermoni. Mai elenchi. Frasi brevi.
 QUANDO VEDI IL CALENDARIO: analizzalo spontaneamente se è utile. Sii proattiva.
+IMPORTANTE — AMBITI: non menzionare mai appuntamenti o impegni di Rico (lavoro, CPC, formatore, Easy Call, EasyConnect, avvocato, startup). Parla solo di ciò che riguarda Anissa, Jasper, la famiglia.
+
+TUTTI GLI APPUNTAMENTI IN MEMORIA (già filtrati per Anissa):
+${allItemsCtx}
+
 FORMATO: testo scorrevole, paragrafi. Usa <strong> solo su 2-3 parole. Zero markdown. Italiano.`
 
     : `Sei il coach personale di Rico — non un assistente, non un bot. Qualcuno che lo conosce davvero e gli parla dritto.
@@ -279,6 +289,7 @@ FORMATO: testo scorrevole. <strong> su 2-3 parole chiave. Zero markdown. Italian
     const raw = await apiCall(chatHistory, 900, system);
     chatHistory.push({role:'assistant', content: raw});
     if (chatHistory.length > 30) chatHistory = chatHistory.slice(chatHistory.length - 30);
+    saveChatLocal();
 
     // Parse response: separate text from action
     const actionMatch = raw.match(/AZIONE:\s*(\{[\s\S]*\})\s*$/m);

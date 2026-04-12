@@ -648,12 +648,18 @@ button.jas-cal-day {
 /* Chat mobile: contenuta in box scrollabile, non cresce oltre lo schermo */
 #mv-briefing .chat-section{
   display:flex!important;flex-direction:column;
-  max-height:calc(100vh - 300px);max-height:calc(100dvh - 300px);min-height:0;
+  min-height:0;
 }
 #mv-briefing .chat-msgs{
-  flex:1;overflow-y:auto;min-height:80px;max-height:none;
+  flex:1 1 auto;overflow-y:auto;min-height:80px;max-height:none;
 }
-#mv-briefing .chat-inp-row{flex-shrink:0;margin-top:8px;}
+#mv-briefing .chat-msgs:empty{min-height:0;max-height:0;margin:0;padding:0;}
+#mv-briefing .chat-inp-row{
+  flex-shrink:0;margin-top:12px;
+  position:sticky;bottom:0;
+  background:var(--bg);padding:8px 0;
+  z-index:5;
+}
 #mv-briefing .chat-action-preview{flex-shrink:0;}
 
 .bot-nav{
@@ -740,6 +746,7 @@ button.jas-cal-day {
   color:var(--txt);padding:13px 52px 13px 18px;font-size:16px;outline:none;
   transition:border-color .2s;
 }
+.qa-inp.has-mic{padding-right:94px;}
 .qa-inp:focus{border-color:var(--gold3);}
 .qa-inp:disabled{opacity:.4;cursor:not-allowed;}
 .qa-send{
@@ -748,6 +755,23 @@ button.jas-cal-day {
   padding:7px 12px;cursor:pointer;font-size:14px;transition:background .15s;
 }
 .qa-send:hover{background:var(--gold2);}
+.qa-mic{
+  position:absolute;right:52px;top:50%;transform:translateY(-50%);
+  background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;
+  width:34px;height:34px;padding:0;cursor:pointer;font-size:14px;
+  display:none;align-items:center;justify-content:center;
+  transition:all .2s;color:var(--txt2);
+}
+.qa-mic.show{display:flex;}
+.qa-mic:hover{border-color:var(--gold3);color:var(--gold2);}
+.qa-mic.listening{
+  background:#3a1010;border-color:#e06060;color:#ff8080;
+  animation:micPulse 1s ease-in-out infinite;
+}
+@keyframes micPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(224,96,96,.6);}
+  50%{box-shadow:0 0 0 8px rgba(224,96,96,0);}
+}
 .qa-hint{font-size:13px;color:var(--dim);margin-top:6px;font-style:italic;}
 .qa-preview{
   display:none;padding:14px 16px;background:var(--bg3);border:1px solid var(--bdr2);
@@ -1024,7 +1048,8 @@ select option{background:#181610;}
 
 /* ═══ BRIEFING PAGE ═══ */
 .briefing-page-lbl{font-size:12px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:18px;}
-#dv-briefing .chat-section,#mv-briefing .chat-section{display:block!important;border-top:1px solid var(--bdr);padding-top:18px;margin-top:18px;}
+#dv-briefing .chat-section{display:block!important;border-top:1px solid var(--bdr);padding-top:18px;margin-top:18px;}
+#mv-briefing .chat-section{border-top:1px solid var(--bdr);padding-top:14px;margin-top:14px;}
 #dv-briefing .ai-strip .sub,#mv-briefing .ai-strip .sub{font-size:12px;}
 
 /* ═══ FILTER SECTIONS ═══ */
@@ -1170,6 +1195,8 @@ select option{background:#181610;}
   .setup-banner br,.setup-banner .setup-hint{display:none;}
   /* Mobile: QA input padding */
   .qa-inp{padding-right:42px;}
+  .qa-inp.has-mic{padding-right:82px;}
+  .qa-mic{right:44px;width:32px;height:32px;}
   .qa-hint{display:none;}
   /* Mobile: collapse extra area pills */
   .area-extra{display:none;}

@@ -135,7 +135,7 @@
       <div class="qa-wrap">
         <div class="qa-row">
           <input class="qa-inp has-mic" id="dQaInp" placeholder='Aggiunta rapida → es. "test CCOB giovedì mattina, alta priorità"' onkeydown="if(event.key==='Enter') doQA('d')">
-          <button class="qa-mic" id="dQaMic" onclick="startVoice('d')" title="Dettatura vocale" style="display:none">🎤</button>
+          <button class="qa-mic" id="dQaMic" onclick="startVoice('d')" title="Dettatura vocale">🎤</button>
           <button class="qa-send" onclick="doQA('d')" title="Aggiungi con AI">✦</button>
         </div>
         <div class="qa-hint">Scrivi in italiano normale → Claude capisce e struttura automaticamente</div>
@@ -150,7 +150,7 @@
     <div class="view" id="dv-briefing">
       <div class="briefing-page-lbl">✦ Coach AI · Briefing giornaliero</div>
 
-      <button class="ai-strip" id="dAiBtn" onclick="doBriefing()">
+      <button class="ai-strip" id="dAiBtn" onclick="doBriefing(true)">
         <span class="ai-star">✦</span>
         <div class="spin" id="dAiSpin"></div>
         <div>
@@ -259,7 +259,7 @@
       <div class="qa-wrap">
         <div class="qa-row">
           <input class="qa-inp has-mic" id="mQaInp" placeholder='es. "riunione lavoro lunedì 9:00"' onkeydown="if(event.key==='Enter') doQA('m')">
-          <button class="qa-mic" id="mQaMic" onclick="startVoice('m')" title="Voce" style="display:none">🎤</button>
+          <button class="qa-mic" id="mQaMic" onclick="startVoice('m')" title="Voce">🎤</button>
           <button class="qa-send" onclick="doQA('m')" title="✦">✦</button>
         </div>
         <div class="qa-preview" id="mQaPreview"></div>
@@ -270,7 +270,7 @@
 
     <div class="view" id="mv-briefing">
       <div class="briefing-page-lbl">✦ Coach AI · Briefing</div>
-      <button class="ai-strip" id="mAiBtn" onclick="doBriefing()">
+      <button class="ai-strip" id="mAiBtn" onclick="doBriefing(true)">
         <span class="ai-star">✦</span>
         <div class="spin" id="mAiSpin"></div>
         <div><div class="lbl" id="mAiBtnLbl">Inizia la giornata con il tuo coach</div></div>
