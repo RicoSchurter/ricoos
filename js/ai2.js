@@ -86,7 +86,8 @@ Analizza la mia situazione. Dimmi cosa conta davvero oggi e come mi organizzo. S
     const r = await apiCall([{role:'user', content: userPrompt}], 700, systemPrompt);
 
     // Il briefing diventa il primo messaggio della conversazione
-    chatHistory.push({role:'user',    content: userPrompt});
+    // hidden:true perche e il template interno, non va mostrato al refresh
+    chatHistory.push({role:'user',    content: userPrompt, hidden: true});
     chatHistory.push({role:'assistant', content: r});
     addChatMessage('all', 'ai', r);
 
@@ -772,9 +773,14 @@ Rispondi SOLO con il JSON array finale corretto e completo.
 Se la prima estrazione era già corretta → rispondila identica.
 Nessun testo extra, nessun markdown: solo il JSON array.`;
 
-  const mc1 = isImg
-    ? [{type:'image', source:{type:'base64', media_type:upMime, data:upB64}},
-       {type:'text', text: extractPrompt}]
+  const isPdf = upMime === 'application/pdf';
+  const mc1 = (isImg || isPdf)
+    ? [
+        isPdf
+          ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:upB64}}
+          : {type:'image', source:{type:'base64', media_type:upMime, data:upB64}},
+        {type:'text', text: extractPrompt}
+      ]
     : [{type:'text', text:'Documento non leggibile. Restituisci: []'}];
 
   function parseExtracted(raw) {

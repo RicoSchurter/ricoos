@@ -129,7 +129,7 @@ const SB_KEY = 'sb_publishable_1Wtc1fnI4Q-b2-y6HGJ-cg_fW4DD0EM';
 /* ═══ HELPER GLOBALI ═══ */
 
 
-function isMob() { return window.innerWidth < 900; }
+function isMob() { return window.innerWidth < 768; }
 
 /* ═══ HELPER GLOBALI ═══ */
 function $(id) { return document.getElementById(id); }

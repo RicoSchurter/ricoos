@@ -5,12 +5,43 @@ let _voiceActive      = false;
 function initVoice() {
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRec) return;
-  ['d','m'].forEach(p => { const mic=$(p+'QaMic'); if(mic) mic.classList.add('show'); });
+  ['d','m'].forEach(p => {
+    const mic = $(p+'QaMic'); if(mic) mic.classList.add('show');
+    const chatMic = $(p+'ChatMic'); if(chatMic) chatMic.classList.add('show');
+  });
   _voiceRecognition = new SpeechRec();
   _voiceRecognition.lang = 'it-IT';
   _voiceRecognition.continuous = false;
   _voiceRecognition.interimResults = false;
   _voiceRecognition.maxAlternatives = 1;
+}
+
+function startVoiceChat(pfx) {
+  if (!_voiceRecognition) { toast('Voce non supportata in questo browser','warn'); return; }
+  if (_voiceActive) { _voiceRecognition.stop(); return; }
+  const inp = $(pfx + 'ChatInp');
+  const mic = $(pfx + 'ChatMic');
+  _voiceActive = true;
+  if (mic) mic.classList.add('listening');
+  _voiceRecognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    if (inp) inp.value = transcript;
+    // NO auto-submit: user rilegge e invia manualmente
+  };
+  _voiceRecognition.onerror = (e) => {
+    toast('Errore microfono — ' + (e.error === 'not-allowed' ? 'abilita il microfono' : e.error), 'warn');
+  };
+  _voiceRecognition.onend = () => {
+    _voiceActive = false;
+    ['d','m'].forEach(p => {
+      const m = $(p+'ChatMic'); if(m) m.classList.remove('listening');
+    });
+  };
+  try { _voiceRecognition.start(); }
+  catch(e) {
+    _voiceActive = false;
+    if (mic) mic.classList.remove('listening');
+  }
 }
 
 function startVoice(pfx) {
@@ -82,26 +113,28 @@ function renderAgenda() {
     const day = d.getDay(); const df = day === 0 ? -6 : 1 - day;
     d.setDate(d.getDate() + df + weekOff*7); return d;
   })();
-  const we = new Date(ws); we.setDate(ws.getDate()+6);
+  // End of 2 weeks (14 giorni)
+  const we2 = new Date(ws); we2.setDate(ws.getDate()+13);
   const wlbl = ws.toLocaleDateString('it-IT',{day:'numeric',month:'short'})
-    + ' — ' + we.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});
+    + ' — ' + we2.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});
   $('dWkLbl').textContent = wlbl;
   $('mWkLbl').textContent = wlbl;
 
   const t = toISO();
-  const expanded = expand(); // compute ONCE, reuse for all 7 days + list
+  const expanded = expand(); // compute ONCE, reuse for all 14 days + list
   const days = ['Lu','Ma','Me','Gi','Ve','Sa','Do'];
   let dh = '';
-  for (let i = 0; i < 7; i++) {
+  // Render 14 giorni (2 settimane)
+  for (let i = 0; i < 14; i++) {
     const d = new Date(ws); d.setDate(ws.getDate()+i);
-    const iso = dateToISO(d); // use local date
-    const its = expanded.filter(x => x.data === iso);
-    const _dayIt = expanded.filter(i => i.data === iso && !i.done && (currentProfile !== 'anissa' || i.area !== 'startup'));
-    const _hasUrg = _dayIt.some(i => i.prio === 'alta' || ['test','scadenza'].includes(i.tipo));
+    const iso = dateToISO(d);
+    const _dayIt = expanded.filter(x => x.data === iso && !x.done && isProfileArea(x.area));
+    const _hasUrg = _dayIt.some(x => x.prio === 'alta' || ['test','scadenza'].includes(x.tipo));
     const dayDots = _dayIt.slice(0,3).map(it =>
       `<div class="item-dot ${(it.prio==='alta'||['test','scadenza'].includes(it.tipo))?'urgent':''}" style="background:${gc(it.area)}"></div>`
     ).join('');
-    dh += `<div class="day-col ${iso===t?'today':''} ${iso===agDay?'selected':''} ${_dayIt.length?'has-items':''} ${_hasUrg?'has-urgent':''}" onclick="selDay('${iso}')"><div class="d-name">${days[i]}</div><div class="d-num">${d.getDate()}</div><div class="d-dots">${dayDots}</div></div>`;
+    const week2cls = i >= 7 ? 'week2' : '';
+    dh += `<div class="day-col ${week2cls} ${iso===t?'today':''} ${iso===agDay?'selected':''} ${_dayIt.length?'has-items':''} ${_hasUrg?'has-urgent':''}" onclick="selDay('${iso}')"><div class="d-name">${days[i%7]}</div><div class="d-num">${d.getDate()}</div><div class="d-dots">${dayDots}</div></div>`;
   }
   $('dWkGrid').innerHTML = dh;
   $('mWkGrid').innerHTML = dh;

@@ -62,6 +62,7 @@ function loadChatLocal() {
     briefingDate = data.briefingDate || null;
     // Restore messages to UI
     chatHistory.forEach(m => {
+      if (m.hidden) return; // skip internal system prompts (briefing template)
       if (m.role === 'assistant') addChatMessage('all', 'ai', m.content);
       else if (m.role === 'user') addChatMessage('all', 'user', esc(m.content));
     });

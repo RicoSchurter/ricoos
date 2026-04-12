@@ -459,8 +459,32 @@ button.jas-tab {
 
 /* ═══ JASPER NUOVO LAYOUT (Anissa-first) ═══ */
 .jas-section-lbl{
-  font-size:10px;letter-spacing:2px;color:#6a5030;
-  text-transform:uppercase;margin-bottom:10px;
+  font-size:14px;font-weight:700;letter-spacing:1px;color:#d4a843;
+  text-transform:uppercase;margin-bottom:14px;
+  position:relative;padding-bottom:8px;
+}
+.jas-section-lbl::after{
+  content:'';position:absolute;bottom:0;left:0;
+  width:32px;height:2px;background:#d4a843;border-radius:1px;
+}
+
+/* Unifica tutti gli input Jasper per stile coerente */
+.jas-weight-inp,.jas-meal-time-inp,.jas-cibo-inp,.jas-ms-inp,.jas-note-inp{
+  background:#160f04;border:1px solid #4a3a30;
+  border-radius:10px;color:#d8d0bc;padding:12px 14px;
+  font-size:15px;font-family:inherit;outline:none;
+  -webkit-appearance:none;transition:border-color .2s;
+}
+.jas-weight-inp:focus,.jas-meal-time-inp:focus,.jas-cibo-inp:focus,
+.jas-ms-inp:focus,.jas-note-inp:focus{border-color:#d4a843;}
+/* Date input: force stesso stile come text */
+.jas-weight-inp[type="date"],.jas-ms-inp[type="date"]{
+  color:#d8d0bc;
+}
+/* Time input specifico (Oggi tab) mantiene dimensioni speciali */
+.jas-meal-time-inp{
+  flex:1;text-align:center;font-size:18px;color:#f0c860;
+  min-height:44px;border-color:#6a5030;
 }
 
 .jas-last-meal-card{
@@ -484,14 +508,6 @@ button.jas-tab {
 .jas-add-meal-row{
   display:flex;gap:10px;align-items:center;
 }
-.jas-meal-time-inp{
-  flex:1;background:#160f04;border:1px solid #6a5030;
-  border-radius:12px;color:#f0c860;padding:12px 14px;
-  font-size:18px;font-family:inherit;outline:none;
-  -webkit-appearance:none;text-align:center;
-  min-height:44px;
-}
-.jas-meal-time-inp:focus{border-color:#d4a843;}
 .jas-meal-save-btn{
   background:#d4a843;border:none;border-radius:12px;
   color:#111;padding:12px 20px;font-size:14px;font-weight:600;
@@ -561,6 +577,61 @@ button.jas-tab {
 .jas-popup-empty{
   font-size:13px;color:#4a3820;font-style:italic;padding:8px 0;
 }
+
+/* Popup item rows (meals/notes/milestones/weights con edit/delete) */
+.jas-popup-item-row{
+  display:flex;gap:8px;align-items:center;margin-bottom:8px;
+}
+.jas-popup-item-row > div:first-child{flex:1;min-width:0;}
+.jas-popup-item-btn{
+  background:none;border:none;cursor:pointer;
+  padding:10px 10px;font-size:16px;line-height:1;
+  color:#8a7040;transition:all .15s;border-radius:6px;
+  font-family:inherit;flex-shrink:0;
+}
+.jas-popup-item-btn:hover{background:rgba(212,168,67,.15);color:#f0c860;}
+.jas-popup-item-btn.del:hover{background:rgba(224,96,96,.2);color:#ff8080;}
+
+.jas-popup-milestone,.jas-popup-weight{
+  padding:10px 14px;background:#160f04;border:1px solid #3a2a10;
+  border-radius:10px;color:#c8b888;font-size:13px;line-height:1.5;
+  word-break:break-word;
+}
+.jas-popup-weight{color:#f0c860;font-weight:500;}
+
+/* Popup edit form inline */
+.jas-popup-edit-form{
+  margin-top:16px;padding:16px;
+  background:rgba(212,168,67,.08);
+  border:1px solid #6a5030;border-radius:14px;
+  animation:fadeIn .2s ease;
+}
+.jas-popup-edit-lbl{
+  font-size:11px;letter-spacing:1.5px;color:#d4a843;
+  text-transform:uppercase;margin-bottom:10px;font-weight:600;
+}
+.jas-popup-edit-inp{
+  width:100%;background:#160f04;border:1px solid #4a3a30;
+  border-radius:10px;color:#d8d0bc;padding:12px 14px;
+  font-size:15px;font-family:inherit;outline:none;
+  -webkit-appearance:none;resize:vertical;
+}
+.jas-popup-edit-inp:focus{border-color:#d4a843;}
+.jas-popup-edit-btns{
+  display:flex;gap:8px;margin-top:12px;
+}
+.jas-popup-edit-save{
+  flex:1;padding:11px;background:#d4a843;border:none;
+  border-radius:10px;color:#111;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:background .15s;
+}
+.jas-popup-edit-save:hover{background:#f0c860;}
+.jas-popup-edit-cancel{
+  flex:1;padding:11px;background:var(--bg4);border:1px solid var(--bdr);
+  border-radius:10px;color:var(--txt3);font-size:14px;
+  cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.jas-popup-edit-cancel:hover{color:var(--txt);}
 
 /* ═══ JASPER CIBO TAB ═══ */
 .jas-cibo-page{padding-bottom:40px;}
@@ -905,17 +976,45 @@ button.jas-tab {
 }
 .qa-send:hover{background:var(--gold2);}
 .qa-mic{
-  position:absolute;right:52px;top:50%;transform:translateY(-50%);
-  background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;
-  width:34px;height:34px;padding:0;cursor:pointer;font-size:14px;
+  position:absolute;right:56px;top:50%;transform:translateY(-50%);
+  background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;
+  width:40px;height:40px;padding:0;cursor:pointer;font-size:18px;
   display:none;align-items:center;justify-content:center;
   transition:all .2s;color:var(--txt2);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.4);
 }
 .qa-mic.show{display:flex;}
-.qa-mic:hover{border-color:var(--gold3);color:var(--gold2);}
+.qa-mic:hover{border-color:var(--gold3);color:var(--gold2);background:var(--bg4);}
 .qa-mic.listening{
   background:#3a1010;border-color:#e06060;color:#ff8080;
   animation:micPulse 1s ease-in-out infinite;
+}
+
+/* Chat mic button (Coach) */
+.chat-inp-row{position:relative;}
+.chat-inp.has-chat-mic{padding-right:96px;}
+.chat-mic{
+  position:absolute;right:48px;top:50%;transform:translateY(-50%);
+  background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;
+  width:38px;height:38px;padding:0;cursor:pointer;font-size:16px;
+  display:none;align-items:center;justify-content:center;
+  transition:all .2s;color:var(--txt2);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.4);
+  flex-shrink:0;
+}
+.chat-mic.show{display:flex;}
+.chat-mic:hover{border-color:var(--gold3);color:var(--gold2);background:var(--bg4);}
+.chat-mic.listening{
+  background:#3a1010;border-color:#e06060;color:#ff8080;
+  animation:micPulse 1s ease-in-out infinite;
+}
+
+/* Upload intro text */
+.upload-intro{
+  font-size:14px;color:var(--txt3);line-height:1.6;
+  margin-bottom:14px;padding:12px 14px;
+  background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;
+  border-left:3px solid var(--gold3);
 }
 @keyframes micPulse{
   0%,100%{box-shadow:0 0 0 0 rgba(224,96,96,.6);}
@@ -984,7 +1083,9 @@ button.jas-tab {
 .week-lbl{font-size:16px;color:var(--gold2);}
 .w-arr{background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;color:var(--txt2);font-size:15px;cursor:pointer;padding:7px 16px;transition:all .15s;}
 .w-arr:hover{background:var(--bg3);color:var(--gold);}
-.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;row-gap:8px;}
+.day-col.week2{opacity:.88;position:relative;}
+.day-col.week2:nth-child(8){margin-top:6px;}
 .day-col{text-align:center;padding:10px 4px 8px;cursor:pointer;border-radius:12px;border:1px solid transparent;transition:all .18s;min-width:0;}
 .day-col:hover{background:var(--bg2);}
 .day-col.today{background:var(--bg2);border-color:var(--gold3);}
@@ -1344,8 +1445,10 @@ select option{background:#181610;}
   .setup-banner br,.setup-banner .setup-hint{display:none;}
   /* Mobile: QA input padding */
   .qa-inp{padding-right:42px;}
-  .qa-inp.has-mic{padding-right:82px;}
-  .qa-mic{right:44px;width:32px;height:32px;}
+  .qa-inp.has-mic{padding-right:96px;}
+  .qa-mic{right:48px;width:38px;height:38px;font-size:16px;}
+  .chat-inp.has-chat-mic{padding-right:92px;}
+  .chat-mic{right:44px;width:36px;height:36px;font-size:15px;}
   .qa-hint{display:none;}
   /* Mobile: collapse extra area pills */
   .area-extra{display:none;}

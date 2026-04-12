@@ -96,26 +96,26 @@ function checkSmartNotifs() {
   const day    = now.getDay(); // 0=Dom, 1=Lun...
   const allExp = expand();
 
-  // Today's items
-  const todayAll  = allExp.filter(i => i.data === t && (currentProfile !== 'anissa' || i.area !== 'startup'));
+  // Today's items — con filtro profilo-aware (shared famiglia)
+  const todayAll  = allExp.filter(i => i.data === t && isProfileArea(i.area));
   const todayOpen = todayAll.filter(i => !i.done);
   const todayDone = todayAll.filter(i => i.done);
 
   // Overdue: past-due items that are NOT done and NOT recurring
-  // Recurring items always have a past base date — exclude them from overdue
-  const overdue = items.filter(i => i.data < t && !i.done && !i.recur && (currentProfile !== 'anissa' || i.area !== 'startup'));
+  const overdue = items.filter(i => i.data < t && !i.done && !i.recur && isProfileArea(i.area));
 
   // Urgent: test/scadenza/compito in the next 3 days
   const in3Days = new Date(now); in3Days.setDate(now.getDate() + 3);
-  const in3Str  = dateToISO(in3Days); // use local date
+  const in3Str  = dateToISO(in3Days);
   const upcoming = allExp.filter(i =>
     !i.done && i.data > t && i.data <= in3Str &&
-    ['test','compito','scadenza'].includes(i.tipo)
+    ['test','compito','scadenza'].includes(i.tipo) &&
+    isProfileArea(i.area)
   );
 
   // Events with time in the next 2 hours
   const in2h = allExp.filter(i => {
-    if (i.data !== t || !i.ora || i.done) return false;
+    if (i.data !== t || !i.ora || i.done || !isProfileArea(i.area)) return false;
     const [eh, em] = i.ora.split(':').map(Number);
     const evMin  = eh * 60 + em;
     const nowMin = h * 60 + now.getMinutes();
@@ -145,7 +145,7 @@ function checkSmartNotifs() {
     banners.push(makeBanner({
       id: `nb-upcoming-${idx}`, type:'warn', ico:'🕐',
       title: `Tra ${mins} minuti: ${it.titolo}`,
-      msg: `${AREAS[it.area]?.l} · ${it.ora} · ${it.tipo}`
+      msg: `${AREAS[it.area]?.l || 'Senza area'} · ${it.ora} · ${it.tipo}`
     }));
   });
 
@@ -157,7 +157,7 @@ function checkSmartNotifs() {
       banners.push(makeBanner({
         id: `nb-test-${idx}`, type:'urgent', ico:'📝',
         title: `${it.titolo} tra ${daysLeft} giorn${daysLeft===1?'o':'i'}`,
-        msg: `${AREAS[it.area]?.l}${it.cpcTag ? ' · '+it.cpcTag : ''} · ${it.data}`
+        msg: `${AREAS[it.area]?.l || 'Senza area'}${it.cpcTag ? ' · '+it.cpcTag : ''} · ${it.data}`
       }));
     });
   }

@@ -163,7 +163,8 @@
       <div class="chat-section" id="dChatSection">
         <div class="chat-msgs" id="dChatMsgs"></div>
         <div class="chat-inp-row">
-          <input class="chat-inp" id="dChatInp" placeholder="Chatta con il tuo coach..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doChat('d')}">
+          <input class="chat-inp has-chat-mic" id="dChatInp" placeholder="Chatta con il tuo coach..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doChat('d')}">
+          <button class="chat-mic" id="dChatMic" onclick="startVoiceChat('d')" title="Dettatura vocale" type="button">🎤</button>
           <button class="chat-send" onclick="doChat('d')">✦</button>
         </div>
         <div id="dChatConfirm" style="display:none" class="chat-action-preview"></div>
@@ -191,10 +192,11 @@
     <!-- UPLOAD -->
     <div class="view" id="dv-upload">
       <div class="sec-lbl">Scansiona documento</div>
+      <div class="upload-intro">Carica o fotografa una lista di appuntamenti: l'AI li estrae automaticamente e li aggiunge al calendario per te.</div>
       <label class="upload-zone" for="dFileInp">
         <div class="upload-ico">📄</div>
         <div class="upload-lbl">Trascina o tocca per caricare<br>foto, screenshot o PDF</div>
-        <div class="upload-sub">L'AI estrae automaticamente appuntamenti, test e scadenze · JPG · PNG · PDF</div>
+        <div class="upload-sub">Eventi, test, scadenze e riunioni · JPG · PNG · PDF</div>
       </label>
       <input type="file" id="dFileInp" accept="image/*,application/pdf" style="display:none" onchange="handleUpload(event)">
       <div class="upload-prev" id="dPrev"></div>
@@ -279,7 +281,8 @@
       <div class="chat-section" id="mChatSection">
         <div class="chat-msgs" id="mChatMsgs"></div>
         <div class="chat-inp-row">
-          <input class="chat-inp" id="mChatInp" placeholder="Chatta con il tuo coach..." onkeydown="if(event.key==='Enter'){event.preventDefault();doChat('m')}">
+          <input class="chat-inp has-chat-mic" id="mChatInp" placeholder="Chatta con il tuo coach..." onkeydown="if(event.key==='Enter'){event.preventDefault();doChat('m')}">
+          <button class="chat-mic" id="mChatMic" onclick="startVoiceChat('m')" title="Dettatura vocale" type="button">🎤</button>
           <button class="chat-send" onclick="doChat('m')">✦</button>
         </div>
         <div id="mChatConfirm" style="display:none" class="chat-action-preview"></div>
@@ -305,9 +308,10 @@
 
     <div class="view" id="mv-upload">
       <div class="sec-lbl">Scansiona documento</div>
+      <div class="upload-intro">Fotografa o carica una lista di appuntamenti: l'AI li estrae e li aggiunge al calendario.</div>
       <label class="upload-zone" for="mFileInp">
         <div class="upload-ico">📄</div>
-        <div class="upload-lbl">Tocca per caricare<br>foto o screenshot</div>
+        <div class="upload-lbl">Tocca per caricare<br>foto, screenshot o PDF</div>
         <div class="upload-sub">JPG · PNG · PDF</div>
       </label>
       <input type="file" id="mFileInp" accept="image/*,application/pdf" style="display:none" onchange="handleUpload(event)">
