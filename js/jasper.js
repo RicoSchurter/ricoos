@@ -203,26 +203,36 @@ async function renderJasper(){
     </div>
   </div>`;
 
-  ['d','m'].forEach(p=>{
-    const v=document.getElementById(p==='d'?'dv-jasper':'mv-jasper');
-    if(v) v.innerHTML=html;
-  });
+  // Render only to the active container (mobile OR desktop) — evita ID duplicati
+  const active = jasperActive();
+  const inactive = jasperInactive();
+  if (active) active.innerHTML = html;
+  if (inactive) inactive.innerHTML = ''; // svuota l'altro per evitare duplicati DOM
   // Restore scroll position after re-render
   requestAnimationFrame(() => { window.scrollTo(0, _scrollY); });
   // Ripristina tab attivo
   if(jasperTab!=='oggi') setTimeout(()=>jasperSetTab(jasperTab),0);
   } catch(err) {
     console.error('renderJasper error:', err);
-    ['d','m'].forEach(p=>{
-      const v=document.getElementById(p==='d'?'dv-jasper':'mv-jasper');
-      if(v) v.innerHTML='<div style="padding:20px;color:#e06060;font-size:13px">Errore caricamento: '+err.message+'</div>';
-    });
+    const active = jasperActive();
+    if(active) active.innerHTML='<div style="padding:20px;color:#e06060;font-size:13px">Errore caricamento: '+err.message+'</div>';
   }
+}
+
+/* ── Helpers per evitare ID duplicati su dual-pane ── */
+function jasperActive() {
+  return document.getElementById(isMob() ? 'mv-jasper' : 'dv-jasper');
+}
+function jasperInactive() {
+  return document.getElementById(isMob() ? 'dv-jasper' : 'mv-jasper');
+}
+function jasperPane(name) {
+  return jasperActive()?.querySelector(`[data-pane="${name}"]`);
 }
 
 /* ── Storico calendario + Timeline milestone + Chart 7gg + Umore Anissa ── */
 async function renderJasperStorico(){
-  const panes=document.querySelectorAll('[data-pane="storico"]');
+  const pane=jasperPane('storico');
   const now=new Date();
   if(!jasperCalMonth) jasperCalMonth={year:now.getFullYear(),month:now.getMonth()};
   const{year,month}=jasperCalMonth;
@@ -294,7 +304,7 @@ async function renderJasperStorico(){
   </div>`;
 
   const html=calHtml+weekChartHtml;
-  panes.forEach(p=>p.innerHTML=html);
+  if(pane) pane.innerHTML=html;
 }
 
 function jasperCalNav(dir){
@@ -307,7 +317,7 @@ function jasperCalNav(dir){
 
 /* ── Crescita: peso + milestone custom ── */
 async function renderJasperCrescita(){
-  const panes=document.querySelectorAll('[data-pane="crescita"]');
+  const pane=jasperPane('crescita');
   const weights=(stData['jasper_weights']||{list:[]}).list;
   const sorted=[...weights].sort((a,b)=>a.date.localeCompare(b.date));
   const maxW=sorted.length?Math.max(...sorted.map(w=>w.kg)):6;
@@ -362,7 +372,7 @@ async function renderJasperCrescita(){
       <button onclick="jasperAddMilestone()" class="jas-ms-save-btn">💾 Salva milestone</button>
     </div>
   </div>`;
-  panes.forEach(p=>p.innerHTML=html);
+  if(pane) pane.innerHTML=html;
 }
 
 /* ════════════════════════════════════════
@@ -387,7 +397,7 @@ async function saveJasperFoods(foods){
 }
 
 async function renderJasperCibo(){
-  const panes=document.querySelectorAll('[data-pane="cibo"]');
+  const pane=jasperPane('cibo');
   const foods=jasperFoodsAll();
   const list=foods.list||[];
 
@@ -487,7 +497,7 @@ async function renderJasperCibo(){
     <div class="jas-cibo-list">${cardsHtml}</div>
   </div>`;
 
-  panes.forEach(p=>p.innerHTML=html);
+  if(pane) pane.innerHTML=html;
 }
 
 let _selectedFoodFace=3;
