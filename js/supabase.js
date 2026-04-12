@@ -54,11 +54,16 @@ async function loadAll() {
     if (!stData[k]) stData[k] = {stage:'Building', next:'', block:'', updated:''};
   });
 
-  // Auto-delete: item done + data > 30gg fa + non ricorrente
-  const thirtyAgo = dateToISO(new Date(Date.now() - 30 * 86400000));
-  const toDelete  = items.filter(i => i.done && i.data < thirtyAgo && !i.recur);
+  // Auto-delete: item done + data > 60gg fa + non ricorrente + non test/scadenza/compito
+  // 60 giorni invece di 30: piu margine per non perdere storico recente sul free plan
+  const sixtyAgo = dateToISO(new Date(Date.now() - 60 * 86400000));
+  const PROTECTED_TYPES = ['test','scadenza','compito'];
+  const toDelete  = items.filter(i =>
+    i.done && i.data < sixtyAgo && !i.recur && !PROTECTED_TYPES.includes(i.tipo)
+  );
   if (toDelete.length > 0) {
-    items = items.filter(i => !(i.done && i.data < thirtyAgo && !i.recur));
+    const toDeleteIds = new Set(toDelete.map(it => it.id));
+    items = items.filter(i => !toDeleteIds.has(i.id));
     localStorage.setItem('rico_items', JSON.stringify(items));
     Promise.allSettled(
       toDelete.map(it => sbFetch('items?id=eq.' + it.id, {method:'DELETE'}))
