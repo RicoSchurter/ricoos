@@ -52,6 +52,16 @@ function saveChatLocal() {
   } catch(e) { console.warn('saveChatLocal:', e); }
 }
 
+// Detect old briefing template messages (from before hidden:true flag was added)
+function isLegacyBriefingPrompt(content) {
+  if (!content || typeof content !== 'string') return false;
+  // Match the user prompt template patterns from doBriefing
+  return /^(Sono Anissa\.|Sono Rico\.)/.test(content)
+      || content.includes('Cosa mi dici per iniziare')
+      || content.includes('Cosa mi dici per oggi')
+      || content.includes('<strong>') && content.includes('Parla a me');
+}
+
 function loadChatLocal() {
   try {
     const raw = localStorage.getItem(chatKey());
@@ -60,6 +70,18 @@ function loadChatLocal() {
     if (!data.history || !data.history.length) return false;
     chatHistory = data.history;
     briefingDate = data.briefingDate || null;
+    // Migrazione: marca come hidden i vecchi user prompt template (pre-Round 8)
+    let migrated = false;
+    chatHistory.forEach(m => {
+      if (m.role === 'user' && !m.hidden && isLegacyBriefingPrompt(m.content)) {
+        m.hidden = true;
+        migrated = true;
+      }
+    });
+    if (migrated) {
+      try { localStorage.setItem(chatKey(), JSON.stringify({history:chatHistory, briefingDate})); }
+      catch(e) { /* ignora */ }
+    }
     // Restore messages to UI
     chatHistory.forEach(m => {
       if (m.hidden) return; // skip internal system prompts (briefing template)

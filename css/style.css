@@ -146,7 +146,7 @@ button,a,input,select,textarea,label,[role="button"]{touch-action:manipulation;}
 .sb-stat-lbl{font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:10px;}
 .stat-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
 .stat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.stat-name{font-size:12px;color:var(--txt3);flex:1;white-space:nowrap;overflow:hidden;}
+.stat-name{font-size:11px;color:var(--txt3);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
 .stat-bar{flex:1;height:3px;background:var(--bdr);border-radius:2px;overflow:hidden;}
 .stat-fill{height:100%;border-radius:2px;transition:width .5s;}
 .stat-num{font-size:12px;color:var(--dim);width:18px;text-align:right;}
@@ -1078,27 +1078,41 @@ button.jas-tab {
 .submit-btn.editing:hover{background:#3a8030;}
 .urgent-dot{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--red);}
 
-/* ═══ AGENDA ═══ */
+/* ═══ AGENDA — calendario mese intero ═══ */
 .week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.week-lbl{font-size:16px;color:var(--gold2);}
+.week-lbl{font-size:16px;color:var(--gold2);text-transform:capitalize;font-weight:600;}
 .w-arr{background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;color:var(--txt2);font-size:15px;cursor:pointer;padding:7px 16px;transition:all .15s;}
 .w-arr:hover{background:var(--bg3);color:var(--gold);}
-.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;row-gap:8px;}
-.day-col.week2{opacity:.88;position:relative;}
-.day-col.week2:nth-child(8){margin-top:6px;}
-.day-col{text-align:center;padding:10px 4px 8px;cursor:pointer;border-radius:12px;border:1px solid transparent;transition:all .18s;min-width:0;}
-.day-col:hover{background:var(--bg2);}
-.day-col.today{background:var(--bg2);border-color:var(--gold3);}
-.day-col.selected{background:var(--bg3);border-color:var(--bdr2);}
-.day-col.today.selected{border-color:var(--gold);}
-.d-name{font-size:11px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
-.day-col.today .d-num{color:var(--gold2);}
-.day-col .d-dots{min-height:6px;display:flex;gap:2px;justify-content:center;align-items:center;margin-top:3px;}
-.day-col .item-dot{width:5px;height:5px;border-radius:50%;background:var(--gold3);flex-shrink:0;}
-.day-col .item-dot.urgent{background:var(--red);}
-.d-num{font-size:17px;font-weight:500;line-height:1.2;}
-.d-dots{display:flex;gap:2px;justify-content:center;margin-top:4px;min-height:7px;}
-.d-dot{width:5px;height:5px;border-radius:50%;}
+
+.week-grid{margin-bottom:20px;}
+
+.month-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
+  background:var(--bg2);padding:8px;border-radius:14px;border:1px solid var(--bdr);
+}
+.month-dow{
+  text-align:center;font-size:10px;letter-spacing:1px;
+  color:var(--dim);text-transform:uppercase;padding:6px 0;font-weight:600;
+}
+.month-day{
+  aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:10px;
+  cursor:pointer;transition:all .15s;padding:0;font-family:inherit;
+  -webkit-appearance:none;color:var(--txt2);min-height:42px;
+}
+.month-day:hover{background:var(--bg3);}
+.month-day.empty{cursor:default;opacity:0;}
+.month-day.empty:hover{background:transparent;}
+.month-day.today{border-color:var(--gold3);background:var(--bg3);}
+.month-day.selected{background:var(--gold3);color:#111;border-color:var(--gold);}
+.month-day.today.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold);}
+.month-day.has-items{font-weight:600;}
+.month-num{font-size:14px;line-height:1;}
+.month-day.today .month-num{color:var(--gold2);font-weight:700;}
+.month-day.selected .month-num{color:#111;}
+.month-dots{display:flex;gap:2px;justify-content:center;align-items:center;margin-top:3px;min-height:5px;}
+.month-dot{width:4px;height:4px;border-radius:50%;display:inline-block;}
+.month-dot.urgent{background:var(--red)!important;}
 
 /* ═══ STARTUP HUB ═══ */
 .startup-grid{display:grid;gap:16px;}
@@ -1439,8 +1453,10 @@ select option{background:#181610;}
   .settings-box{margin:auto 0 0;}
   /* Mobile: cleaner cards */
   .riprog-btn{display:none;}
-  .week-grid{gap:6px;}
-  .day-col{padding:8px 2px 6px;}
+  .month-grid{padding:6px;gap:3px;}
+  .month-day{min-height:38px;border-radius:8px;}
+  .month-num{font-size:13px;}
+  .month-dot{width:3px;height:3px;}
   /* Mobile: compact setup banner */
   .setup-banner br,.setup-banner .setup-hint{display:none;}
   /* Mobile: QA input padding */

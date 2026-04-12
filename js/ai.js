@@ -1,4 +1,4 @@
-/* ═══ VOCE — Web Speech API ═══ */
+/* ═══ VOCE — Web Speech API (singleton condiviso qa+chat) ═══ */
 let _voiceRecognition = null;
 let _voiceActive      = false;
 
@@ -16,12 +16,21 @@ function initVoice() {
   _voiceRecognition.maxAlternatives = 1;
 }
 
+// Clear listening state da TUTTI i mic (qa + chat, desktop + mobile)
+function _clearAllMicListening() {
+  ['d','m'].forEach(p => {
+    const qaMic = $(p+'QaMic'); if(qaMic) qaMic.classList.remove('listening');
+    const chatMic = $(p+'ChatMic'); if(chatMic) chatMic.classList.remove('listening');
+  });
+}
+
 function startVoiceChat(pfx) {
   if (!_voiceRecognition) { toast('Voce non supportata in questo browser','warn'); return; }
   if (_voiceActive) { _voiceRecognition.stop(); return; }
   const inp = $(pfx + 'ChatInp');
   const mic = $(pfx + 'ChatMic');
   _voiceActive = true;
+  _clearAllMicListening(); // sicurezza: pulisci stato qa-mic se attivo
   if (mic) mic.classList.add('listening');
   _voiceRecognition.onresult = (e) => {
     const transcript = e.results[0][0].transcript;
@@ -33,14 +42,12 @@ function startVoiceChat(pfx) {
   };
   _voiceRecognition.onend = () => {
     _voiceActive = false;
-    ['d','m'].forEach(p => {
-      const m = $(p+'ChatMic'); if(m) m.classList.remove('listening');
-    });
+    _clearAllMicListening();
   };
   try { _voiceRecognition.start(); }
   catch(e) {
     _voiceActive = false;
-    if (mic) mic.classList.remove('listening');
+    _clearAllMicListening();
   }
 }
 
@@ -52,6 +59,7 @@ function startVoice(pfx) {
   const mic = $(pfx + 'QaMic');
 
   _voiceActive = true;
+  _clearAllMicListening(); // pulisci stato chat-mic se attivo
   if (mic) mic.classList.add('listening');
 
   _voiceRecognition.onresult = (e) => {
@@ -65,13 +73,13 @@ function startVoice(pfx) {
 
   _voiceRecognition.onend = () => {
     _voiceActive = false;
-    ['d','m'].forEach(p => { const m=$(p+'QaMic'); if(m) m.classList.remove('listening'); });
+    _clearAllMicListening();
   };
 
   try { _voiceRecognition.start(); }
   catch(e) {
     _voiceActive = false;
-    if (mic) mic.classList.remove('listening');
+    _clearAllMicListening();
   }
 }
 
@@ -108,34 +116,49 @@ function initSwipe() {
 function shiftWeek(n) { weekOff += n; renderAgenda(); }
 
 function renderAgenda() {
-  const ws = (() => {
-    const d = new Date(); d.setHours(0,0,0,0);
-    const day = d.getDay(); const df = day === 0 ? -6 : 1 - day;
-    d.setDate(d.getDate() + df + weekOff*7); return d;
-  })();
-  // End of 2 weeks (14 giorni)
-  const we2 = new Date(ws); we2.setDate(ws.getDate()+13);
-  const wlbl = ws.toLocaleDateString('it-IT',{day:'numeric',month:'short'})
-    + ' — ' + we2.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});
-  $('dWkLbl').textContent = wlbl;
-  $('mWkLbl').textContent = wlbl;
-
+  // weekOff ora rappresenta lo shift in MESI (legacy nome retro-compatibile)
   const t = toISO();
-  const expanded = expand(); // compute ONCE, reuse for all 14 days + list
+  const today = new Date(); today.setHours(0,0,0,0);
+  const refMonth = new Date(today.getFullYear(), today.getMonth() + weekOff, 1);
+  const year = refMonth.getFullYear();
+  const month = refMonth.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  // startDow: lunedi=0, domenica=6
+  const startDow = (firstDay.getDay() + 6) % 7;
+  const totalDays = lastDay.getDate();
+
+  // Label mese
+  const monthLbl = refMonth.toLocaleDateString('it-IT', {month:'long', year:'numeric'});
+  $('dWkLbl').textContent = monthLbl;
+  $('mWkLbl').textContent = monthLbl;
+
+  const expanded = expand();
   const days = ['Lu','Ma','Me','Gi','Ve','Sa','Do'];
-  let dh = '';
-  // Render 14 giorni (2 settimane)
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(ws); d.setDate(ws.getDate()+i);
-    const iso = dateToISO(d);
+
+  // Header giorni della settimana
+  let dh = '<div class="month-grid">';
+  days.forEach(d => dh += `<div class="month-dow">${d}</div>`);
+  // Celle vuote prima del primo del mese
+  for(let i = 0; i < startDow; i++) dh += `<div class="month-day empty"></div>`;
+  // Giorni del mese
+  for(let d = 1; d <= totalDays; d++){
+    const date = new Date(year, month, d);
+    const iso = dateToISO(date);
     const _dayIt = expanded.filter(x => x.data === iso && !x.done && isProfileArea(x.area));
     const _hasUrg = _dayIt.some(x => x.prio === 'alta' || ['test','scadenza'].includes(x.tipo));
     const dayDots = _dayIt.slice(0,3).map(it =>
-      `<div class="item-dot ${(it.prio==='alta'||['test','scadenza'].includes(it.tipo))?'urgent':''}" style="background:${gc(it.area)}"></div>`
+      `<span class="month-dot ${(it.prio==='alta'||['test','scadenza'].includes(it.tipo))?'urgent':''}" style="background:${gc(it.area)}"></span>`
     ).join('');
-    const week2cls = i >= 7 ? 'week2' : '';
-    dh += `<div class="day-col ${week2cls} ${iso===t?'today':''} ${iso===agDay?'selected':''} ${_dayIt.length?'has-items':''} ${_hasUrg?'has-urgent':''}" onclick="selDay('${iso}')"><div class="d-name">${days[i%7]}</div><div class="d-num">${d.getDate()}</div><div class="d-dots">${dayDots}</div></div>`;
+    const cls = [
+      iso===t ? 'today' : '',
+      iso===agDay ? 'selected' : '',
+      _dayIt.length ? 'has-items' : '',
+      _hasUrg ? 'has-urgent' : ''
+    ].filter(Boolean).join(' ');
+    dh += `<button class="month-day ${cls}" onclick="selDay('${iso}')" type="button"><span class="month-num">${d}</span><span class="month-dots">${dayDots}</span></button>`;
   }
+  dh += '</div>';
   $('dWkGrid').innerHTML = dh;
   $('mWkGrid').innerHTML = dh;
 

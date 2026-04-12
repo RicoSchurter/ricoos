@@ -29,14 +29,20 @@ function renderSidebar() {
   }
 
   let html = '';
+  // Mappa nomi corti per la sidebar (evita troncamenti)
+  const SHORT_NAMES = {
+    personale_rico:'Pers. Rico',
+    personale_anissa:'Pers. Anissa'
+  };
   Object.entries(AREAS).forEach(([k, a]) => {
     if (currentProfile === 'anissa' && k === 'startup') return;
     const open = items.filter(i => i.area === k && !i.done).length;
     const tot  = items.filter(i => i.area === k).length;
     const pct  = tot > 0 ? Math.round(open/tot*100) : 0;
+    const displayName = SHORT_NAMES[k] || a.l;
     html += `<div class="stat-row">
       <div class="stat-dot" style="background:${a.c}"></div>
-      <div class="stat-name">${a.l}</div>
+      <div class="stat-name" title="${esc(a.l)}">${esc(displayName)}</div>
       <div class="stat-bar"><div class="stat-fill" style="width:${pct}%;background:${a.c}"></div></div>
       <div class="stat-num">${open}</div>
     </div>`;

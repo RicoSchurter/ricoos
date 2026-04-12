@@ -611,7 +611,6 @@ async function jasperLogWeight(){
       const noteEl = active?.querySelector('#jasWeightNote') || document.getElementById('jasWeightNote');
       const note = (noteEl?.value||'').trim();
       if(isNaN(kg)||kg<0.5||kg>25){
-        console.warn('[jasperLogWeight] validation failed', {raw, kg, inpEl, dupCount: document.querySelectorAll('#jasWeightKg').length});
         toast('Inserisci un peso valido (0.5 - 25 kg)','warn');
         return;
       }
