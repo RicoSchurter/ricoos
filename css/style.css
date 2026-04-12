@@ -1580,6 +1580,13 @@ select option{background:#181610;}
   .qa-mic{width:42px;height:42px;font-size:16px;}
   .chat-inp-row{gap:6px;}
   .chat-mic{width:34px;height:34px;font-size:14px;}
+  /* Mobile: HHMM picker compatto per iPhone 12 mini (375px) */
+  .jas-hhmm-picker{gap:4px;}
+  .jas-hhmm-inp{padding:10px 4px;font-size:16px;}
+  .jas-hhmm-sep{font-size:16px;}
+  .jas-hhmm-now{width:36px;height:40px;font-size:16px;}
+  .jas-add-meal-row{gap:6px;}
+  .jas-meal-save-btn{padding:10px 14px;font-size:13px;min-height:40px;}
   .qa-hint{display:none;}
   /* Mobile: collapse extra area pills */
   .area-extra{display:none;}

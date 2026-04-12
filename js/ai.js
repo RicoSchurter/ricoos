@@ -471,7 +471,8 @@ function clearData() {
 ═══════════════════════════════════════ */
 let briefingLoading = false;
 let briefingDate    = null;
-let briefingResetDate = null; // data dell'ultimo reset notturno
+// Persistito in localStorage per evitare reset spuri ad ogni refresh dopo le 04:00
+let briefingResetDate = localStorage.getItem('rico_briefing_reset') || null;
 
 /* Reset chat alle 4:00 svizzere: notte profonda, garantito chat nuova al mattino */
 function checkNightReset() {
@@ -484,6 +485,7 @@ function checkNightReset() {
     chatHistory    = [];
     briefingDate   = null;
     briefingResetDate = swissDateStr;
+    try { localStorage.setItem('rico_briefing_reset', swissDateStr); } catch(e) { /* quota ignora */ }
     if (typeof scheduledNotifIds !== 'undefined') scheduledNotifIds.clear();
     // Purge chat localStorage dei giorni precedenti
     if (typeof purgeOldChats === 'function') purgeOldChats();

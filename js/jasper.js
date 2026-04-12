@@ -940,8 +940,9 @@ function jasperShowManualSleepForm(){
     </div>
     <div class="jas-sleep-manual-row">
       <label>Fine</label>
-      ${hhmmPickerHTML('jasManualEnd', now, {withNow:true})}
+      ${hhmmPickerHTML('jasManualEnd', '', {withNow:true, allowEmpty:true})}
     </div>
+    <div style="font-size:11px;color:#8a7ca0;margin-bottom:10px;font-style:italic">Lascia vuota la fine se il pisolino e in corso</div>
     <div class="jas-popup-edit-btns">
       <button class="jas-popup-edit-save" onclick="jasperAddSleepManual()" type="button">✓ Salva</button>
       <button class="jas-popup-edit-cancel" onclick="jasperShowManualSleepForm()" type="button">✗ Annulla</button>
@@ -952,25 +953,34 @@ function jasperShowManualSleepForm(){
 
 function jasperAddSleepManual(){
   const start = readHHMMPicker('jasManualStart');
-  const end = readHHMMPicker('jasManualEnd');
-  if(!start || !end){ toast('Inserisci inizio e fine','warn'); return; }
-  if(start === end){ toast('Inizio e fine coincidono','warn'); return; }
+  const end = readHHMMPicker('jasManualEnd'); // null = in corso
+  if(!start){ toast('Inserisci almeno l\'ora di inizio','warn'); return; }
+  if(end && start === end){ toast('Inizio e fine coincidono','warn'); return; }
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
       const today = toISO();
       const entry = jasperDiary[today] || (await loadJasperDiary(today));
       if(!entry.sleeps) entry.sleeps = [];
+      // Se si sta aggiungendo un in-corso, verifica che non ce ne sia gia uno aperto
+      if(!end && entry.sleeps.some(s => s.start && !s.end)){
+        toast('C\'e gia un pisolino in corso','warn');
+        return;
+      }
       // Evita duplicato esatto sullo stesso start
       if(entry.sleeps.some(s => s.start === start)){
         toast('Pisolino gia presente con questo inizio','warn');
         return;
       }
-      entry.sleeps.push({start, end});
+      entry.sleeps.push({start, end: end || null});
       jasperDiary[today] = entry;
       await saveJasperEntry(today, entry);
       renderJasper();
-      const duration = hhmmDiffMin(start, end);
-      toast('💤 Pisolino aggiunto · '+formatMin(duration), 'success');
+      if(end){
+        const duration = hhmmDiffMin(start, end);
+        toast('💤 Pisolino aggiunto · '+formatMin(duration), 'success');
+      } else {
+        toast('💤 Pisolino in corso dalle '+start, 'success');
+      }
     } catch(e) { console.error('jasperAddSleepManual:',e); toast('Errore','warn'); }
   }).catch(() => {});
 }
@@ -1062,10 +1072,15 @@ function openJasperDayPopup(iso){
   if(body) body.innerHTML=content;
   const overlay=document.getElementById('jasperDayPopup');
   if(overlay) overlay.classList.add('open');
-  // Focus sul campo edit se presente
+  // Focus sul campo edit se presente. Per meal/sleep gli id sono diversi
+  // (popupEditMealH / popupEditSleepStartH), gli altri usano popupEditFocus.
   if(_popupEditingState && _popupEditingState.iso === iso){
     setTimeout(()=>{
-      const focusEl = document.getElementById('popupEditFocus');
+      const t = _popupEditingState?.type;
+      const focusId = t === 'meal' ? 'popupEditMealH'
+                    : t === 'sleep' ? 'popupEditSleepStartH'
+                    : 'popupEditFocus';
+      const focusEl = document.getElementById(focusId);
       if(focusEl) focusEl.focus();
     }, 80);
   }

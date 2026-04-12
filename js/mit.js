@@ -113,7 +113,7 @@ function toggleMIT() {
   if (mitData.done) {
     toast('◈ Focus completato — ottimo lavoro!', 'success');
     // Confetti se tutto il giorno è anche completato
-    const todayAll = expand().filter(i => i.data === toISO() && (currentProfile !== 'anissa' || i.area !== 'startup'));
+    const todayAll = expand().filter(i => i.data === toISO() && isProfileArea(i.area));
     if (todayAll.length && todayAll.every(i => i.done)) {
       if (typeof confetti === 'function') confetti({particleCount:80,spread:60,origin:{y:.6}});
     }
@@ -139,7 +139,7 @@ async function suggestMIT() {
     const sp = $(p+'MitSpin'); if(sp) sp.style.display='inline-block';
   });
   const t = toISO();
-  const tItems = expand().filter(i => i.data === t && !i.done && (currentProfile !== 'anissa' || i.area !== 'startup'));
+  const tItems = expand().filter(i => i.data === t && !i.done && isProfileArea(i.area));
   const pend   = items.filter(i => !i.done && i.data < t && !i.recur).slice(0,3);
   const oggi   = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
 
