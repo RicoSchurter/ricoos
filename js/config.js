@@ -56,22 +56,30 @@ function startupContext() {
 
 function anissaContext() {
   const jm = jasperMonths();
+  // 20 domande rotanti, basso costo cognitivo, zero performative.
+  // Ruotano per area: sonno/corpo, umore, Jasper, relazionale, piccoli piaceri,
+  // casa/cucina, apertura giornata. Vedi design note nei commit.
   const questions = [
-    'Jasper ha dormito bene stanotte?',
-    'Cosa ti andrebbe di fare solo per te oggi?',
-    "C'è qualcosa che vuoi raccontarmi di Jasper?",
+    "Com'è andata la notte?",
+    'Sei stanca stanca, o stanca ma ok?',
+    'Il corpo come sta stamattina?',
+    'Hai dormito almeno un pezzetto di fila?',
+    'Come ti sei svegliata dentro?',
+    'Hai lasciato qualcosa in sospeso da ieri?',
+    'Di che umore sei, sincera?',
     'Come stai davvero, oggi?',
-    'Ti sei fatta qualcosa di carino ultimamente?',
-    'Cosa ti farebbe sorridere oggi?',
-    'Hai bisogno di qualcosa da Rico?',
-    'Hai in mente qualche ricetta da provare?',
-    'Con chi hai voglia di parlare oggi?',
-    'Cosa ti ha reso orgogliosa di te questa settimana?',
-    'Ti sei presa del tempo per te ultimamente?',
-    "C'è qualcosa che vorresti fare con Jasper?",
-    'Come ti senti nel corpo oggi?',
-    'Cosa ti aspetti da questa giornata?',
-    'Hai mangiato qualcosa di buono stamattina?'
+    'Che Jasper hai oggi, dolce o impegnativo?',
+    "Com'è stato il suo risveglio?",
+    'Jasper ha fatto qualcosa che ti ha fatto ridere?',
+    'Rico è presente in questi giorni o lontano?',
+    'Con chi avresti voglia di prendere un caffè oggi?',
+    'Hai sentito tua mamma ultimamente?',
+    'Cosa ti farebbe bene oggi, anche piccolissimo?',
+    'Oggi hai già riso, anche poco?',
+    'Che cosa avresti voglia di mangiare oggi?',
+    'La casa è in ordine o è esploso tutto?',
+    "C'è qualcosa che hai voglia di cucinare oggi?",
+    'Cosa ti farebbe dire stasera "oggi è stata una giornata ok"?'
   ];
   const q = questions[new Date().getDate() % questions.length];
   return { jm, q };
