@@ -65,8 +65,37 @@ function jasperDiaryKey(date){return 'jasper_diary_'+(date||toISO());}
 
 async function loadJasperDiary(date){
   const key=jasperDiaryKey(date);
-  if(stData[key]) return JSON.parse(JSON.stringify(stData[key]));
-  return{notes:[],meals:[],lastMeal:null};
+  if(stData[key]){
+    const entry = JSON.parse(JSON.stringify(stData[key]));
+    // Migrazione backward-compat: assicura esistenza sleeps array
+    if(!Array.isArray(entry.sleeps)) entry.sleeps = [];
+    if(!Array.isArray(entry.meals)) entry.meals = [];
+    if(!Array.isArray(entry.notes)) entry.notes = [];
+    return entry;
+  }
+  return{notes:[],meals:[],sleeps:[],lastMeal:null};
+}
+
+/* ── Helper sleep ── */
+function hhmmDiffMin(a, b){
+  if(!a || !b) return 0;
+  const [ah,am] = a.split(':').map(Number);
+  const [bh,bm] = b.split(':').map(Number);
+  let diff = (bh*60+bm) - (ah*60+am);
+  if(diff < 0) diff += 24*60;
+  return diff;
+}
+function formatMin(min){
+  if(min < 1) return 'adesso';
+  if(min < 60) return min + ' min';
+  const h = Math.floor(min/60), m = min%60;
+  return h + 'h' + (m > 0 ? ' ' + m + 'min' : '');
+}
+function openingSleep(entry){
+  return (entry.sleeps||[]).find(s => s.start && !s.end) || null;
+}
+function nowHHMMSwiss(){
+  return new Date().toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
 }
 
 async function saveJasperEntry(date,data){
@@ -134,6 +163,65 @@ async function renderJasper(){
   // Ora corrente per default del time picker
   const nowHHMM = new Date().toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
 
+  // ── SONNO / Pisolini ──
+  const sleeps = entry.sleeps || [];
+  const opening = openingSleep(entry);
+  const completedSleeps = sleeps.filter(s => s.start && s.end).slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+  const lastCompleted = completedSleeps.length ? completedSleeps[completedSleeps.length-1] : null;
+
+  // Card stato sonno (sleeping / awake / mai)
+  let sleepCardHtml;
+  if(opening){
+    const sleepingFor = hhmmDiffMin(opening.start, nowHHMM);
+    sleepCardHtml = `<div class="jas-sleep-card sleeping">
+      <div class="jas-sleep-lbl">💤 Sta dormendo</div>
+      <div class="jas-sleep-status">da ${formatMin(sleepingFor)}</div>
+      <div class="jas-sleep-detail">iniziato alle ${esc(opening.start)}</div>
+      <button class="jas-sleep-btn wake" onclick="jasperEndSleep()" type="button">☀️ Svegliato ora</button>
+    </div>`;
+  } else if(lastCompleted){
+    const awakeFor = hhmmDiffMin(lastCompleted.end, nowHHMM);
+    const duration = hhmmDiffMin(lastCompleted.start, lastCompleted.end);
+    sleepCardHtml = `<div class="jas-sleep-card">
+      <div class="jas-sleep-lbl">☀️ Sveglio</div>
+      <div class="jas-sleep-status">da ${formatMin(awakeFor)}</div>
+      <div class="jas-sleep-detail">ultimo pisolino ${esc(lastCompleted.start)}→${esc(lastCompleted.end)} · ${formatMin(duration)}</div>
+      <button class="jas-sleep-btn" onclick="jasperStartSleep()" type="button">💤 Dorme ora</button>
+    </div>`;
+  } else {
+    sleepCardHtml = `<div class="jas-sleep-card">
+      <div class="jas-sleep-lbl">Sonno</div>
+      <div class="jas-sleep-status">Nessun pisolino oggi</div>
+      <div class="jas-sleep-detail">Inizia a tracciare quando Jasper dorme</div>
+      <button class="jas-sleep-btn" onclick="jasperStartSleep()" type="button">💤 Dorme ora</button>
+    </div>`;
+  }
+
+  // Lista pisolini di oggi con gap di sveglia tra uno e l'altro
+  let sleepsListHtml = '';
+  if(completedSleeps.length || opening){
+    const rows = [];
+    completedSleeps.forEach((s, i) => {
+      const duration = hhmmDiffMin(s.start, s.end);
+      rows.push(`<div class="jas-sleep-row">
+        <span class="jas-sleep-time">💤 ${esc(s.start)} → ${esc(s.end)} · ${formatMin(duration)}</span>
+        <button class="jas-sleep-del" onclick="jasperDeleteSleep('${esc(s.start)}',event)" title="Rimuovi" type="button">×</button>
+      </div>`);
+      // Gap verso il prossimo (altro pisolino completato o quello in corso)
+      const next = completedSleeps[i+1] || opening;
+      if(next){
+        const gap = hhmmDiffMin(s.end, next.start);
+        rows.push(`<div class="jas-sleep-gap">↕ ${formatMin(gap)} sveglio</div>`);
+      }
+    });
+    if(opening){
+      rows.push(`<div class="jas-sleep-row active">
+        <span class="jas-sleep-time">💤 ${esc(opening.start)} → <em>in corso</em> · ${formatMin(hhmmDiffMin(opening.start, nowHHMM))}</span>
+      </div>`);
+    }
+    sleepsListHtml = rows.join('');
+  }
+
   // Note oggi
   const notesHtml=(entry.notes||[]).slice().reverse().slice(0,10).map((n,i)=>
     `<div class="jas-note-item">
@@ -184,6 +272,18 @@ async function renderJasper(){
         <div class="jas-meals-rows">${mealsListHtml}</div>
       </div>
 
+      <!-- Sonno / Pisolini -->
+      <div class="jas-section-lbl" style="margin-top:8px">💤 Sonno</div>
+      ${sleepCardHtml}
+
+      ${sleepsListHtml ? `<div class="jas-sleeps-list">
+        <div class="jas-section-lbl">🌙 Pisolini di oggi (${completedSleeps.length}${opening?' + 1 in corso':''})</div>
+        <div class="jas-sleeps-rows">${sleepsListHtml}</div>
+      </div>` : ''}
+
+      <button class="jas-sleep-add-btn" onclick="jasperShowManualSleepForm()" type="button">+ Aggiungi pisolino manualmente</button>
+      <div id="jasManualSleepForm" style="display:none"></div>
+
       <!-- Note veloci -->
       <div class="jas-notes-block">
         <div class="jas-section-lbl">📝 Note di oggi</div>
@@ -224,12 +324,37 @@ async function renderJasper(){
   requestAnimationFrame(() => { window.scrollTo(0, _scrollY); });
   // Ripristina tab attivo
   if(jasperTab!=='oggi') setTimeout(()=>jasperSetTab(jasperTab),0);
+  // Avvia live tick se c'e un pisolino attivo (auto-update durata)
+  startSleepTick();
   } catch(err) {
     _jasperRendering = false;
     console.error('renderJasper error:', err);
     const active = jasperActive();
     if(active) active.innerHTML='<div style="padding:20px;color:#e06060;font-size:13px">Errore caricamento: '+err.message+'</div>';
   }
+}
+
+/* ── Live tick per sezione Sonno (aggiorna durate mentre Jasper dorme) ── */
+let _sleepTickInterval = null;
+function startSleepTick(){
+  if(_sleepTickInterval) return;
+  _sleepTickInterval = setInterval(() => {
+    // Solo se siamo su tab Oggi Jasper e c'e un pisolino attivo
+    if(jasperTab !== 'oggi') return;
+    const today = toISO();
+    const entry = jasperDiary[today] || stData[jasperDiaryKey(today)];
+    if(!entry || !(entry.sleeps||[]).some(s => s.start && !s.end)){
+      // Nessun pisolino attivo → stop tick
+      clearInterval(_sleepTickInterval);
+      _sleepTickInterval = null;
+      return;
+    }
+    // Re-render solo se la view Jasper e visibile
+    const active = jasperActive();
+    if(active && active.querySelector('.jasper-page')){
+      renderJasper();
+    }
+  }, 30000); // ogni 30 secondi
 }
 
 /* ── Helpers per evitare ID duplicati su dual-pane ── */
@@ -701,6 +826,119 @@ function jasperDeleteMeal(idx){
   }).catch(() => {});
 }
 
+/* ── Sleep tracking (pisolini) ── */
+function jasperStartSleep(){
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const today = toISO();
+      const entry = jasperDiary[today] || (await loadJasperDiary(today));
+      if(!entry.sleeps) entry.sleeps = [];
+      // Evita doppio start se c'e gia un pisolino aperto
+      if(entry.sleeps.some(s => s.start && !s.end)){
+        toast('Jasper sta gia dormendo','warn');
+        return;
+      }
+      const start = nowHHMMSwiss();
+      entry.sleeps.push({start, end:null});
+      jasperDiary[today] = entry;
+      await saveJasperEntry(today, entry);
+      renderJasper();
+      toast('💤 Pisolino iniziato alle '+start, 'success');
+    } catch(e) { console.error('jasperStartSleep:',e); toast('Errore','warn'); }
+  }).catch(() => {});
+}
+
+function jasperEndSleep(){
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const today = toISO();
+      const entry = jasperDiary[today] || (await loadJasperDiary(today));
+      if(!entry.sleeps) entry.sleeps = [];
+      const opening = entry.sleeps.find(s => s.start && !s.end);
+      if(!opening){ toast('Nessun pisolino in corso','warn'); return; }
+      const end = nowHHMMSwiss();
+      opening.end = end;
+      jasperDiary[today] = entry;
+      await saveJasperEntry(today, entry);
+      renderJasper();
+      const duration = hhmmDiffMin(opening.start, end);
+      toast('☀️ Ha dormito '+formatMin(duration), 'success');
+    } catch(e) { console.error('jasperEndSleep:',e); toast('Errore','warn'); }
+  }).catch(() => {});
+}
+
+function jasperDeleteSleep(startHHMM, event){
+  event?.stopPropagation();
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const today = toISO();
+      const entry = jasperDiary[today] || (await loadJasperDiary(today));
+      if(!entry.sleeps) return;
+      entry.sleeps = entry.sleeps.filter(s => s.start !== startHHMM);
+      jasperDiary[today] = entry;
+      await saveJasperEntry(today, entry);
+      renderJasper();
+      toast('Pisolino rimosso','info');
+    } catch(e) { console.error('jasperDeleteSleep:',e); toast('Errore','warn'); }
+  }).catch(() => {});
+}
+
+function jasperShowManualSleepForm(){
+  const active = jasperActive();
+  const wrap = active?.querySelector('#jasManualSleepForm') || document.getElementById('jasManualSleepForm');
+  if(!wrap) return;
+  if(wrap.style.display === 'block'){
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+    return;
+  }
+  const now = nowHHMMSwiss();
+  wrap.innerHTML = `<div class="jas-sleep-manual-form">
+    <div class="jas-popup-edit-lbl">Aggiungi pisolino manualmente</div>
+    <div class="jas-sleep-manual-row">
+      <label>Inizio</label>
+      <input type="time" id="jasManualStart" class="jas-popup-edit-inp" value="${now}">
+    </div>
+    <div class="jas-sleep-manual-row">
+      <label>Fine</label>
+      <input type="time" id="jasManualEnd" class="jas-popup-edit-inp" value="${now}">
+    </div>
+    <div class="jas-popup-edit-btns">
+      <button class="jas-popup-edit-save" onclick="jasperAddSleepManual()" type="button">✓ Salva</button>
+      <button class="jas-popup-edit-cancel" onclick="jasperShowManualSleepForm()" type="button">✗ Annulla</button>
+    </div>
+  </div>`;
+  wrap.style.display = 'block';
+}
+
+function jasperAddSleepManual(){
+  const active = jasperActive();
+  const startEl = active?.querySelector('#jasManualStart') || document.getElementById('jasManualStart');
+  const endEl = active?.querySelector('#jasManualEnd') || document.getElementById('jasManualEnd');
+  const start = startEl?.value;
+  const end = endEl?.value;
+  if(!start || !end){ toast('Inserisci inizio e fine','warn'); return; }
+  if(start === end){ toast('Inizio e fine coincidono','warn'); return; }
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const today = toISO();
+      const entry = jasperDiary[today] || (await loadJasperDiary(today));
+      if(!entry.sleeps) entry.sleeps = [];
+      // Evita duplicato esatto sullo stesso start
+      if(entry.sleeps.some(s => s.start === start)){
+        toast('Pisolino gia presente con questo inizio','warn');
+        return;
+      }
+      entry.sleeps.push({start, end});
+      jasperDiary[today] = entry;
+      await saveJasperEntry(today, entry);
+      renderJasper();
+      const duration = hhmmDiffMin(start, end);
+      toast('💤 Pisolino aggiunto · '+formatMin(duration), 'success');
+    } catch(e) { console.error('jasperAddSleepManual:',e); toast('Errore','warn'); }
+  }).catch(() => {});
+}
+
 /* ── Popup storico giorno (con edit/delete inline) ── */
 let _popupEditingState = null; // {type: 'meal'|'note'|'milestone'|'weight', iso, data}
 
@@ -738,6 +976,19 @@ function openJasperDayPopup(iso){
           <button class="jas-popup-item-btn del" onclick="jasperDeleteNoteFromDay('${iso}',${i},event)" title="Rimuovi">×</button>
         </div>`).join('')
       : '<div class="jas-popup-empty">Nessuna nota</div>'}
+  </div>`;
+
+  // ── Pisolini ──
+  const sleepsDayList = (entry.sleeps||[]).filter(s=>s.start).slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+  content+=`<div class="jas-popup-section">
+    <div class="jas-popup-sec-lbl">💤 Pisolini (${sleepsDayList.length})</div>
+    ${sleepsDayList.length
+      ? sleepsDayList.map(s=>`<div class="jas-popup-item-row">
+          <div class="jas-popup-sleep">💤 ${esc(s.start)} → ${s.end?esc(s.end)+' · '+formatMin(hhmmDiffMin(s.start,s.end)):'<em>in corso</em>'}</div>
+          <button class="jas-popup-item-btn edit" onclick="jasperEditSleepFromDay('${iso}','${esc(s.start)}',event)" title="Modifica">✎</button>
+          <button class="jas-popup-item-btn del" onclick="jasperDeleteSleepFromDay('${iso}','${esc(s.start)}',event)" title="Rimuovi">×</button>
+        </div>`).join('')
+      : '<div class="jas-popup-empty">Nessun pisolino registrato</div>'}
   </div>`;
 
   // ── Milestones ──
@@ -829,6 +1080,22 @@ function renderPopupEditForm(iso, state){
         <button class="jas-popup-edit-save" onclick="jasperSaveWeightEdit('${iso}','${esc(data.date||'')}',event)" type="button">✓ Salva</button>
         <button class="jas-popup-edit-cancel" onclick="jasperCancelPopupEdit('${iso}',event)" type="button">✗ Annulla</button>
       </div>`;
+  } else if(type === 'sleep'){
+    body = `
+      <div class="jas-popup-edit-lbl">Modifica pisolino</div>
+      <div class="jas-sleep-manual-row">
+        <label>Inizio</label>
+        <input type="time" id="popupEditFocus" class="jas-popup-edit-inp" value="${esc(data.start||'')}">
+      </div>
+      <div class="jas-sleep-manual-row">
+        <label>Fine</label>
+        <input type="time" id="popupEditSleepEnd" class="jas-popup-edit-inp" value="${esc(data.end||'')}">
+      </div>
+      <div style="font-size:11px;color:#8a7ca0;margin-bottom:10px;font-style:italic">Lascia vuota la fine se il pisolino e in corso</div>
+      <div class="jas-popup-edit-btns">
+        <button class="jas-popup-edit-save" onclick="jasperSaveSleepEdit('${iso}','${esc(data.originalStart||'')}',event)" type="button">✓ Salva</button>
+        <button class="jas-popup-edit-cancel" onclick="jasperCancelPopupEdit('${iso}',event)" type="button">✗ Annulla</button>
+      </div>`;
   }
   return `<div class="jas-popup-edit-form">${body}</div>`;
 }
@@ -909,6 +1176,21 @@ function jasperDeleteWeightFromDay(iso, weightDate, event){
   }).catch(() => {});
 }
 
+function jasperDeleteSleepFromDay(iso, startHHMM, event){
+  event?.stopPropagation();
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
+      if(!entry.sleeps) return;
+      entry.sleeps = entry.sleeps.filter(s => s.start !== startHHMM);
+      await saveJasperEntry(iso, entry);
+      if(iso === toISO()) jasperDiary[iso] = entry;
+      openJasperDayPopup(iso);
+      toast('Pisolino rimosso','info');
+    } catch(e) { console.error('jasperDeleteSleepFromDay:', e); toast('Errore','warn'); }
+  }).catch(() => {});
+}
+
 /* ── Popup: edit triggers ── */
 function jasperEditMealFromDay(iso, hhmm, event){
   event?.stopPropagation();
@@ -943,6 +1225,16 @@ function jasperEditWeightFromDay(iso, weightDate, event){
   const w = ws.list.find(x => x.date === weightDate);
   if(!w) return;
   _popupEditingState = {type:'weight', iso, data:{kg:w.kg, note:w.note||'', date:weightDate}};
+  openJasperDayPopup(iso);
+}
+
+function jasperEditSleepFromDay(iso, startHHMM, event){
+  event?.stopPropagation();
+  const entry = stData[jasperDiaryKey(iso)];
+  if(!entry || !entry.sleeps) return;
+  const s = entry.sleeps.find(x => x.start === startHHMM);
+  if(!s) return;
+  _popupEditingState = {type:'sleep', iso, data:{originalStart:s.start, start:s.start, end:s.end||''}};
   openJasperDayPopup(iso);
 }
 
@@ -1056,6 +1348,33 @@ function jasperSaveWeightEdit(iso, oldDate, event){
       openJasperDayPopup(iso);
       toast('Peso aggiornato ✓','success');
     } catch(e) { console.error('jasperSaveWeightEdit:', e); toast('Errore','warn'); }
+  }).catch(() => {});
+}
+
+function jasperSaveSleepEdit(iso, originalStart, event){
+  event?.stopPropagation();
+  const newStart = document.getElementById('popupEditFocus')?.value;
+  const newEnd = document.getElementById('popupEditSleepEnd')?.value || null;
+  if(!newStart){ toast('Inserisci almeno l\'ora di inizio','warn'); return; }
+  if(newEnd && newStart === newEnd){ toast('Inizio e fine coincidono','warn'); return; }
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
+      if(!entry.sleeps) entry.sleeps = [];
+      const idx = entry.sleeps.findIndex(s => s.start === originalStart);
+      if(idx < 0){ toast('Pisolino non trovato','warn'); return; }
+      // Evita collisione con altro pisolino che ha gia quell'inizio
+      if(newStart !== originalStart && entry.sleeps.some((s,i) => i !== idx && s.start === newStart)){
+        toast('Esiste gia un pisolino a '+newStart,'warn');
+        return;
+      }
+      entry.sleeps[idx] = {start:newStart, end:newEnd || null};
+      await saveJasperEntry(iso, entry);
+      if(iso === toISO()) jasperDiary[iso] = entry;
+      _popupEditingState = null;
+      openJasperDayPopup(iso);
+      toast('Pisolino aggiornato ✓','success');
+    } catch(e) { console.error('jasperSaveSleepEdit:', e); toast('Errore','warn'); }
   }).catch(() => {});
 }
 
