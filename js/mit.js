@@ -140,7 +140,7 @@ async function suggestMIT() {
   });
   const t = toISO();
   const tItems = expand().filter(i => i.data === t && !i.done && isProfileArea(i.area));
-  const pend   = items.filter(i => !i.done && i.data < t && !i.recur).slice(0,3);
+  const pend   = items.filter(i => !i.deleted_at && !i.done && i.data < t && !i.recur).slice(0,3);
   const oggi   = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
 
   const prompt = currentProfile === 'anissa'

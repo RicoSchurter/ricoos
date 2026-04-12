@@ -36,8 +36,8 @@ function renderSidebar() {
   };
   Object.entries(AREAS).forEach(([k, a]) => {
     if (currentProfile === 'anissa' && k === 'startup') return;
-    const open = items.filter(i => i.area === k && !i.done).length;
-    const tot  = items.filter(i => i.area === k).length;
+    const open = items.filter(i => !i.deleted_at && i.area === k && !i.done).length;
+    const tot  = items.filter(i => !i.deleted_at && i.area === k).length;
     const pct  = tot > 0 ? Math.round(open/tot*100) : 0;
     const displayName = SHORT_NAMES[k] || a.l;
     html += `<div class="stat-row">
@@ -68,7 +68,7 @@ function renderAreas() {
     tuttiChip,
     ...visibleAreas
   ].map(a => {
-    const cnt = a.id !== 'tutti' ? items.filter(i => i.area === a.id && !i.done).length : 0;
+    const cnt = a.id !== 'tutti' ? items.filter(i => !i.deleted_at && i.area === a.id && !i.done).length : 0;
     const act = (a.id === 'tutti') ? filter === null : filter === a.id;
     const col = act ? (a.id === 'tutti' ? '#d4a843' : gc(a.id)) : '';
     return `<button class="chip ${act?'active':''}"
@@ -123,7 +123,7 @@ function renderFiltered(area) {
   const today      = toISO();
   const sevenAgo   = dateToISO(new Date(Date.now() - 7 * 86400000));
   const areaInfo   = AREAS[area] || AREAS.personale_rico;
-  const areaItems  = items.filter(i => i.area === area && (currentProfile !== 'anissa' || i.area !== 'startup'));
+  const areaItems  = items.filter(i => !i.deleted_at && i.area === area && (currentProfile !== 'anissa' || i.area !== 'startup'));
 
   // In "Oggi": lista piatta senza sezioni, senza data, ordine data+ora
   if (currentView === 'oggi') {
@@ -313,12 +313,20 @@ function toggle(id) {
 function delItem(id, e) {
   e?.stopPropagation();
   const deleted = items.find(i => i.id === id);
-  items = items.filter(i => i.id !== id);
-  saveItems();
-  sbFetch('items?id=eq.' + id, { method: 'DELETE' }).catch(() => {});
+  if (!deleted) return;
+  softDeleteItem(id);
   renderAll();
   checkSmartNotifs();
-  if (deleted) toast('"' + deleted.titolo.slice(0,28) + '" eliminato', 'info');
+  toast('"' + deleted.titolo.slice(0,28) + '" eliminato', 'info', {
+    label: 'ANNULLA',
+    timeout: 5000,
+    callback: () => {
+      restoreItem(id);
+      renderAll();
+      checkSmartNotifs();
+      toast('Ripristinato ✓', 'success');
+    }
+  });
 }
 
 /* ═══ RIPROGRAMMA ═══ */

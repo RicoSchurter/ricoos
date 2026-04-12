@@ -5,7 +5,7 @@ function renderStartup() {
 
   // ── Carico settimanale per area ──
   const weekStart = dateToISO(new Date(Date.now() - 6*86400000));
-  const weekItems = items.filter(i => i.data >= weekStart && i.data <= today);
+  const weekItems = items.filter(i => !i.deleted_at && i.data >= weekStart && i.data <= today);
   const areaCount = {};
   weekItems.forEach(i => { areaCount[i.area] = (areaCount[i.area]||0) + 1; });
   const maxCount = Math.max(1, ...Object.values(areaCount));
@@ -31,7 +31,7 @@ function renderStartup() {
 
   // ── Card startup ──
   function semaforo(stKey) {
-    const stItems = items.filter(i => i.area === 'startup' && i.startupTag === stKey);
+    const stItems = items.filter(i => !i.deleted_at && i.area === 'startup' && i.startupTag === stKey);
     if (!stItems.length) return {cls:'red', lbl:'Nessuna attività'};
     const lastDate = stItems.map(i=>i.data).sort().reverse()[0];
     const daysDiff = Math.floor((new Date() - new Date(lastDate+'T12:00:00')) / 86400000);
@@ -42,13 +42,13 @@ function renderStartup() {
 
   function nextTask(stKey) {
     const open = items
-      .filter(i => i.area === 'startup' && i.startupTag === stKey && !i.done && i.data >= today)
+      .filter(i => !i.deleted_at && i.area === 'startup' && i.startupTag === stKey && !i.done && i.data >= today)
       .sort((a,b) => a.data.localeCompare(b.data));
     return open[0] || null;
   }
 
   function completedCount(stKey) {
-    return items.filter(i => i.area === 'startup' && i.startupTag === stKey && i.done).length;
+    return items.filter(i => !i.deleted_at && i.area === 'startup' && i.startupTag === stKey && i.done).length;
   }
 
   const ST_KEYS = ['remychef','zodai','paintquote','freelance'];
@@ -57,7 +57,7 @@ function renderStartup() {
     const sem = semaforo(key);
     const next = nextTask(key);
     const done = completedCount(key);
-    const total = items.filter(i => i.area === 'startup' && i.startupTag === key).length;
+    const total = items.filter(i => !i.deleted_at && i.area === 'startup' && i.startupTag === key).length;
     const pct = total > 0 ? Math.round((done/total)*100) : 0;
 
     return `<div class="st-card">

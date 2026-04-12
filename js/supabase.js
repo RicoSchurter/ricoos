@@ -54,22 +54,32 @@ async function loadAll() {
     if (!stData[k]) stData[k] = {stage:'Building', next:'', block:'', updated:''};
   });
 
-  // Auto-delete: item done + data > 60gg fa + non ricorrente + non test/scadenza/compito
-  // 60 giorni invece di 30: piu margine per non perdere storico recente sul free plan
+  // Purge 1: trash scaduto (>7gg con deleted_at) -> hard delete definitivo
+  const sevenAgoTs = Date.now() - 7 * 86400000;
+  const trashExpired = items.filter(i => {
+    if (!i.deleted_at) return false;
+    const ts = Date.parse(i.deleted_at);
+    return !isNaN(ts) && ts < sevenAgoTs;
+  });
+
+  // Purge 2: item done + data > 60gg + non ricorrente + non test/scadenza/compito
+  // 60 giorni: compromesso per free plan. Test/scadenza/compito sempre protetti.
   const sixtyAgo = dateToISO(new Date(Date.now() - 60 * 86400000));
   const PROTECTED_TYPES = ['test','scadenza','compito'];
-  const toDelete  = items.filter(i =>
-    i.done && i.data < sixtyAgo && !i.recur && !PROTECTED_TYPES.includes(i.tipo)
+  const oldDone = items.filter(i =>
+    !i.deleted_at && i.done && i.data < sixtyAgo && !i.recur && !PROTECTED_TYPES.includes(i.tipo)
   );
-  if (toDelete.length > 0) {
-    const toDeleteIds = new Set(toDelete.map(it => it.id));
-    items = items.filter(i => !toDeleteIds.has(i.id));
+
+  const toHardDelete = [...trashExpired, ...oldDone];
+  if (toHardDelete.length > 0) {
+    const ids = new Set(toHardDelete.map(it => it.id));
+    items = items.filter(i => !ids.has(i.id));
     localStorage.setItem('rico_items', JSON.stringify(items));
     Promise.allSettled(
-      toDelete.map(it => sbFetch('items?id=eq.' + it.id, {method:'DELETE'}))
+      toHardDelete.map(it => sbFetch('items?id=eq.' + it.id, {method:'DELETE'}))
     ).then(results => {
       const failed = results.filter(r => r.status === 'rejected');
-      if (failed.length) console.warn('Auto-delete: ' + failed.length + '/' + toDelete.length + ' failed');
+      if (failed.length) console.warn('Hard-delete: ' + failed.length + '/' + toHardDelete.length + ' failed');
     });
   }
 
@@ -110,9 +120,69 @@ async function saveSt() {
   }
 }
 
+/* ═══ BACKUP SETTIMANALE AUTOMATICO ═══
+   Scarica un JSON completo (items + stData) una volta a settimana.
+   Controllato all'apertura app: se sono passati 7+ giorni dall'ultimo
+   backup per questo profilo, parte il download. Silent fail se il
+   browser blocca (es. PWA su iOS). */
+function maybeWeeklyBackup() {
+  try {
+    const key = 'rico_last_backup_' + currentProfile;
+    const last = localStorage.getItem(key);
+    const nowMs = Date.now();
+    const sevenDaysMs = 7 * 86400000;
+    if (last) {
+      const lastMs = Date.parse(last);
+      if (!isNaN(lastMs) && (nowMs - lastMs) < sevenDaysMs) return; // ancora fresco
+    }
+    const payload = {
+      version: 1,
+      profile: currentProfile,
+      exported_at: new Date().toISOString(),
+      items: items,
+      stData: stData
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'rico-os-backup-' + currentProfile + '-' + toISO() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    localStorage.setItem(key, new Date().toISOString());
+    if (typeof toast === 'function') toast('💾 Backup settimanale scaricato', 'success');
+  } catch(e) {
+    console.warn('maybeWeeklyBackup failed:', e);
+  }
+}
+
 /* helper: format a Date object as local YYYY-MM-DD */
 function dateToISO(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ═══ SOFT DELETE / RESTORE (trash logico 7gg) ═══
+   Invece di hard-delete, marca l'item con deleted_at = ISO timestamp.
+   expand() e tutte le viste escludono gli item con deleted_at.
+   loadAll() hard-delete gli item con deleted_at piu vecchi di 7 giorni. */
+function softDeleteItem(id) {
+  const it = items.find(i => i.id === id);
+  if (!it) return null;
+  it.deleted_at = new Date().toISOString();
+  saveItems();
+  return it;
+}
+function restoreItem(id) {
+  const it = items.find(i => i.id === id);
+  if (!it) return null;
+  delete it.deleted_at;
+  saveItems();
+  return it;
 }
 
 /* ═══ EXPAND RECURRING ═══ */
@@ -121,6 +191,7 @@ function expand() {
   const lim = new Date(); lim.setDate(lim.getDate() + 120);
   const end = dateToISO(lim);
   for (const it of items) {
+    if (it.deleted_at) continue; // trash logico invisibile
     out.push(it);
     if (!it.recur) continue;
     const [baseY, baseM, baseD] = it.data.split('-').map(Number);

@@ -26,12 +26,25 @@ function scheduleNotifs() {
 /* ═══════════════════════════════════════
    TOAST
 ═══════════════════════════════════════ */
-function toast(msg, type='info') {
+function toast(msg, type='info', action=null) {
   const w=$('toastWrap');
   const d=document.createElement('div');
-  d.className=`toast ${type}`; d.textContent=msg;
+  d.className=`toast ${type}`;
+  const lifeMs = action ? (action.timeout || 5000) : 3000;
+  if (action) {
+    const txt=document.createElement('span'); txt.className='toast-txt'; txt.textContent=msg;
+    const btn=document.createElement('button'); btn.className='toast-action'; btn.textContent=action.label||'ANNULLA';
+    btn.onclick=(e)=>{
+      e.stopPropagation();
+      try { action.callback && action.callback(); } catch(err) { console.warn('toast action:', err); }
+      d.style.opacity='0'; d.style.transition='opacity .2s'; setTimeout(()=>d.remove(),200);
+    };
+    d.appendChild(txt); d.appendChild(btn);
+  } else {
+    d.textContent=msg;
+  }
   w.appendChild(d);
-  setTimeout(()=>{ d.style.opacity='0'; d.style.transition='opacity .3s'; setTimeout(()=>d.remove(),300); },3000);
+  setTimeout(()=>{ d.style.opacity='0'; d.style.transition='opacity .3s'; setTimeout(()=>d.remove(),300); }, lifeMs);
 }
 
 /* ═══════════════════════════════════════
@@ -102,7 +115,7 @@ function checkSmartNotifs() {
   const todayDone = todayAll.filter(i => i.done);
 
   // Overdue: past-due items that are NOT done and NOT recurring
-  const overdue = items.filter(i => i.data < t && !i.done && !i.recur && isProfileArea(i.area));
+  const overdue = items.filter(i => !i.deleted_at && i.data < t && !i.done && !i.recur && isProfileArea(i.area));
 
   // Urgent: test/scadenza/compito in the next 3 days
   const in3Days = new Date(now); in3Days.setDate(now.getDate() + 3);

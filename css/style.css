@@ -1411,6 +1411,15 @@ select option{background:#181610;}
 .toast.success{border-left:3px solid var(--green);}
 .toast.info{border-left:3px solid var(--gold);}
 .toast.warn{border-left:3px solid var(--red);}
+.toast-txt{flex:1;}
+.toast-action{
+  margin-left:12px;background:var(--gold);border:none;border-radius:6px;
+  color:#111;padding:5px 12px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:inherit;letter-spacing:.5px;
+  transition:background .15s;
+}
+.toast-action:hover{background:var(--gold2);}
+.toast:has(.toast-action){display:flex;align-items:center;}
 @keyframes tslide{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
 
 /* ═══ CONFETTI ═══ */

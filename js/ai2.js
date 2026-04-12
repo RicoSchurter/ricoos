@@ -11,7 +11,7 @@ async function doBriefing(forceNew) {
   const oggi   = new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   const isMon  = new Date().getDay() === 1;
   const tItems = expand().filter(i => i.data === t && isProfileArea(i.area));
-  const pend   = items.filter(i => !i.done && i.data < t && !i.recur && isProfileArea(i.area)).slice(0, 5);
+  const pend   = items.filter(i => !i.deleted_at && !i.done && i.data < t && !i.recur && isProfileArea(i.area)).slice(0, 5);
   const weekItems = expand().filter(i => i.data > t && i.data <= dateToISO(new Date(Date.now()+7*86400000)) && isProfileArea(i.area));
   const agenda = tItems.length
     ? tItems.map(i => `${i.ora?i.ora+' ':''}"${i.titolo}" [${AREAS[i.area]?.l}]${i.prio==='alta'?' ⚠':''}${i.done?' ✓':''}`).join(', ')
@@ -184,11 +184,11 @@ function approveChatAction() {
     }
   }
 
-  // Spostamento/eliminazione: elimina item originale
+  // Spostamento/eliminazione: soft-delete item originale (trash 7gg, undo disponibile)
+  const isPureDelete = eid && !(action.items?.length);
+  const deletedTitle = eid ? (items.find(i => i.id === eid)?.titolo || '') : '';
   if (eid) {
-    items = items.filter(i => i.id !== eid);
-    sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
-    saveItems();
+    softDeleteItem(eid);
   }
 
   // Aggiunta nuovi item (se presenti — per eliminazione pura items è [])
@@ -216,6 +216,20 @@ function approveChatAction() {
       ? `✓ Spostato. Vecchio appuntamento eliminato, nuovo creato.`
       : `✓ ${action.items?.length || 0} elemento${(action.items?.length||0) !== 1 ? 'i' : ''} aggiunto al calendario.`;
   addChatMessage('all', 'ai', msg);
+
+  // Undo toast solo per delete puri (non per move, che sarebbe complesso da annullare)
+  if (isPureDelete) {
+    const undoId = eid;
+    toast('"' + deletedTitle.slice(0,28) + '" eliminato', 'info', {
+      label: 'ANNULLA',
+      timeout: 5000,
+      callback: () => {
+        restoreItem(undoId);
+        renderAll();
+        toast('Ripristinato ✓', 'success');
+      }
+    });
+  }
 }
 
 function rejectChatAction() {
@@ -604,8 +618,7 @@ function confirmQAMove(pfx) {
   const eid   = qaMove.elimina_id;
   const nuovo = qaMove.nuovo;
 
-  items = items.filter(i => i.id !== eid);
-  sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
+  softDeleteItem(eid);
 
   addItem({
     titolo: nuovo.titolo,
@@ -632,10 +645,10 @@ function confirmQAMoveDate(pfx) {
   const oldIt = items.find(i => i.id === eid);
   if (!oldIt) { toast('Appuntamento non trovato', 'warn'); rejectQAMove(pfx); return; }
 
-  items = items.filter(i => i.id !== eid);
-  sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
+  softDeleteItem(eid);
 
   const newIt = {...oldIt, id:uid(), data:newDate.slice(0,10), ora:newTime, done:false, recur:''};
+  delete newIt.deleted_at; // sicurezza: il nuovo item non eredita il trash dal clone
   items.unshift(newIt);
   saveItems();
   rejectQAMove(pfx);
@@ -647,26 +660,39 @@ function confirmQADelete(pfx) {
   if (!qaMove?.elimina_id) return;
   const eid = qaMove.elimina_id;
   const it  = items.find(i => i.id === eid);
-  items = items.filter(i => i.id !== eid);
-  sbFetch('items?id=eq.' + eid, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
-  saveItems();
+  if (!it) return;
+  const title = it.titolo || 'Appuntamento';
+  softDeleteItem(eid);
   rejectQAMove(pfx);
   renderAll();
-  toast(`🗑 ${it ? esc(it.titolo) : 'Appuntamento'} eliminato ✓`, 'success');
+  toast('🗑 ' + title.slice(0,28) + ' eliminato', 'info', {
+    label: 'ANNULLA',
+    timeout: 5000,
+    callback: () => {
+      restoreItem(eid);
+      renderAll();
+      toast('Ripristinato ✓', 'success');
+    }
+  });
 }
 
 function confirmQADeleteMulti(pfx) {
   if (!qaMove?.elimina_ids?.length) return;
-  const ids = qaMove.elimina_ids;
-  const count = ids.filter(id => items.find(i => i.id === id)).length;
-  ids.forEach(id => {
-    items = items.filter(i => i.id !== id);
-    sbFetch('items?id=eq.' + id, {method:'DELETE'}).catch(e => console.warn('DELETE failed:', e));
-  });
-  saveItems();
+  const ids = qaMove.elimina_ids.slice();
+  const existing = ids.filter(id => items.find(i => i.id === id && !i.deleted_at));
+  const count = existing.length;
+  existing.forEach(id => softDeleteItem(id));
   rejectQAMove(pfx);
   renderAll();
-  toast(`🗑 ${count} appuntamenti eliminati ✓`, 'success');
+  toast(`🗑 ${count} appuntamenti eliminati`, 'info', {
+    label: 'ANNULLA',
+    timeout: 5000,
+    callback: () => {
+      existing.forEach(id => restoreItem(id));
+      renderAll();
+      toast(count + ' ripristinati ✓', 'success');
+    }
+  });
 }
 
 function confirmQAModArea(pfx) {
@@ -1052,6 +1078,7 @@ function doSearch(q, pfx) {
     hits = expand().filter(i => i.data === dateISO && (currentProfile !== 'anissa' || i.area !== 'startup')).slice(0, 8);
   } else {
     hits = items.filter(i =>
+      !i.deleted_at &&
       (currentProfile !== 'anissa' || i.area !== 'startup') &&
       (
         i.titolo.toLowerCase().includes(ql) ||

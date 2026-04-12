@@ -28,6 +28,8 @@
   renderAll();
   checkSmartNotifs();
   scheduleNotifs();
+  // Backup settimanale silente (solo se sono passati 7gg dall'ultimo)
+  setTimeout(() => maybeWeeklyBackup(), 2000);
 
   // Drag & drop upload
   document.addEventListener('dragover', e => e.preventDefault());
