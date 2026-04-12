@@ -29,13 +29,25 @@ async function loadAll() {
     try { items = JSON.parse(localStorage.getItem('rico_items') || '[]'); } catch(e2) { items = []; }
   }
 
+  // Always load localStorage first as baseline (source of truth for offline/pending writes)
+  let cachedSt = {};
+  try { cachedSt = JSON.parse(localStorage.getItem('rico_st') || '{}'); } catch(e) { cachedSt = {}; }
+  stData = {...cachedSt};
+
   try {
-    // Load startup data from Supabase
+    // Merge Supabase data on top (overrides localStorage with server state where present)
     const rows = await sbFetch('startup_data?select=id,data');
-    stData = {};
     if (rows) rows.forEach(r => { stData[r.id] = r.data; });
+    // BUT keep jasper diary + chat keys from localStorage if Supabase missing them
+    // (Supabase sync may have failed silently for these, localStorage is authoritative)
+    Object.keys(cachedSt).forEach(k => {
+      if (k.startsWith('jasper_diary_') || k.startsWith('memory_') || k.startsWith('mit_')) {
+        if (!stData[k]) stData[k] = cachedSt[k];
+      }
+    });
   } catch(e) {
-    try { stData = JSON.parse(localStorage.getItem('rico_st') || '{}'); } catch(e2) { stData = {}; }
+    console.warn('Supabase startup_data fetch failed, using localStorage:', e);
+    stData = cachedSt;
   }
 
   Object.keys(STS).forEach(k => {

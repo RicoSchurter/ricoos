@@ -28,17 +28,9 @@ const JASPER_PHRASES = [
   'Prendersi cura di qualcuno così è il lavoro più importante che esiste.',
 ];
 
-const SLEEP_EMOJIS  = ['','😩','😪','😐','😊','🌟'];
-const SLEEP_LABELS  = ['','<2h','3-4h','5-6h','7h','8h+'];
-const FEED_EMOJIS   = ['','😟','😐','🍼','😊','🌟'];
-const FEED_LABELS   = ['','Male','Poco','OK','Bene','Ottimo'];
-const MOOD_EMOJIS   = ['','😩','😐','😌','😊','🌟'];
-const MOOD_LABELS   = ['','Agitato','Irrequieto','Tranquillo','Felice','Raggiante'];
-
 /* ═══ JASPER — mini-app per Anissa ═══ */
 let jasperTab = 'oggi';
 let jasperCalMonth = null; // {year, month} per il calendario
-let jasperSelDay = null;   // giorno selezionato nello storico
 
 function jasperSetTab(tab) {
   jasperTab = tab;
@@ -46,6 +38,7 @@ function jasperSetTab(tab) {
   document.querySelectorAll('.jas-tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === tab));
   if (tab === 'storico') renderJasperStorico();
   if (tab === 'crescita') renderJasperCrescita();
+  if (tab === 'cibo') renderJasperCibo();
 }
 
 /* ── Età ── */
@@ -66,14 +59,20 @@ function jasperDiaryKey(date){return 'jasper_diary_'+(date||toISO());}
 async function loadJasperDiary(date){
   const key=jasperDiaryKey(date);
   if(stData[key]) return JSON.parse(JSON.stringify(stData[key]));
-  return{sleep:0,feed:0,mood:0,anissa_mood:0,note:'',notes:[],meals:[],foods:[],lastMeal:null,lastMealMl:null,weight:null,sleep_start:'',sleep_end:'',sleep_wakes:''};
+  return{notes:[],meals:[],lastMeal:null};
 }
 
 async function saveJasperEntry(date,data){
   const key=jasperDiaryKey(date);
   stData[key]=data;
+  // localStorage = source of truth: always write synchronously
   localStorage.setItem('rico_st',JSON.stringify(stData));
-  sbFetch('startup_data',{method:'POST',headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:key,data})}).catch(()=>{});
+  // Supabase = backup sync: fire-and-forget with logging
+  sbFetch('startup_data',{
+    method:'POST',
+    prefer:'resolution=merge-duplicates,return=minimal',
+    body:JSON.stringify({id:key,data})
+  }).catch(e => console.warn('saveJasperEntry Supabase sync failed (localStorage OK):', e));
 }
 
 /* ── Render principale ── */
@@ -96,35 +95,39 @@ async function renderJasper(){
   const ageEmoji=months<3?'👶':months<6?'🍼':months<9?'🧸':months<12?'🐣':'👦';
   const ageStr=months+' mes'+(months===1?'e':'i')+(days>0?' e '+days+' giorn'+(days===1?'o':'i'):'');
 
-  // Timer pasto
-  function jasperTimerAgo_l(isoTs){
-    if(!isoTs)return null;
-    const diff=Math.floor((Date.now()-new Date(isoTs).getTime())/60000);
-    if(diff<1)return'adesso';
-    if(diff<60)return diff+'min fa';
-    const h=Math.floor(diff/60),m=diff%60;
-    return h+'h'+(m>0?' '+m+'min':'')+'fa';
-  }
-  const timerAgo=entry.lastMeal?jasperTimerAgo_l(entry.lastMeal):null;
-  const meals=entry.meals||[];
-  const todayMeals=meals.slice(0,4);
+  // Pasti di oggi (ordinati per ora, piu recente in cima)
+  const meals=(entry.meals||[]).slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
+  const mealsListHtml=meals.length
+    ? meals.map((m,i)=>`<div class="jas-meal-row">
+        <span class="jas-meal-time">🍼 ${esc(m.hhmm||'?')}</span>
+        <button class="jas-meal-del" onclick="jasperDeleteMeal(${i})" title="Rimuovi">×</button>
+      </div>`).join('')
+    : '<div class="jas-meal-empty">Nessun pasto registrato oggi</div>';
 
-  // Tile helper
-  function tileHtml(type,ico,name,val,emojis,labels){
-    const filled=val>0?'filled':'';
-    return `<button class="jas-tile ${filled}" onclick="jasperSetValue('${type}',${val===0?1:val<5?val+1:1})" type="button">
-      <span class="jas-tile-ico">${ico}</span>
-      <div class="jas-tile-name">${name}</div>
-      <div class="jas-tile-val">${val>0?emojis[val]:'—'}</div>
-      <div class="jas-tile-sub">${val>0?labels[val]:''}</div>
-    </button>`;
+  // Ultimo pasto (tempo fa)
+  const lastMealTime = meals.length ? meals[0].hhmm : null;
+  function timeAgoFromHHMM(hhmm){
+    if(!hhmm) return '—';
+    const [h,m]=hhmm.split(':').map(Number);
+    const now=new Date();
+    const mealDate=new Date();
+    mealDate.setHours(h,m,0,0);
+    const diffMin=Math.max(0,Math.floor((now-mealDate)/60000));
+    if(diffMin<1) return 'adesso';
+    if(diffMin<60) return diffMin+' min fa';
+    const hh=Math.floor(diffMin/60), mm=diffMin%60;
+    return hh+'h'+(mm>0?' '+mm+'min':'')+' fa';
   }
+  const lastMealAgo = timeAgoFromHHMM(lastMealTime);
+
+  // Ora corrente per default del time picker
+  const nowHHMM = new Date().toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
 
   // Note oggi
-  const notesHtml=(entry.notes||[]).slice().reverse().slice(0,5).map((n,i)=>
+  const notesHtml=(entry.notes||[]).slice().reverse().slice(0,10).map((n,i)=>
     `<div class="jas-note-item">
-      <span class="jas-note-ts">${n.ts}</span>${esc(n.text)}
-      <button class="jas-note-del" onclick="jasperDeleteNote(${entry.notes.length-1-i},'today')">×</button>
+      <span class="jas-note-ts">${esc(n.ts||'')}</span>${esc(n.text)}
+      <button class="jas-note-del" onclick="jasperDeleteNote(${entry.notes.length-1-i})">×</button>
     </div>`
   ).join('');
 
@@ -139,72 +142,54 @@ async function renderJasper(){
 
     <!-- Sub-tab -->
     <div class="jas-tabs">
-      <button class="jas-tab active" data-tab="oggi" onclick="jasperSetTab('oggi')">📅 Oggi</button>
-      <button class="jas-tab" data-tab="storico" onclick="jasperSetTab('storico')">🗓 Storico</button>
-      <button class="jas-tab" data-tab="crescita" onclick="jasperSetTab('crescita')">📊 Crescita</button>
+      <button class="jas-tab active" data-tab="oggi" onclick="jasperSetTab('oggi')" type="button">📅 Oggi</button>
+      <button class="jas-tab" data-tab="cibo" onclick="jasperSetTab('cibo')" type="button">🥕 Cibo</button>
+      <button class="jas-tab" data-tab="storico" onclick="jasperSetTab('storico')" type="button">🗓 Storico</button>
+      <button class="jas-tab" data-tab="crescita" onclick="jasperSetTab('crescita')" type="button">📊 Crescita</button>
     </div>
 
-    <!-- TAB OGGI — Solo l'essenziale -->
+    <!-- TAB OGGI — Solo pasti + note -->
     <div class="jas-tab-pane active" data-pane="oggi">
-      <!-- Timer pasto -->
-      <div class="jas-timer-strip">
-        <div class="jas-timer-card" style="flex:1.4">
-          <div class="jas-timer-lbl">⏱ Ultimo pasto</div>
-          <div class="jas-timer-val">${timerAgo||'—'}</div>
-          <div class="jas-timer-sub">${entry.lastMealMl?entry.lastMealMl+'ml · ':''} ${entry.lastMeal?new Date(entry.lastMeal).toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'}):'non registrato'}</div>
-        </div>
-        <div class="jas-timer-card" style="flex:1">
-          <div class="jas-timer-lbl">🍼 Pasti oggi</div>
-          <div class="jas-timer-val">${todayMeals.length||'—'}</div>
-          <div class="jas-timer-sub">${todayMeals.length?todayMeals.reduce((s,m)=>s+(m.ml||0),0)+'ml tot':'nessuno'}</div>
-        </div>
-      </div>
-      <div class="jas-ml-row">
-        ${[120,150,180,200].map(ml=>`<button class="jas-ml-btn" onclick="jasperLogMeal(${ml})">${ml}ml</button>`).join('')}
-        <button class="jas-ml-btn" onclick="jasperLogMealCustom()" style="margin-left:auto">+ altro</button>
+
+      <!-- Ultimo pasto card -->
+      <div class="jas-last-meal-card">
+        <div class="jas-last-meal-lbl">⏱ Ultimo pasto</div>
+        <div class="jas-last-meal-val">${lastMealTime||'—'}</div>
+        <div class="jas-last-meal-sub">${lastMealTime?lastMealAgo:'nessun pasto oggi'} · ${meals.length} pasti oggi</div>
       </div>
 
-      <!-- Tile Jasper -->
-      <div class="jas-tiles" style="margin-top:16px">
-        ${tileHtml('sleep','😴','Sonno',entry.sleep||0,SLEEP_EMOJIS,SLEEP_LABELS)}
-        ${tileHtml('feed','🍼','Pasto',entry.feed||0,FEED_EMOJIS,FEED_LABELS)}
-        ${tileHtml('mood','☀️','Umore',entry.mood||0,MOOD_EMOJIS,MOOD_LABELS)}
+      <!-- Aggiungi pasto -->
+      <div class="jas-add-meal">
+        <div class="jas-section-lbl">🍼 Registra pasto</div>
+        <div class="jas-add-meal-row">
+          <input class="jas-meal-time-inp" type="time" id="jasMealTime" value="${nowHHMM}">
+          <button class="jas-meal-save-btn" onclick="jasperLogMealTime()">+ Aggiungi</button>
+        </div>
       </div>
 
-      <!-- Sonno notturno -->
-      <div style="font-size:10px;letter-spacing:1.5px;color:#6a5030;text-transform:uppercase;margin:18px 0 8px">😴 Sonno di stanotte</div>
-      <div class="jas-sleep-row">
-        <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
-          <span style="font-size:9px;color:#6a5030">Addormentato</span>
-          <input class="jas-sleep-inp" type="time" id="jasSleepStart" value="${esc(entry.sleep_start||'')}"
-            onchange="jasperSaveSleepField('sleep_start',this.value)">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
-          <span style="font-size:9px;color:#6a5030">Svegliato</span>
-          <input class="jas-sleep-inp" type="time" id="jasSleepEnd" value="${esc(entry.sleep_end||'')}"
-            onchange="jasperSaveSleepField('sleep_end',this.value)">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
-          <span style="font-size:9px;color:#6a5030">Risvegli</span>
-          <input class="jas-sleep-inp" type="number" id="jasSleepWakes" min="0" max="20" inputmode="numeric"
-            value="${entry.sleep_wakes!==''?entry.sleep_wakes:''}" placeholder="0"
-            onchange="jasperSaveSleepField('sleep_wakes',this.value)"
-            style="width:64px">
-        </div>
+      <!-- Lista pasti oggi -->
+      <div class="jas-meals-list">
+        <div class="jas-section-lbl">Pasti di oggi</div>
+        <div class="jas-meals-rows">${mealsListHtml}</div>
       </div>
 
       <!-- Note veloci -->
-      <div style="margin-top:18px">
-        <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px">📝 Note di oggi</div>
+      <div class="jas-notes-block">
+        <div class="jas-section-lbl">📝 Note di oggi</div>
         <textarea class="jas-note-inp" id="jasNoteInp" rows="2"
           placeholder='es. "Ha riso tanto" · "Primo dentino" · "6h di fila"'
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();jasperSaveNote();}"
           oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-        <div style="display:flex;justify-content:flex-end;margin-top:6px">
-          <button onclick="jasperSaveNote()" style="padding:7px 16px;background:#221608;border:1px solid #6a5030;border-radius:20px;color:#a08040;font-size:12px;cursor:pointer;font-family:inherit">Salva nota</button>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="jas-note-save-btn" onclick="jasperSaveNote()">💾 Salva nota</button>
         </div>
         <div class="jas-note-saved">${notesHtml}</div>
       </div>
+    </div>
+
+    <!-- TAB CIBO -->
+    <div class="jas-tab-pane" data-pane="cibo" id="jasCiboPane">
+      <div style="color:#6a5030;font-size:13px;text-align:center;padding:20px 0">Caricamento...</div>
     </div>
 
     <!-- TAB STORICO -->
@@ -245,80 +230,6 @@ async function renderJasperStorico(){
   const lastDay=new Date(year,month+1,0);
   const today=toISO();
   const limit180=dateToISO(new Date(Date.now()-180*86400000));
-  const entryToday=stData[jasperDiaryKey(today)]||{};
-
-  // ── Timeline milestone ──
-  const {months:jMonths}=jasperAgeDetails();
-  const pct=Math.min(100,Math.round((jMonths/24)*100));
-  const futureMs=JASPER_MILESTONES.filter(m=>m.m>jMonths);
-  const nextMs=futureMs[0];
-  const dotHtml=JASPER_MILESTONES.map(ms=>{
-    const left=Math.round((ms.m/24)*100);
-    const cls=ms.m<jMonths?'past':ms.m===jMonths?'current':'';
-    return `<div class="jas-tl-dot ${cls}" style="left:${left}%" title="${ms.e} ${ms.l}"><div class="jas-tl-dot-circle"></div></div>`;
-  }).join('');
-  const pillsHtml=JASPER_MILESTONES.slice(0,8).map(ms=>{
-    const cls=ms.m<jMonths?'past':ms.m===jMonths?'current':'';
-    return `<span class="jas-ms-pill ${cls}">${ms.e} ${ms.l}</span>`;
-  }).join('');
-  const timelineHtml=`<div class="jas-timeline">
-    <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-      📍 Dove siamo <span style="font-size:11px;color:#a08040;letter-spacing:0;text-transform:none">→ ${nextMs?nextMs.e+' '+nextMs.l+' ('+nextMs.m+'m)':'🏆 2 anni!'}</span>
-    </div>
-    <div class="jas-tl-bar-wrap"><div class="jas-tl-bar-fill" style="width:${pct}%"></div></div>
-    <div class="jas-tl-dots">${dotHtml}</div>
-    <div class="jas-ms-list">${pillsHtml}</div>
-  </div>`;
-
-  // ── Chart 7gg sonno/umore ──
-  const days7=[];
-  for(let i=6;i>=0;i--){
-    const d=new Date();d.setDate(d.getDate()-i);
-    const iso=dateToISO(d);
-    const e=stData[jasperDiaryKey(iso)]||{};
-    days7.push({day:d.toLocaleDateString('it-IT',{weekday:'short'}).slice(0,2).toUpperCase(),sleep:e.sleep||0,mood:e.mood||0,iso});
-  }
-  const chartHtml=days7.map(d=>{
-    const sh=d.sleep>0?Math.round((d.sleep/5)*100):0;
-    const mh=d.mood>0?Math.round((d.mood/5)*100):0;
-    const isToday=d.iso===today;
-    return `<div class="jas-chart-col">
-      <div class="jas-chart-bar-wrap">
-        <div style="display:flex;gap:2px;height:100%;align-items:flex-end">
-          <div class="jas-chart-bar" style="height:${sh}%;background:#6a5030;flex:1"></div>
-          <div class="jas-chart-bar" style="height:${mh}%;background:#d4a843;flex:1"></div>
-        </div>
-      </div>
-      <div class="jas-chart-day" style="${isToday?'color:#f0c860;font-weight:bold':''}">${d.day}</div>
-    </div>`;
-  }).join('');
-  const weekChartHtml=`<div class="jas-chart" style="margin-bottom:20px">
-    <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px;display:flex;gap:12px;align-items:center">
-      📊 Settimana
-      <span style="display:flex;gap:8px;font-size:9px;letter-spacing:0;text-transform:none">
-        <span><span style="display:inline-block;width:8px;height:8px;background:#6a5030;border-radius:1px;margin-right:3px"></span>Sonno</span>
-        <span><span style="display:inline-block;width:8px;height:8px;background:#d4a843;border-radius:1px;margin-right:3px"></span>Umore</span>
-      </span>
-    </div>
-    ${days7.every(d=>!d.sleep&&!d.mood)
-      ?'<div style="text-align:center;padding:16px 0;color:#4a3820;font-size:13px;font-style:italic">Inizia oggi — il grafico prenderà forma 🌱</div>'
-      :'<div class="jas-chart-grid">'+chartHtml+'</div>'
-    }
-  </div>`;
-
-  // ── Umore Anissa ──
-  const aEmojis=['','😩','😔','😐','😊','🌟'];
-  const aLabels=['','Difficile','Faticoso','Nella norma','Bene','Benissimo'];
-  const am=entryToday.anissa_mood||0;
-  const anissaMoodHtml=aEmojis.slice(1).map((e,i)=>{
-    const v=i+1;
-    return `<button class="jas-anissa-emoji ${am===v?'selected':''}" onclick="jasperSetValue('anissa_mood',${v})" title="${aLabels[v]}" type="button">${e}</button>`;
-  }).join('');
-  const anissaMoodBlock=`<div class="jas-anissa-mood" style="margin-bottom:20px">
-    <div class="jas-anissa-lbl">come stai tu oggi?</div>
-    <div class="jas-anissa-emojis">${anissaMoodHtml}</div>
-    ${am>0?`<div style="text-align:center;font-size:11px;color:#6a5030;margin-top:6px">${aLabels[am]}</div>`:''}
-  </div>`;
 
   // Intestazione mese
   const mLbl=firstDay.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
@@ -340,47 +251,49 @@ async function renderJasperStorico(){
     const isFuture=iso>today;
     const isPast180=iso<limit180;
     const e=stData[jasperDiaryKey(iso)]||{};
-    const hasData=!!(e.sleep||e.mood||e.feed||(e.notes&&e.notes.length)||(e.meals&&e.meals.length)||(e.foods&&e.foods.length));
-    const hasMilestone=!!(e.notes&&e.notes.some(n=>n.milestone));
-    const cms=jasperCustomMilestones();
-    const hasCms=cms.list.some(m=>m.date===iso);
+    const mealsCount=(e.meals||[]).length;
+    const notesCount=(e.notes||[]).length;
+    const hasData=!!(mealsCount||notesCount);
     const isToday=iso===today;
-    const isSel=iso===jasperSelDay;
     const cls=[
       isFuture||isPast180?'future':'',
       hasData&&!isFuture&&!isPast180?'has-data':'',
-      (hasMilestone||hasCms)?'has-milestone':'',
       isToday?'today':'',
-      isSel?'selected':'',
     ].filter(Boolean).join(' ');
-    const dot=hasData&&!isFuture?'<div class="jas-cal-dot '+(hasCms?'ms':'')+'"></div>':'';
-    calHtml+=`<button class="jas-cal-day ${cls}" onclick="${isFuture||isPast180?'':`jasperSelCalDay('${iso}')`}" type="button">${d}${dot}</button>`;
+    const dot=hasData&&!isFuture?'<div class="jas-cal-dot"></div>':'';
+    calHtml+=`<button class="jas-cal-day ${cls}" onclick="${isFuture||isPast180?'':`openJasperDayPopup('${iso}')`}" type="button">${d}${dot}</button>`;
   }
   calHtml+='</div>';
 
-  // Dettaglio giorno selezionato
-  let detailHtml='';
-  if(jasperSelDay){
-    const e=stData[jasperDiaryKey(jasperSelDay)]||{};
-    const dlbl=new Date(jasperSelDay+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
-    detailHtml=`<div class="jas-cal-day-detail">
-      <div style="font-size:13px;font-weight:600;color:#d4a843;margin-bottom:12px">${dlbl}</div>
-      <div class="jas-day-row">
-        ${e.sleep?`<span class="jas-day-chip">😴 ${SLEEP_LABELS[e.sleep]||e.sleep}</span>`:''}
-        ${e.sleep_start&&e.sleep_end?`<span class="jas-day-chip">${e.sleep_start}→${e.sleep_end}${e.sleep_wakes?' ('+e.sleep_wakes+' risvegli)':''}</span>`:''}
-        ${e.mood?`<span class="jas-day-chip">☀️ ${MOOD_LABELS[e.mood]||e.mood}</span>`:''}
-        ${e.anissa_mood?`<span class="jas-day-chip gold">Anissa: ${'😩😔😐😊🌟'.split('')[e.anissa_mood-1]}</span>`:''}
-        ${e.feed?`<span class="jas-day-chip">🍼 ${FEED_LABELS[e.feed]||e.feed}</span>`:''}
-        ${e.meals&&e.meals.length?`<span class="jas-day-chip">${e.meals.length} pasti · ${e.meals.reduce((s,m)=>s+(m.ml||0),0)}ml</span>`:''}
-        ${e.weight?`<span class="jas-day-chip gold">⚖ ${e.weight}kg</span>`:''}
-      </div>
-      ${(e.foods&&e.foods.length)?`<div class="jas-day-row" style="margin-top:4px">${e.foods.map(f=>`<span class="jas-day-chip">${f.reaction==='ok'?'✅':f.reaction==='no'?'❌':'🆕'} ${esc(f.name)}</span>`).join('')}</div>`:''}
-      ${(e.notes&&e.notes.length)?e.notes.slice(-3).map(n=>`<div style="font-size:12px;color:#c8b888;padding:4px 0;border-top:1px solid #1e1608;margin-top:6px">${esc(n.text)}</div>`).join(''):''}
-      ${!(e.sleep||e.mood||e.notes&&e.notes.length)?'<div style="font-size:12px;color:#4a3820;font-style:italic">Nessun dato registrato per questo giorno</div>':''}
-    </div>`;
+  // Conteggio pasti ultimi 7 giorni
+  const days7=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const iso=dateToISO(d);
+    const e=stData[jasperDiaryKey(iso)]||{};
+    days7.push({day:d.toLocaleDateString('it-IT',{weekday:'short'}).slice(0,2).toUpperCase(),meals:(e.meals||[]).length,iso});
   }
+  const maxMeals=Math.max(1,...days7.map(d=>d.meals));
+  const weekBarsHtml=days7.map(d=>{
+    const h=d.meals>0?Math.round((d.meals/maxMeals)*100):0;
+    const isToday=d.iso===today;
+    return `<div class="jas-chart-col">
+      <div class="jas-chart-bar-wrap">
+        <div class="jas-chart-bar" style="height:${Math.max(4,h)}%;background:#d4a843;width:100%"></div>
+      </div>
+      <div class="jas-chart-day" style="${isToday?'color:#f0c860;font-weight:bold':''}">${d.day}</div>
+      <div style="font-size:10px;color:#6a5030;margin-top:2px">${d.meals||''}</div>
+    </div>`;
+  }).join('');
+  const weekChartHtml=`<div class="jas-chart" style="margin:20px 0">
+    <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px">🍼 Pasti ultimi 7 giorni</div>
+    ${days7.every(d=>!d.meals)
+      ?'<div style="text-align:center;padding:16px 0;color:#4a3820;font-size:13px;font-style:italic">Inizia a registrare i pasti 🌱</div>'
+      :'<div class="jas-chart-grid">'+weekBarsHtml+'</div>'
+    }
+  </div>`;
 
-  const html=timelineHtml+weekChartHtml+anissaMoodBlock+calHtml+detailHtml;
+  const html=calHtml+weekChartHtml;
   panes.forEach(p=>p.innerHTML=html);
 }
 
@@ -389,24 +302,16 @@ function jasperCalNav(dir){
   jasperCalMonth.month+=dir;
   if(jasperCalMonth.month>11){jasperCalMonth.month=0;jasperCalMonth.year++;}
   if(jasperCalMonth.month<0){jasperCalMonth.month=11;jasperCalMonth.year--;}
-  jasperSelDay=null;
   renderJasperStorico();
 }
 
-function jasperSelCalDay(iso){
-  jasperSelDay=jasperSelDay===iso?null:iso;
-  renderJasperStorico();
-}
-
-/* ── Crescita: peso + milestone custom + svezzamento ── */
+/* ── Crescita: peso + milestone custom ── */
 async function renderJasperCrescita(){
   const panes=document.querySelectorAll('[data-pane="crescita"]');
   const weights=(stData['jasper_weights']||{list:[]}).list;
   const sorted=[...weights].sort((a,b)=>a.date.localeCompare(b.date));
   const maxW=sorted.length?Math.max(...sorted.map(w=>w.kg)):6;
   const minW=sorted.length?Math.min(...sorted.map(w=>w.kg))-0.5:3;
-  const today=toISO();
-  const entryToday=stData[jasperDiaryKey(today)]||{};
 
   const barHtml=sorted.slice(-10).map(w=>{
     const pct=Math.round(((w.kg-minW)/(maxW-minW+0.1))*100);
@@ -428,12 +333,6 @@ async function renderJasperCrescita(){
     </div>`;
   }).join('');
 
-  // ── Svezzamento ──
-  const foods=entryToday.foods||[];
-  const foodsHtml=foods.length
-    ?foods.map((f,i)=>`<div class="jas-food-tag ${f.reaction||'new'}">${esc(f.name)}<button onclick="jasperDeleteFood(${i})" style="background:none;border:none;color:inherit;cursor:pointer;padding:0;font-size:12px">×</button></div>`).join('')
-    :'<span style="font-size:12px;color:#4a3820">Nessun alimento oggi</span>';
-
   // ── Milestone custom ──
   const cms=jasperCustomMilestones();
   const cmsHtml=cms.list.length
@@ -441,39 +340,21 @@ async function renderJasperCrescita(){
     :'<div style="font-size:12px;color:#4a3820;padding:8px 0">Nessuna milestone personale ancora</div>';
 
   const html=`<div>
-    <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:14px">⚖ Registra peso</div>
+    <div class="jas-section-lbl">⚖ Registra peso</div>
     <div class="jas-weight-inp-row">
-      <input class="jas-weight-inp" type="number" id="jasWeightKg" step="0.01" min="2" max="30" placeholder="es. 7.25" inputmode="decimal"
-        style="width:100px">
-      <input class="jas-weight-inp" type="date" id="jasWeightDate" value="${toISO()}"
-        max="${toISO()}">
+      <input class="jas-weight-inp" type="number" id="jasWeightKg" step="0.01" min="2" max="30" placeholder="es. 7.25" inputmode="decimal" style="width:100px">
+      <input class="jas-weight-inp" type="date" id="jasWeightDate" value="${toISO()}" max="${toISO()}">
       <input class="jas-weight-inp" id="jasWeightNote" placeholder="nota opzionale (es. Pediatra)" style="flex:1">
     </div>
     <button onclick="jasperLogWeight()" style="padding:9px 20px;background:#221608;border:1px solid #6a5030;border-radius:12px;color:#d4a843;font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:20px">+ Salva peso</button>
-    ${sorted.length>=2?`<div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:8px">📈 Curva di crescita</div>
+    ${sorted.length>=2?`<div class="jas-section-lbl">📈 Curva di crescita</div>
     <div class="jas-weight-bar-wrap">${barHtml}</div>`:''}
-    <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:8px">📋 Storico pesi</div>
+    <div class="jas-section-lbl">📋 Storico pesi</div>
     ${listHtml||'<div style="font-size:13px;color:#4a3820;font-style:italic;padding:8px 0">Nessun peso registrato ancora</div>'}
-
-    <!-- Svezzamento -->
-    <div style="margin-top:28px">
-      <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px">🥕 Svezzamento oggi</div>
-      <div class="jas-food-tags">${foodsHtml}</div>
-      <div class="jas-ms-add-row">
-        <input class="jas-ms-inp" id="jasFoodInp" autocomplete="off" autocorrect="off" autocapitalize="sentences" placeholder='es. "Carota" · "Broccoli" · "Mela"'
-          onkeydown="if(event.key==='Enter'){event.preventDefault();jasperAddFood()}" maxlength="30">
-        <select id="jasFoodReaction" style="background:#160f04;border:1px solid #3a2a10;border-radius:10px;color:#a08040;padding:8px;font-size:14px;font-family:inherit;outline:none">
-          <option value="new">🆕 Nuovo</option>
-          <option value="ok">✅ Mangiato</option>
-          <option value="no">❌ Non gradito</option>
-        </select>
-        <button onclick="jasperAddFood()" style="padding:8px 12px;background:#221608;border:1px solid #6a5030;border-radius:10px;color:#a08040;font-size:12px;cursor:pointer;font-family:inherit">+</button>
-      </div>
-    </div>
 
     <!-- Milestone custom -->
     <div class="jas-custom-ms" style="margin-top:28px">
-      <div style="font-size:10px;letter-spacing:2px;color:#6a5030;text-transform:uppercase;margin-bottom:10px">✦ Le tue milestone</div>
+      <div class="jas-section-lbl">✦ Le tue milestone</div>
       <div class="jas-custom-ms-list">${cmsHtml}</div>
       <div class="jas-ms-add-row">
         <input class="jas-ms-inp" id="jasMsInp" autocomplete="off" autocorrect="off" autocapitalize="sentences" placeholder='es. "Prima volta che ha riso" · "Ha detto mamma"'
@@ -483,6 +364,201 @@ async function renderJasperCrescita(){
     </div>
   </div>`;
   panes.forEach(p=>p.innerHTML=html);
+}
+
+/* ════════════════════════════════════════
+   CIBO — Dedicata ad Anissa
+   Database globale dei cibi che mangia Jasper
+   con reazione 1-5 (faccine), supporto mix
+   ════════════════════════════════════════ */
+const FOOD_FACES = ['','🤮','😣','😐','🙂','😍'];
+const FOOD_LABELS = ['','Vomita','Non gli piace','Neutro','Gli piace','Adora'];
+let _cibofilter = 'all'; // 'all' | 'love' | 'hate' | 'recent'
+
+function jasperFoodsAll(){ return stData['jasper_foods']||{list:[]}; }
+
+async function saveJasperFoods(foods){
+  stData['jasper_foods']=foods;
+  localStorage.setItem('rico_st',JSON.stringify(stData));
+  sbFetch('startup_data',{
+    method:'POST',
+    prefer:'resolution=merge-duplicates,return=minimal',
+    body:JSON.stringify({id:'jasper_foods',data:foods})
+  }).catch(e => console.warn('saveJasperFoods Supabase sync failed:', e));
+}
+
+async function renderJasperCibo(){
+  const panes=document.querySelectorAll('[data-pane="cibo"]');
+  const foods=jasperFoodsAll();
+  const list=foods.list||[];
+
+  // Filter
+  let filtered=list;
+  if(_cibofilter==='love') filtered=list.filter(f=>f.reaction>=4);
+  else if(_cibofilter==='hate') filtered=list.filter(f=>f.reaction<=2);
+  else if(_cibofilter==='recent') filtered=list.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,20);
+
+  // Sort by reaction (love first) for "all" view
+  if(_cibofilter==='all') filtered=filtered.slice().sort((a,b)=>(b.reaction||0)-(a.reaction||0));
+
+  const cardsHtml=filtered.length
+    ? filtered.map(f=>{
+        const dateLbl=f.date?new Date(f.date+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'}):'';
+        const typeLbl=f.type==='mix'?'<span class="jas-cibo-type-pill mix">MIX</span>':'<span class="jas-cibo-type-pill single">solo</span>';
+        return `<div class="jas-cibo-card" data-react="${f.reaction||0}">
+          <div class="jas-cibo-card-face">${FOOD_FACES[f.reaction||3]}</div>
+          <div class="jas-cibo-card-body">
+            <div class="jas-cibo-card-name">${esc(f.name)}</div>
+            <div class="jas-cibo-card-meta">${typeLbl}${dateLbl?'<span class="jas-cibo-date">'+esc(dateLbl)+'</span>':''}</div>
+            ${f.note?`<div class="jas-cibo-card-note">${esc(f.note)}</div>`:''}
+          </div>
+          <div class="jas-cibo-card-actions">
+            <button class="jas-cibo-edit" onclick="jasperEditFood('${esc(f.id)}')" title="Modifica">✎</button>
+            <button class="jas-cibo-del" onclick="jasperDeleteFoodEntry('${esc(f.id)}')" title="Rimuovi">×</button>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="jas-cibo-empty">Nessun cibo registrato ancora.<br>Aggiungi il primo qui sotto ✦</div>';
+
+  // Stats
+  const total=list.length;
+  const loved=list.filter(f=>f.reaction>=4).length;
+  const hated=list.filter(f=>f.reaction<=2).length;
+
+  const html=`<div class="jas-cibo-page">
+    <!-- Stats -->
+    <div class="jas-cibo-stats">
+      <div class="jas-cibo-stat">
+        <div class="jas-cibo-stat-val">${total}</div>
+        <div class="jas-cibo-stat-lbl">Totale</div>
+      </div>
+      <div class="jas-cibo-stat love">
+        <div class="jas-cibo-stat-val">${loved}</div>
+        <div class="jas-cibo-stat-lbl">Gli piace</div>
+      </div>
+      <div class="jas-cibo-stat hate">
+        <div class="jas-cibo-stat-val">${hated}</div>
+        <div class="jas-cibo-stat-lbl">No</div>
+      </div>
+    </div>
+
+    <!-- Form aggiungi -->
+    <div class="jas-cibo-form">
+      <div class="jas-section-lbl">🥕 Aggiungi cibo</div>
+      <input class="jas-cibo-inp" id="jasCiboName" autocomplete="off" autocorrect="off" autocapitalize="sentences"
+        placeholder='es. "Carota" · "Pasta + zucchine + patate"' maxlength="60"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();jasperAddFoodEntry()}">
+
+      <div class="jas-cibo-type-row">
+        <label class="jas-cibo-type-opt">
+          <input type="radio" name="ciboType" value="single" checked>
+          <span>Singolo</span>
+        </label>
+        <label class="jas-cibo-type-opt">
+          <input type="radio" name="ciboType" value="mix">
+          <span>Mix</span>
+        </label>
+      </div>
+
+      <div class="jas-cibo-faces-lbl">Come l'ha presa?</div>
+      <div class="jas-cibo-faces" id="jasCiboFaces">
+        ${[1,2,3,4,5].map(v=>`<button class="jas-cibo-face ${v===3?'selected':''}" data-v="${v}" onclick="jasperSelectFoodFace(${v})" type="button">${FOOD_FACES[v]}<span>${FOOD_LABELS[v]}</span></button>`).join('')}
+      </div>
+
+      <textarea class="jas-cibo-note" id="jasCiboNote" rows="2" placeholder="Nota opzionale (es. quantita, dettagli...)"></textarea>
+
+      <button class="jas-cibo-save-btn" onclick="jasperAddFoodEntry()">💾 Salva cibo</button>
+    </div>
+
+    <!-- Filtri -->
+    <div class="jas-cibo-filters">
+      <button class="jas-cibo-filter ${_cibofilter==='all'?'on':''}" onclick="jasperSetCiboFilter('all')" type="button">Tutti</button>
+      <button class="jas-cibo-filter ${_cibofilter==='love'?'on':''}" onclick="jasperSetCiboFilter('love')" type="button">😍 Piace</button>
+      <button class="jas-cibo-filter ${_cibofilter==='hate'?'on':''}" onclick="jasperSetCiboFilter('hate')" type="button">🤮 No</button>
+      <button class="jas-cibo-filter ${_cibofilter==='recent'?'on':''}" onclick="jasperSetCiboFilter('recent')" type="button">⏱ Recenti</button>
+    </div>
+
+    <!-- Lista -->
+    <div class="jas-cibo-list">${cardsHtml}</div>
+  </div>`;
+
+  panes.forEach(p=>p.innerHTML=html);
+}
+
+let _selectedFoodFace=3;
+let _editingFoodId=null;
+
+function jasperSelectFoodFace(v){
+  _selectedFoodFace=v;
+  document.querySelectorAll('.jas-cibo-face').forEach(b=>b.classList.toggle('selected',+b.dataset.v===v));
+}
+
+function jasperSetCiboFilter(f){
+  _cibofilter=f;
+  renderJasperCibo();
+}
+
+async function jasperAddFoodEntry(){
+  try {
+    const inp=document.getElementById('jasCiboName');
+    if(!inp||!inp.value.trim()){toast('Scrivi il nome del cibo','warn');return;}
+    const type=document.querySelector('input[name="ciboType"]:checked')?.value||'single';
+    const note=(document.getElementById('jasCiboNote')?.value||'').trim();
+    const foods=jasperFoodsAll();
+    if(_editingFoodId){
+      // Update esistente
+      const idx=foods.list.findIndex(f=>f.id===_editingFoodId);
+      if(idx>=0){
+        foods.list[idx]={...foods.list[idx],name:inp.value.trim(),type,reaction:_selectedFoodFace,note};
+        await saveJasperFoods(foods);
+        toast('✓ Cibo aggiornato','success');
+      }
+      _editingFoodId=null;
+    } else {
+      // Nuovo
+      foods.list.unshift({
+        id:'food_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+        name:inp.value.trim(),
+        type,
+        reaction:_selectedFoodFace,
+        date:toISO(),
+        note
+      });
+      await saveJasperFoods(foods);
+      toast('🥕 '+inp.value.trim()+' salvato','success');
+    }
+    inp.value='';
+    document.getElementById('jasCiboNote').value='';
+    _selectedFoodFace=3;
+    renderJasperCibo();
+  } catch(e) { console.error('jasperAddFoodEntry:', e); toast('Errore salvataggio cibo','warn'); }
+}
+
+function jasperEditFood(id){
+  const foods=jasperFoodsAll();
+  const f=foods.list.find(x=>x.id===id);
+  if(!f)return;
+  _editingFoodId=id;
+  _selectedFoodFace=f.reaction||3;
+  setTimeout(()=>{
+    const inp=document.getElementById('jasCiboName');
+    const note=document.getElementById('jasCiboNote');
+    if(inp){inp.value=f.name;inp.focus();}
+    if(note) note.value=f.note||'';
+    document.querySelectorAll('input[name="ciboType"]').forEach(r=>r.checked=(r.value===(f.type||'single')));
+    document.querySelectorAll('.jas-cibo-face').forEach(b=>b.classList.toggle('selected',+b.dataset.v===_selectedFoodFace));
+    inp?.scrollIntoView({behavior:'smooth',block:'center'});
+  },50);
+}
+
+async function jasperDeleteFoodEntry(id){
+  try {
+    const foods=jasperFoodsAll();
+    foods.list=foods.list.filter(f=>f.id!==id);
+    await saveJasperFoods(foods);
+    renderJasperCibo();
+    toast('Cibo rimosso','info');
+  } catch(e) { console.error('jasperDeleteFoodEntry:', e); toast('Errore','warn'); }
 }
 
 async function jasperLogWeight(){
@@ -513,97 +589,83 @@ async function jasperDeleteWeight(idx){
 /* ── Actions ── */
 let _jasperOpQueue = Promise.resolve();
 
-async function jasperSetValue(type,val){
+// Registra un pasto con ora custom (default: ora corrente)
+async function jasperLogMealTime(){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
+      const inp=document.getElementById('jasMealTime');
+      if(!inp||!inp.value){toast('Seleziona un orario','warn');return;}
+      const hhmm=inp.value;
       const today=toISO();
       const entry=jasperDiary[today]||(await loadJasperDiary(today));
-      entry[type]=val;
+      if(!entry.meals)entry.meals=[];
+      // Evita duplicati: se esiste gia un pasto nello stesso minuto non lo ri-aggiunge
+      if(entry.meals.some(m => m.hhmm === hhmm)){toast('Pasto gia registrato a '+hhmm,'warn');return;}
+      entry.meals.push({hhmm});
+      entry.lastMeal=hhmm;
       jasperDiary[today]=entry;
-      document.querySelectorAll('.jas-tile,.jas-anissa-emoji').forEach(t=>t.style.opacity='.6');
       await saveJasperEntry(today,entry);
-      await renderJasper();
-    } catch(e) { console.error('jasperSetValue:', e); toast('Errore salvataggio','warn'); renderJasper(); }
+      renderJasper();
+      toast('🍼 Pasto alle '+hhmm,'success');
+    } catch(e) { console.error('jasperLogMealTime:', e); toast('Errore salvataggio pasto','warn'); }
   }).catch(() => {});
 }
 
-async function jasperSaveSleepField(field,val){
+async function jasperDeleteMeal(idx){
   try {
     const today=toISO();
     const entry=jasperDiary[today]||(await loadJasperDiary(today));
-    entry[field]=val;
-    jasperDiary[today]=entry;
-    await saveJasperEntry(today,entry);
-  } catch(e) { console.error('jasperSaveSleepField:', e); }
-}
-
-function jasperTimerAgo(isoTs){
-  if(!isoTs)return null;
-  const diff=Math.floor((Date.now()-new Date(isoTs).getTime())/60000);
-  if(diff<1)return'adesso';
-  if(diff<60)return diff+'min fa';
-  const h=Math.floor(diff/60),m=diff%60;
-  return h+'h'+(m>0?' '+m+'min':'')+'fa';
-}
-
-function jasperLogMealCustom(){
-  const btns=document.querySelectorAll('.jas-ml-row');
-  btns.forEach(row=>{
-    if(row.querySelector('.jas-ml-custom-inp'))return;
-    const inp=document.createElement('input');
-    inp.className='jas-sleep-inp jas-ml-custom-inp';
-    inp.placeholder='ml';inp.type='number';inp.min='1';inp.max='500';
-    inp.style.cssText='width:64px;font-size:16px;padding:6px 8px;margin-left:4px';
-    inp.onkeydown=e=>{if(e.key==='Enter'){const v=parseInt(inp.value);if(v>0)jasperLogMeal(v);}};
-    row.appendChild(inp);setTimeout(()=>inp.focus(),50);
-  });
-}
-
-async function jasperLogMeal(ml){
-  try {
-    const today=toISO();
-    const entry=jasperDiary[today]||(await loadJasperDiary(today));
-    if(!entry.meals)entry.meals=[];
-    const now=new Date();
-    const hhmm=now.toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
-    const swissDate=now.toLocaleDateString('sv-SE',{timeZone:'Europe/Zurich'});
-    const ts=`${swissDate}T${hhmm}:00`;
-    entry.meals.unshift({ml,ts,hhmm});
-    entry.lastMeal=ts;entry.lastMealMl=ml;
+    if(!entry.meals||idx<0)return;
+    // Sort indice: l'indice e riferito alla lista ordinata discendente per hhmm
+    const sorted=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
+    const toRemove=sorted[idx];
+    if(!toRemove)return;
+    entry.meals=entry.meals.filter(m=>m!==toRemove);
+    // Aggiorna lastMeal al prossimo piu recente
+    if(entry.meals.length){
+      const latest=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''))[0];
+      entry.lastMeal=latest.hhmm;
+    } else { entry.lastMeal=null; }
     jasperDiary[today]=entry;
     await saveJasperEntry(today,entry);
     renderJasper();
-    toast('🍼 '+ml+'ml · '+hhmm,'success');
-  } catch(e) { console.error('jasperLogMeal:', e); toast('Errore registrazione pasto','warn'); }
+    toast('Pasto rimosso','info');
+  } catch(e) { console.error('jasperDeleteMeal:', e); toast('Errore','warn'); }
 }
 
-async function jasperAddFood(){
-  try {
-    const inp=document.getElementById('jasFoodInp');
-    const sel=document.getElementById('jasFoodReaction');
-    if(!inp||!inp.value.trim())return;
-    const today=toISO();
-    const entry=jasperDiary[today]||(await loadJasperDiary(today));
-    if(!entry.foods)entry.foods=[];
-    entry.foods.unshift({name:inp.value.trim(),reaction:sel?.value||'new'});
-    jasperDiary[today]=entry;
-    inp.value='';
-    await saveJasperEntry(today,entry);
-    renderJasper();
-    toast('🥕 Alimento salvato ✓','success');
-  } catch(e) { console.error('jasperAddFood:', e); toast('Errore salvataggio alimento','warn'); }
+/* ── Popup storico giorno ── */
+function openJasperDayPopup(iso){
+  const entry=stData[jasperDiaryKey(iso)]||{};
+  const meals=(entry.meals||[]).slice().sort((a,b)=>(a.hhmm||'').localeCompare(b.hhmm||''));
+  const notes=entry.notes||[];
+  const dlbl=new Date(iso+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  let content='';
+  content+=`<div class="jas-popup-section">
+    <div class="jas-popup-sec-lbl">🍼 Pasti (${meals.length})</div>
+    ${meals.length
+      ? '<div class="jas-popup-meals">'+meals.map(m=>`<div class="jas-popup-meal">🍼 ${esc(m.hhmm||'?')}</div>`).join('')+'</div>'
+      : '<div class="jas-popup-empty">Nessun pasto registrato</div>'}
+  </div>`;
+
+  content+=`<div class="jas-popup-section">
+    <div class="jas-popup-sec-lbl">📝 Note (${notes.length})</div>
+    ${notes.length
+      ? '<div class="jas-popup-notes">'+notes.map(n=>`<div class="jas-popup-note"><span class="jas-popup-note-ts">${esc(n.ts||'')}</span>${esc(n.text||'')}</div>`).join('')+'</div>'
+      : '<div class="jas-popup-empty">Nessuna nota</div>'}
+  </div>`;
+
+  const title=document.getElementById('jasDayPopupTitle');
+  const body=document.getElementById('jasDayPopupContent');
+  if(title) title.textContent=dlbl;
+  if(body) body.innerHTML=content;
+  const overlay=document.getElementById('jasperDayPopup');
+  if(overlay) overlay.classList.add('open');
 }
 
-async function jasperDeleteFood(idx){ try {
-  const today=toISO();
-  const entry=jasperDiary[today]||(await loadJasperDiary(today));
-  if(!entry.foods)return;
-  entry.foods.splice(idx,1);
-  jasperDiary[today]=entry;
-  await saveJasperEntry(today,entry);
-  renderJasper();
-
-  } catch(e){ console.error("jasperDeleteFood:",e); toast("Errore","warn"); }
+function closeJasperDayPopup(){
+  const overlay=document.getElementById('jasperDayPopup');
+  if(overlay) overlay.classList.remove('open');
 }
 
 function jasperCustomMilestones(){return stData['jasper_milestones']||{list:[]};}
