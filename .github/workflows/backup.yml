@@ -1,0 +1,81 @@
+name: Weekly Supabase backup
+
+# Ogni domenica alle 03:00 UTC (05:00 Zurigo estate / 04:00 Zurigo inverno)
+# Puoi anche lanciarlo manualmente dal tab Actions con "Run workflow"
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+concurrency:
+  group: weekly-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      # Valori gia pubblici in js/config.js (sb_publishable e key client-safe)
+      SUPABASE_URL: https://jjqqsdizmgfjmlsixtmj.supabase.co
+      SUPABASE_KEY: sb_publishable_1Wtc1fnI4Q-b2-y6HGJ-cg_fW4DD0EM
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch Supabase data and build backup JSON
+        run: |
+          set -euo pipefail
+          mkdir -p backups
+          DATE=$(date -u +%Y-%m-%d)
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          FILE="backups/backup-${DATE}.json"
+
+          echo "Fetching items table..."
+          ITEMS=$(curl -sS --fail \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            "$SUPABASE_URL/rest/v1/items?select=*")
+
+          echo "Fetching startup_data table..."
+          ST=$(curl -sS --fail \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            "$SUPABASE_URL/rest/v1/startup_data?select=*")
+
+          ITEMS_COUNT=$(echo "$ITEMS" | jq 'length')
+          ST_COUNT=$(echo "$ST" | jq 'length')
+          echo "items: $ITEMS_COUNT rows"
+          echo "startup_data: $ST_COUNT rows"
+
+          jq -n \
+            --argjson items "$ITEMS" \
+            --argjson stData "$ST" \
+            --arg timestamp "$TIMESTAMP" \
+            '{
+              version: 1,
+              backed_up_at: $timestamp,
+              source: "github-actions-weekly",
+              items_count: ($items | length),
+              startup_data_count: ($stData | length),
+              items: $items,
+              startup_data: $stData
+            }' > "$FILE"
+
+          SIZE=$(wc -c < "$FILE" | tr -d ' ')
+          echo "Backup file: $FILE"
+          echo "Size: $SIZE bytes"
+
+      - name: Commit and push backup
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backups/
+          if git diff --cached --quiet; then
+            echo "Nessun cambiamento — il backup della settimana e gia presente."
+          else
+            git commit -m "chore: backup Supabase settimanale $(date -u +%Y-%m-%d)"
+            git push
+          fi

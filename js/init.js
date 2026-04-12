@@ -1,4 +1,10 @@
 (async function init() {
+  // Cleanup: rimuovi marker vecchio backup client-side (sostituito da GitHub Actions)
+  try {
+    localStorage.removeItem('rico_last_backup_rico');
+    localStorage.removeItem('rico_last_backup_anissa');
+  } catch(e) { /* ignora */ }
+
   try { await loadAll(); } catch(e) {
     console.warn('loadAll failed, using localStorage:', e.message);
   }
@@ -28,8 +34,6 @@
   renderAll();
   checkSmartNotifs();
   scheduleNotifs();
-  // Backup settimanale silente (solo se sono passati 7gg dall'ultimo)
-  setTimeout(() => maybeWeeklyBackup(), 2000);
 
   // Drag & drop upload
   document.addEventListener('dragover', e => e.preventDefault());

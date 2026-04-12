@@ -120,47 +120,6 @@ async function saveSt() {
   }
 }
 
-/* ═══ BACKUP SETTIMANALE AUTOMATICO ═══
-   Scarica un JSON completo (items + stData) una volta a settimana.
-   Controllato all'apertura app: se sono passati 7+ giorni dall'ultimo
-   backup per questo profilo, parte il download. Silent fail se il
-   browser blocca (es. PWA su iOS). */
-function maybeWeeklyBackup() {
-  try {
-    const key = 'rico_last_backup_' + currentProfile;
-    const last = localStorage.getItem(key);
-    const nowMs = Date.now();
-    const sevenDaysMs = 7 * 86400000;
-    if (last) {
-      const lastMs = Date.parse(last);
-      if (!isNaN(lastMs) && (nowMs - lastMs) < sevenDaysMs) return; // ancora fresco
-    }
-    const payload = {
-      version: 1,
-      profile: currentProfile,
-      exported_at: new Date().toISOString(),
-      items: items,
-      stData: stData
-    };
-    const json = JSON.stringify(payload, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'rico-os-backup-' + currentProfile + '-' + toISO() + '.json';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
-    localStorage.setItem(key, new Date().toISOString());
-    if (typeof toast === 'function') toast('💾 Backup settimanale scaricato', 'success');
-  } catch(e) {
-    console.warn('maybeWeeklyBackup failed:', e);
-  }
-}
-
 /* helper: format a Date object as local YYYY-MM-DD */
 function dateToISO(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
