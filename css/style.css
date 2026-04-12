@@ -516,6 +516,31 @@ button.jas-tab {
 }
 .jas-meal-save-btn:hover{background:#f0c860;}
 
+/* ═══ HHMM PICKER 24h (ora:minuti) ═══ */
+.jas-hhmm-picker{
+  display:flex;align-items:center;gap:6px;flex:1;min-width:0;
+}
+.jas-hhmm-inp{
+  flex:1;min-width:0;width:100%;background:#0f0a04;border:1px solid #3a2a10;
+  border-radius:10px;color:#d4a843;padding:12px 6px;font-size:18px;
+  font-family:inherit;text-align:center;outline:none;font-weight:600;
+  transition:border-color .15s;
+  -moz-appearance:textfield;appearance:textfield;
+}
+.jas-hhmm-inp::-webkit-outer-spin-button,
+.jas-hhmm-inp::-webkit-inner-spin-button{
+  -webkit-appearance:none;margin:0;
+}
+.jas-hhmm-inp:focus{border-color:#d4a843;}
+.jas-hhmm-sep{color:#d4a843;font-size:18px;font-weight:700;}
+.jas-hhmm-now{
+  flex-shrink:0;background:#2a1a08;border:1px solid #3a2a10;border-radius:10px;
+  color:#d4a843;width:40px;height:44px;font-size:18px;cursor:pointer;
+  font-family:inherit;transition:all .15s;
+}
+.jas-hhmm-now:hover{background:#3a2a10;border-color:#d4a843;}
+.jas-hhmm-now:active{transform:scale(.95);}
+
 /* ═══ SONNO / PISOLINI ═══ */
 .jas-sleep-card{
   background:linear-gradient(135deg,#160f1f 0%,#1a1028 100%);

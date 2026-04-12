@@ -98,6 +98,46 @@ function nowHHMMSwiss(){
   return new Date().toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
 }
 
+/* ── HHMM picker 24h: due number input (ora 0-23, minuti 0-59).
+   Evita il clock picker nativo 12h che confonde AM/PM. ── */
+function hhmmPickerHTML(idPrefix, hhmm, opts){
+  const o = opts || {};
+  const parts = (hhmm||'').split(':');
+  const hh = parts[0] != null && parts[0] !== '' ? String(parseInt(parts[0],10)||0).padStart(2,'0') : '';
+  const mm = parts[1] != null && parts[1] !== '' ? String(parseInt(parts[1],10)||0).padStart(2,'0') : '';
+  const nowBtn = o.withNow
+    ? `<button type="button" class="jas-hhmm-now" onclick="jasperHHMMPickerNow('${idPrefix}')" title="Ora attuale">⟲</button>`
+    : '';
+  const placeholder = o.allowEmpty ? ' placeholder="--"' : '';
+  return `<div class="jas-hhmm-picker">
+    <input type="number" min="0" max="23" step="1" inputmode="numeric" class="jas-hhmm-inp" id="${idPrefix}H" value="${hh}"${placeholder}>
+    <span class="jas-hhmm-sep">:</span>
+    <input type="number" min="0" max="59" step="1" inputmode="numeric" class="jas-hhmm-inp" id="${idPrefix}M" value="${mm}"${placeholder}>
+    ${nowBtn}
+  </div>`;
+}
+function readHHMMPicker(idPrefix){
+  const hEl = document.getElementById(idPrefix+'H');
+  const mEl = document.getElementById(idPrefix+'M');
+  if(!hEl || !mEl) return null;
+  const hRaw = (hEl.value||'').trim();
+  const mRaw = (mEl.value||'').trim();
+  if(hRaw === '' && mRaw === '') return null;
+  const h = parseInt(hRaw,10);
+  const m = parseInt(mRaw,10);
+  if(isNaN(h) || h < 0 || h > 23) return null;
+  if(isNaN(m) || m < 0 || m > 59) return null;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
+function jasperHHMMPickerNow(idPrefix){
+  const now = nowHHMMSwiss();
+  const [h,m] = now.split(':');
+  const hEl = document.getElementById(idPrefix+'H');
+  const mEl = document.getElementById(idPrefix+'M');
+  if(hEl) hEl.value = String(parseInt(h,10)).padStart(2,'0');
+  if(mEl) mEl.value = String(parseInt(m,10)).padStart(2,'0');
+}
+
 async function saveJasperEntry(date,data){
   const key=jasperDiaryKey(date);
   stData[key]=data;
@@ -261,7 +301,7 @@ async function renderJasper(){
       <div class="jas-add-meal">
         <div class="jas-section-lbl">🍼 Registra pasto</div>
         <div class="jas-add-meal-row">
-          <input class="jas-meal-time-inp" type="time" id="jasMealTime" value="${nowHHMM}">
+          ${hhmmPickerHTML('jasMealTime', nowHHMM, {withNow:true})}
           <button class="jas-meal-save-btn" onclick="jasperLogMealTime()">+ Aggiungi</button>
         </div>
       </div>
@@ -786,9 +826,8 @@ let _jasperOpQueue = Promise.resolve();
 async function jasperLogMealTime(){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const inp=document.getElementById('jasMealTime');
-      if(!inp||!inp.value){toast('Seleziona un orario','warn');return;}
-      const hhmm=inp.value;
+      const hhmm=readHHMMPicker('jasMealTime');
+      if(!hhmm){toast('Seleziona un orario','warn');return;}
       const today=toISO();
       const entry=jasperDiary[today]||(await loadJasperDiary(today));
       if(!entry.meals)entry.meals=[];
@@ -897,11 +936,11 @@ function jasperShowManualSleepForm(){
     <div class="jas-popup-edit-lbl">Aggiungi pisolino manualmente</div>
     <div class="jas-sleep-manual-row">
       <label>Inizio</label>
-      <input type="time" id="jasManualStart" class="jas-popup-edit-inp" value="${now}">
+      ${hhmmPickerHTML('jasManualStart', now, {withNow:true})}
     </div>
     <div class="jas-sleep-manual-row">
       <label>Fine</label>
-      <input type="time" id="jasManualEnd" class="jas-popup-edit-inp" value="${now}">
+      ${hhmmPickerHTML('jasManualEnd', now, {withNow:true})}
     </div>
     <div class="jas-popup-edit-btns">
       <button class="jas-popup-edit-save" onclick="jasperAddSleepManual()" type="button">✓ Salva</button>
@@ -912,11 +951,8 @@ function jasperShowManualSleepForm(){
 }
 
 function jasperAddSleepManual(){
-  const active = jasperActive();
-  const startEl = active?.querySelector('#jasManualStart') || document.getElementById('jasManualStart');
-  const endEl = active?.querySelector('#jasManualEnd') || document.getElementById('jasManualEnd');
-  const start = startEl?.value;
-  const end = endEl?.value;
+  const start = readHHMMPicker('jasManualStart');
+  const end = readHHMMPicker('jasManualEnd');
   if(!start || !end){ toast('Inserisci inizio e fine','warn'); return; }
   if(start === end){ toast('Inizio e fine coincidono','warn'); return; }
   _jasperOpQueue = _jasperOpQueue.then(async () => {
@@ -1049,7 +1085,7 @@ function renderPopupEditForm(iso, state){
   if(type === 'meal'){
     body = `
       <div class="jas-popup-edit-lbl">Modifica ora pasto</div>
-      <input type="time" id="popupEditFocus" class="jas-popup-edit-inp" value="${esc(data.hhmm||'')}">
+      ${hhmmPickerHTML('popupEditMeal', data.hhmm||'', {withNow:true})}
       <div class="jas-popup-edit-btns">
         <button class="jas-popup-edit-save" onclick="jasperSaveMealEdit('${iso}','${esc(data.hhmm||'')}',event)" type="button">✓ Salva</button>
         <button class="jas-popup-edit-cancel" onclick="jasperCancelPopupEdit('${iso}',event)" type="button">✗ Annulla</button>
@@ -1085,11 +1121,11 @@ function renderPopupEditForm(iso, state){
       <div class="jas-popup-edit-lbl">Modifica pisolino</div>
       <div class="jas-sleep-manual-row">
         <label>Inizio</label>
-        <input type="time" id="popupEditFocus" class="jas-popup-edit-inp" value="${esc(data.start||'')}">
+        ${hhmmPickerHTML('popupEditSleepStart', data.start||'', {withNow:true})}
       </div>
       <div class="jas-sleep-manual-row">
         <label>Fine</label>
-        <input type="time" id="popupEditSleepEnd" class="jas-popup-edit-inp" value="${esc(data.end||'')}">
+        ${hhmmPickerHTML('popupEditSleepEnd', data.end||'', {withNow:true, allowEmpty:true})}
       </div>
       <div style="font-size:11px;color:#8a7ca0;margin-bottom:10px;font-style:italic">Lascia vuota la fine se il pisolino e in corso</div>
       <div class="jas-popup-edit-btns">
@@ -1248,7 +1284,7 @@ function jasperCancelPopupEdit(iso, event){
 function jasperSaveMealEdit(iso, oldHhmm, event){
   event?.stopPropagation();
   // Snapshot del nuovo valore PRIMA di entrare in queue (evita problemi se popup re-rendered)
-  const newHhmm = document.getElementById('popupEditFocus')?.value;
+  const newHhmm = readHHMMPicker('popupEditMeal');
   if(!newHhmm){ toast('Seleziona un orario','warn'); return; }
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
@@ -1353,8 +1389,8 @@ function jasperSaveWeightEdit(iso, oldDate, event){
 
 function jasperSaveSleepEdit(iso, originalStart, event){
   event?.stopPropagation();
-  const newStart = document.getElementById('popupEditFocus')?.value;
-  const newEnd = document.getElementById('popupEditSleepEnd')?.value || null;
+  const newStart = readHHMMPicker('popupEditSleepStart');
+  const newEnd = readHHMMPicker('popupEditSleepEnd');
   if(!newStart){ toast('Inserisci almeno l\'ora di inizio','warn'); return; }
   if(newEnd && newStart === newEnd){ toast('Inizio e fine coincidono','warn'); return; }
   _jasperOpQueue = _jasperOpQueue.then(async () => {
