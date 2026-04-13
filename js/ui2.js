@@ -206,7 +206,9 @@ function checkSmartNotifs() {
       banners.push(makeBanner({
         id: 'nb-morning', type:'ok', ico:'☀️',
         title: 'Buongiorno! Agenda libera oggi',
-        msg: 'Ottimo momento per avanzare su una startup o studiare in anticipo.'
+        msg: currentProfile === 'anissa'
+          ? 'Goditela. Un momento per te, per Jasper, per quello che ti va.'
+          : 'Ottimo momento per avanzare su una startup o studiare in anticipo.'
       }));
     }
     notifMark('morning');

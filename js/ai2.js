@@ -168,7 +168,10 @@ function addChatMessage(pfx, role, text) {
     if (!container) return;
     const div = document.createElement('div');
     div.className = 'chat-msg ' + role;
-    div.innerHTML = text.replace(/\n/g,'<br>');
+    div.innerHTML = esc(text)
+      .replace(/&lt;strong&gt;/g, '<strong>')
+      .replace(/&lt;\/strong&gt;/g, '</strong>')
+      .replace(/\n/g, '<br>');
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
   });

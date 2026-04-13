@@ -451,8 +451,15 @@ function updateKeyUI() {
   });
 }
 
+let _clearDataPending = false;
 function clearData() {
-  if (typeof confirm !== "undefined" && !confirm('Cancellare TUTTI i dati? Questa azione non può essere annullata.')) return;
+  if (!_clearDataPending) {
+    _clearDataPending = true;
+    toast('⚠️ Tocca di nuovo per confermare la cancellazione di TUTTI i dati', 'warn');
+    setTimeout(() => { _clearDataPending = false; }, 4000);
+    return;
+  }
+  _clearDataPending = false;
   localStorage.removeItem('rico_items');
   localStorage.removeItem('rico_st');
   // Purge all notification tracking keys
