@@ -151,13 +151,9 @@ function isValidDate(s) {
   return d.getFullYear()===+m[1] && d.getMonth()===+m[2]-1 && d.getDate()===+m[3];
 }
 
-/* ═══ AREA FILTERING PER PROFILO ═══ */
-const SHARED_AREAS = ['famiglia','coppia','vacanza','jasper'];
-const RICO_AREAS   = ['lavoro','cpc','formatore','startup','personale_rico'];
-const ANISSA_AREAS = ['personale_anissa'];
-
+/* ═══ AREA FILTERING PER PROFILO ═══
+   Regola: Anissa vede tutto tranne startup. Rico vede tutto. */
 function isProfileArea(area) {
-  if (SHARED_AREAS.includes(area)) return true;
-  if (currentProfile === 'anissa') return ANISSA_AREAS.includes(area);
-  return RICO_AREAS.includes(area);
+  if (currentProfile === 'anissa') return area !== 'startup';
+  return true;
 }
