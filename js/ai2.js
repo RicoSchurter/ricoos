@@ -18,6 +18,20 @@ async function fetchMeteoToday() {
   } catch(e) { return null; }
 }
 
+/* Formatta una data YYYY-MM-DD in italiano con weekday corto + gg/mm.
+   Esempio: "2026-04-15" -> "mer 15/04". Risolve il problema dell'AI che
+   sbaglia a calcolare "domani" vs "mercoledi" dalle date ISO secche. */
+function fmtDateIt(iso) {
+  if (!iso || typeof iso !== 'string') return iso || '';
+  const parts = iso.split('-');
+  if (parts.length !== 3) return iso;
+  const [y, m, d] = parts.map(n => parseInt(n, 10));
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return iso;
+  const date = new Date(y, m - 1, d);
+  const dow = date.toLocaleDateString('it-IT', { weekday: 'short' });
+  return `${dow} ${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}`;
+}
+
 async function doBriefing(forceNew) {
   if (!apiKey) { openSettings(); return; }
   if (briefingLoading) return;
@@ -37,7 +51,8 @@ async function doBriefing(forceNew) {
   const agenda = tItems.length
     ? tItems.map(i => `${i.ora?i.ora+' ':''}"${i.titolo}" [${AREAS[i.area]?.l}]${i.prio==='alta'?' ⚠':''}${i.done?' ✓':''}`).join(', ')
     : 'niente in agenda oggi';
-  const prossimi = weekItems.slice(0,8).map(i => `${i.data.slice(5)} "${i.titolo}" [${AREAS[i.area]?.l}]`).join(', ');
+  // Formato arricchito con weekday per evitare che l'AI sbagli "domani" vs giorno reale
+  const prossimi = weekItems.slice(0,8).map(i => `${fmtDateIt(i.data)} "${i.titolo}" [${AREAS[i.area]?.l}]`).join(', ');
 
   let systemPrompt, userPrompt;
 
@@ -54,6 +69,8 @@ TONO. Parli come un'amica vera che le sta sul divano, non come un'app che fa il 
 
 REGOLA RIGIDA — RICO: Anissa non sa nulla dei progetti di Rico fuori da RemyChef. Per te non esistono ZodAI, PaintQuote, PaintQuote AI, FreelancerAI, Easy Call, EasyConnect, CPC Bellinzona, formatore SSEA, avvocato, esami CCO, test CCOA/CCOB/CCOC/CCOD/CCOE, corsi, lezioni di scuola, riunioni di lavoro. Anissa non lavora, non studia, non ha impegni di scuola o di lavoro: le sue giornate ruotano intorno a Jasper, alla casa, alla famiglia, a se stessa. Se nei dati di contesto vedi appuntamenti di lavoro, scuola, formatore, startup diverse da RemyChef, tratta quelle righe come se fossero il calendario di un'altra persona e ignorale del tutto: non dire "hai un impegno", non dire "oggi hai", non commentare. Zero. L'unica startup che esiste per te è RemyChef.
 
+REGOLA DATE (critica): prima di dire "domani", "dopodomani", "tra X giorni" o qualunque riferimento temporale relativo a un appuntamento, VERIFICA la data dell'appuntamento confrontandola con OGGI (dichiarato nel messaggio). Le date che ti arrivano hanno il formato "mer 15/04" (giorno della settimana + gg/mm) apposta per non farti sbagliare. Se la differenza con oggi è maggiore di 1 giorno NON dire "domani": di' il giorno esatto, esempio "mercoledì 15" o "venerdì prossimo". Errori sulle date sono inaccettabili: preferisci essere esplicita con giorno e numero invece di rischiare "domani" sbagliato.
+
 FORMATO: solo testo scorrevole, paragrafi brevi ma respirati. Usi solo punteggiatura italiana normale — virgole, punti, punto e virgola, punti di domanda. MAI trattini lunghi (—), MAI trattini brevi (-) usati come separatori o al posto della virgola. MAI elenchi puntati, MAI asterischi, MAI markdown, MAI emoji. <strong> solo su 2-3 parole chiave quando vuoi farle notare qualcosa. Italiano naturale e umano.`;
 
     const meteoLine = meteo
@@ -66,12 +83,12 @@ FORMATO: solo testo scorrevole, paragrafi brevi ma respirati. Usi solo punteggia
               : `Oggi a Tenero ${meteo.desc}, ${meteo.tMax}°C.`)
       : '';
 
-    userPrompt = `Sono Anissa. È ${sw.time} di ${sw.part}, ${oggi}.
+    userPrompt = `Sono Anissa. È ${sw.time} di ${sw.part}, ${oggi}. (data ISO: ${t})
 ${meteoLine}
 
 Oggi ho: ${agenda}.
 ${prossimi ? 'Nei prossimi giorni: ' + prossimi + '.' : ''}
-${pend.length ? 'Cose ancora aperte: ' + pend.map(i=>'"'+i.titolo+'"').join(', ') + '.' : ''}
+${pend.length ? 'Cose ancora aperte: ' + pend.map(i=>`${fmtDateIt(i.data)} "${i.titolo}"`).join(', ') + '.' : ''}
 
 ${memoryA ? memoryA : ''}
 
@@ -93,14 +110,16 @@ AZIONE:{"items":[...],"elimina_id":"ID"}  (spostamento)
 AZIONE:{"items":[],"elimina_id":"null","modifica_area":{"ids":["ID1","ID2"],"nuova_area":"cpc"}}  (cambio categoria)
 I campi item: titolo, data (YYYY-MM-DD), ora (HH:MM o null), area (lavoro/cpc/formatore/startup/famiglia/coppia/vacanza/personale_rico/personale_anissa/jasper), tipo (task/evento/meeting/appuntamento/test/scadenza), prio (alta/media/bassa), note.
 
+REGOLA DATE (critica): prima di dire "domani", "dopodomani", "tra X giorni" o qualunque riferimento temporale relativo a un appuntamento, VERIFICA la data dell'appuntamento confrontandola con OGGI (dichiarato nel messaggio user). Le date che ti arrivano hanno il formato "mer 15/04" (giorno della settimana + gg/mm) apposta per non farti sbagliare. Se la differenza con oggi è maggiore di 1 giorno NON dire "domani": di' il giorno esatto, esempio "mercoledì 15" o "venerdì 17". Errori sulle date sono inaccettabili.
+
 FORMATO RISPOSTE: testo scorrevole, paragrafi. Usa <strong> solo su 2-3 parole chiave. Zero markdown. Italiano. Vai a capo con newline.`;
 
     const memory = loadMemory();
-    userPrompt = `Sono Rico. Sono le ${sw.time} di ${sw.part}, ${oggi}. Cosa mi dici per oggi?
+    userPrompt = `Sono Rico. Sono le ${sw.time} di ${sw.part}, ${oggi}. (data ISO: ${t}). Cosa mi dici per oggi?
 
 Oggi: ${agenda}.
 ${prossimi ? 'Prossimi 7 giorni: ' + prossimi + '.' : ''}
-${pend.length ? 'Arretrati aperti: ' + pend.map(i=>'"'+i.titolo+'"').join(', ') + '.' : ''}
+${pend.length ? 'Arretrati aperti: ' + pend.map(i=>`${fmtDateIt(i.data)} "${i.titolo}"`).join(', ') + '.' : ''}
 ${isMon ? 'Oggi è lunedì.' : ''}
 ${memory ? memory : ''}
 
@@ -155,6 +174,69 @@ function addChatMessage(pfx, role, text) {
   });
 }
 
+/* Genera un form editabile per un item proposto dall'AI in chat.
+   Ogni input scrive direttamente in pendingChatAction.items[idx] via onchange,
+   cosi approveChatAction legge i valori aggiornati senza stato intermedio. */
+function _chatItemEditForm(it, idx) {
+  const personalFallback = currentProfile === 'anissa' ? 'personale_anissa' : 'personale_rico';
+  // Remap alias "personale" (output comune dell'AI) alla versione per-profilo
+  const rawArea = it.area || '';
+  const normalizedArea = rawArea === 'personale' ? personalFallback : rawArea;
+  const aiAreaValid = !!(normalizedArea && AREAS[normalizedArea]);
+  const selectedArea = aiAreaValid ? normalizedArea : personalFallback;
+  // Scrivi il valore corretto anche in pendingChatAction subito, cosi
+  // se l'utente conferma senza toccare niente, il fallback viene persistito
+  if (!aiAreaValid || rawArea !== normalizedArea) it.area = selectedArea;
+  const areaWarn = rawArea && !aiAreaValid ? ' <span style="color:var(--red)" title="Area proposta non valida, corretta automaticamente">⚠</span>' : '';
+
+  const areaOrder = currentProfile === 'anissa'
+    ? ['jasper','famiglia','coppia','vacanza','personale_anissa','personale_rico','lavoro','formatore','cpc']
+    : ['lavoro','cpc','formatore','startup','famiglia','coppia','vacanza','personale_rico','personale_anissa','jasper'];
+  const areaOpts = areaOrder.filter(k => AREAS[k]).map(k =>
+    `<option value="${k}" ${k === selectedArea ? 'selected' : ''}>${AREAS[k]?.e||''} ${AREAS[k]?.l||k}</option>`
+  ).join('');
+
+  const rawPrio = it.prio && ['alta','media','bassa'].includes(it.prio) ? it.prio : 'media';
+  if (it.prio !== rawPrio) it.prio = rawPrio;
+
+  const rawTipo = it.tipo && ['task','evento','appuntamento','meeting','test','scadenza','compito'].includes(it.tipo) ? it.tipo : 'task';
+  if (it.tipo !== rawTipo) it.tipo = rawTipo;
+
+  const rawData = (it.data && /^\d{4}-\d{2}-\d{2}$/.test(it.data)) ? it.data : toISO();
+  if (it.data !== rawData) it.data = rawData;
+
+  const rawOra = (it.ora && it.ora !== 'null' && /^\d{2}:\d{2}$/.test(it.ora)) ? it.ora : '';
+  if (it.ora !== rawOra) it.ora = rawOra;
+
+  const noteLine = it.note ? `<div style="font-size:11px;color:var(--dim);font-style:italic;margin-top:4px">${esc(it.note)}</div>` : '';
+
+  return `<div class="chat-action-item chat-action-edit">
+    <div style="font-size:14px;color:var(--txt);margin-bottom:6px">📅 <strong>${esc(it.titolo||'(senza titolo)')}</strong>${areaWarn}</div>
+    ${noteLine}
+    <div class="qa-edit-row" style="margin-top:8px">
+      <select class="qa-edit-sel" onchange="pendingChatAction.items[${idx}].area=this.value">${areaOpts}</select>
+      <select class="qa-edit-sel" onchange="pendingChatAction.items[${idx}].prio=this.value">
+        <option value="alta" ${rawPrio==='alta'?'selected':''}>⚠ Alta</option>
+        <option value="media" ${rawPrio==='media'?'selected':''}>● Media</option>
+        <option value="bassa" ${rawPrio==='bassa'?'selected':''}>● Bassa</option>
+      </select>
+      <select class="qa-edit-sel" onchange="pendingChatAction.items[${idx}].tipo=this.value">
+        <option value="task" ${rawTipo==='task'?'selected':''}>Task</option>
+        <option value="evento" ${rawTipo==='evento'?'selected':''}>Evento</option>
+        <option value="appuntamento" ${rawTipo==='appuntamento'?'selected':''}>Appuntamento</option>
+        <option value="meeting" ${rawTipo==='meeting'?'selected':''}>Meeting</option>
+        <option value="test" ${rawTipo==='test'?'selected':''}>Test</option>
+        <option value="scadenza" ${rawTipo==='scadenza'?'selected':''}>Scadenza</option>
+        <option value="compito" ${rawTipo==='compito'?'selected':''}>Compito</option>
+      </select>
+    </div>
+    <div class="qa-edit-row" style="margin-top:6px">
+      <input type="date" class="qa-edit-sel" value="${esc(rawData)}" onchange="pendingChatAction.items[${idx}].data=this.value">
+      <input type="time" class="qa-edit-sel" value="${esc(rawOra)}" onchange="pendingChatAction.items[${idx}].ora=this.value">
+    </div>
+  </div>`;
+}
+
 function showChatConfirm(action) {
   if (!action) return;
   const eid    = action.elimina_id && action.elimina_id !== 'null' && action.elimina_id !== '' ? action.elimina_id : null;
@@ -167,15 +249,18 @@ function showChatConfirm(action) {
   if (isDel) {
     title = '🗑 Conferma eliminazione';
     body  = oldIt
-      ? `<div class="chat-action-item" style="color:var(--red)">Elimina: <strong>${esc(oldIt.titolo)}</strong> — ${esc(oldIt.data)}${oldIt.ora?' alle '+esc(oldIt.ora):''} [${esc(AREAS[oldIt.area]?.l||oldIt.area)}]</div>`
+      ? `<div class="chat-action-item" style="color:var(--red)">Elimina: <strong>${esc(oldIt.titolo)}</strong> — ${esc(fmtDateIt(oldIt.data))}${oldIt.ora?' alle '+esc(oldIt.ora):''} [${esc(AREAS[oldIt.area]?.l||oldIt.area)}]</div>`
       : `<div class="chat-action-item" style="color:var(--red)">Elimina elemento (ID: ${esc(eid)})</div>`;
   } else if (isMove) {
     title = '↻ Conferma spostamento';
-    body  = (oldIt ? `<div class="chat-action-item" style="color:var(--red)">🗑 Elimina: <strong>${esc(oldIt.titolo)}</strong> — ${esc(oldIt.data)}${oldIt.ora?' alle '+esc(oldIt.ora):''}</div>` : '')
-          + action.items.map(it => `<div class="chat-action-item">📅 Nuovo: <strong>${esc(it.titolo)}</strong> — ${esc(it.data||'?')}${it.ora&&it.ora!=='null'?' alle '+esc(it.ora):''} [${esc(AREAS[it.area]?.l||it.area||'personale')}]</div>`).join('');
+    const oldBlock = oldIt
+      ? `<div class="chat-action-item" style="color:var(--red)">🗑 Elimina: <strong>${esc(oldIt.titolo)}</strong> — ${esc(fmtDateIt(oldIt.data))}${oldIt.ora?' alle '+esc(oldIt.ora):''}</div>`
+      : '';
+    const newBlocks = action.items.map((it, idx) => _chatItemEditForm(it, idx)).join('');
+    body = oldBlock + newBlocks;
   } else if (isAdd) {
     title = '✦ Conferma aggiunta';
-    body  = action.items.map(it => `<div class="chat-action-item">📅 <strong>${esc(it.titolo)}</strong> — ${esc(it.data||'?')}${it.ora&&it.ora!=='null'?' alle '+esc(it.ora):''} [${esc(AREAS[it.area]?.l||it.area||'personale')}]</div>`).join('');
+    body  = action.items.map((it, idx) => _chatItemEditForm(it, idx)).join('');
   } else return;
 
   const html = `<div class="chat-action-title">${title}</div>${body}
@@ -219,13 +304,16 @@ function approveChatAction() {
     softDeleteItem(eid);
   }
 
-  // Aggiunta nuovi item (se presenti — per eliminazione pura items è [])
+  // Aggiunta nuovi item (se presenti — per eliminazione pura items è []).
+  // Gli item sono stati eventualmente editati dall'utente via showChatConfirm,
+  // quindi i campi sono gia validi. Il fallback qui e safety net difensivo.
   if (action.items?.length) {
+    const personalFallback = currentProfile === 'anissa' ? 'personale_anissa' : 'personale_rico';
     action.items.forEach(it => {
       addItem({
         titolo: it.titolo,
         tipo:   it.tipo   || 'evento',
-        area:   (it.area && AREAS[it.area]) ? it.area : 'personale_rico',
+        area:   (it.area && AREAS[it.area]) ? it.area : personalFallback,
         prio:   it.prio   || 'media',
         ora:    (it.ora && it.ora !== 'null') ? it.ora : '',
         data:   (isValidDate(it.data) ? it.data : toISO()).slice(0,10),
@@ -286,12 +374,17 @@ async function doChat(pfx) {
   const sevenAgoCtx = dateToISO(new Date(Date.now() - 7*86400000));
 
   // Tutti gli item rilevanti con ID (aperti + completati 7gg), ordinati per data
+  // Formato arricchito con weekday per evitare che l'AI sbagli a calcolare "domani"
   const allItemsCtx = items
-    .filter(i => (!i.done || i.data >= sevenAgoCtx) && isProfileArea(i.area))
+    .filter(i => !i.deleted_at && (!i.done || i.data >= sevenAgoCtx) && isProfileArea(i.area))
     .sort((a,b) => a.data.localeCompare(b.data))
     .slice(0, 120)
-    .map(i => `[${i.id}] ${AREAS[i.area]?.e||''} ${i.area} | ${i.titolo} | ${i.data}${i.ora?' '+i.ora:''}${i.done?' ✓fatto':''}`)
+    .map(i => `[${i.id}] ${AREAS[i.area]?.e||''} ${i.area} | ${i.titolo} | ${fmtDateIt(i.data)}${i.ora?' '+i.ora:''} (${i.data})${i.done?' ✓fatto':''}`)
     .join('\n');
+
+  // Ancora temporale esplicita: oggi nel formato completo
+  const todayFullIt = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const todayIso = toISO();
 
   const isAnissa = currentProfile === 'anissa';
   const systemBriefing = chatHistory.length > 0 ? '' : ''; // già nel doBriefing
@@ -299,7 +392,11 @@ async function doChat(pfx) {
   const system = isAnissa
     ? `Sei l'amica di Anissa. Non un coach, non un assistente, non un bot. Sei la voce calda che la fa sorridere senza forzare, che nota le cose piccole, che la capisce prima ancora che le dica.
 
+OGGI è ${todayFullIt} (data ISO: ${todayIso}). Usa questa data come ancora per qualsiasi riferimento temporale: "domani" è il giorno dopo questa data, non calcoli a memoria.
+
 REGOLA LINGUISTICA: parli sempre e solo al femminile. Stanca, pronta, felice, sicura, presa, bloccata. Mai maschile, mai neutro.
+
+REGOLA DATE (critica): prima di dire "domani", "dopodomani", "tra X giorni" o qualunque riferimento temporale relativo a un appuntamento, VERIFICA la data dell'appuntamento confrontandola con OGGI (dichiarato sopra). Le date degli appuntamenti ti arrivano nel formato "mer 15/04" (weekday + gg/mm) apposta per non farti sbagliare. Se la differenza con oggi è maggiore di 1 giorno NON dire "domani": di' il giorno esatto, esempio "mercoledì 15" o "venerdì prossimo". Sbagliare su una data è inaccettabile: preferisci essere esplicita con giorno e numero invece di rischiare un "domani" sbagliato.
 
 CHI È ANISSA: 27 anni, Tenero (Canton Ticino). Mamma di Jasper (${jasperMonths()} mesi). Non allatta (Aptamil). Non beve caffè. Non lavora fuori casa. Passa tutta la giornata con Jasper in braccio: lui non dorme mai da solo, fa i pisolini esclusivamente su di lei e quando dorme Anissa è bloccata sul divano, non può muoversi né riposare. Le sue giornate sono faticose anche senza appuntamenti. Notti spezzate, post-parto, stanca ma sta tornando lei. Perde peso al suo ritmo, senza pressioni. Ama cucinare, ama l'ordine, si prende cura di sé con piccoli rituali (maschere, unghie). Sente la sua famiglia praticamente ogni giorno su WhatsApp o al telefono. La famiglia vive a 200 metri, è il suo punto fermo. Rico lavora tanto e a volte è assorbito da RemyChef. Per lei la pioggia è bel tempo, sul serio: quando piove si sente a casa, calma, protetta.
 
@@ -313,6 +410,10 @@ ${allItemsCtx}
 FORMATO: solo testo scorrevole, paragrafi brevi ma respirati. Usi solo punteggiatura italiana normale (virgole, punti, punto e virgola). MAI trattini lunghi (—), MAI trattini brevi (-) come separatori, MAI elenchi puntati, MAI asterischi, MAI markdown, MAI emoji. <strong> solo su 2-3 parole chiave. Italiano naturale.`
 
     : `Sei il coach personale di Rico — non un assistente, non un bot. Qualcuno che lo conosce davvero e gli parla dritto.
+
+OGGI è ${todayFullIt} (data ISO: ${todayIso}). Usa questa data come ancora per qualsiasi riferimento temporale relativo: "domani" è il giorno dopo questa data, non calcoli a memoria.
+
+REGOLA DATE (critica): prima di dire "domani", "dopodomani", "tra X giorni" o qualunque riferimento temporale relativo a un appuntamento, VERIFICA la data dell'appuntamento confrontandola con OGGI (dichiarato sopra). Le date degli appuntamenti ti arrivano nel formato "mer 15/04" (weekday + gg/mm) apposta per non farti sbagliare. Se la differenza con oggi è maggiore di 1 giorno NON dire "domani": di' il giorno esatto, esempio "mercoledì 15". Sbagliare su una data è inaccettabile.
 
 CHI SEI TU (Rico): hai 27 anni, vivi a Tenero (Canton Ticino, CH). Moglie Anissa (27a), figlio Jasper (${jasperMonths()} mesi). Lavori come formatore AI a Easy Call. Studi CPC Bellinzona (merc/giov: CCOA-CCOE+inglese). Formatore SSEA serale (esame 2026). 4 startup: RemyChef, ZodAI, PaintQuote AI, FreelancerAI. Sei dislessico — frasi brevi.
 
