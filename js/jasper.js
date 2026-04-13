@@ -891,14 +891,32 @@ function jasperEndSleep(){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
       const today = toISO();
-      const entry = jasperDiary[today] || (await loadJasperDiary(today));
+      let entry = jasperDiary[today] || (await loadJasperDiary(today));
       if(!entry.sleeps) entry.sleeps = [];
-      const opening = entry.sleeps.find(s => s.start && !s.end);
+      let opening = entry.sleeps.find(s => s.start && !s.end);
+      let targetDate = today;
+
+      // Fallback cross-midnight: se oggi non ha opening, cercalo in ieri.
+      // Pisolino iniziato a 23:50 dom + svegliato a 00:15 lun va chiuso
+      // nell'entry di domenica (dove fu aperto), non lunedi.
+      if(!opening){
+        const yesterday = dateToISO(new Date(Date.now() - 86400000));
+        const yEntry = stData[jasperDiaryKey(yesterday)] || (await loadJasperDiary(yesterday));
+        if(yEntry && Array.isArray(yEntry.sleeps)){
+          const yOpening = yEntry.sleeps.find(s => s.start && !s.end);
+          if(yOpening){
+            entry = yEntry;
+            opening = yOpening;
+            targetDate = yesterday;
+          }
+        }
+      }
+
       if(!opening){ toast('Nessun pisolino in corso','warn'); return; }
       const end = nowHHMMSwiss();
       opening.end = end;
-      jasperDiary[today] = entry;
-      await saveJasperEntry(today, entry);
+      if(targetDate === today) jasperDiary[today] = entry;
+      await saveJasperEntry(targetDate, entry);
       renderJasper();
       const duration = hhmmDiffMin(opening.start, end);
       toast('☀️ Ha dormito '+formatMin(duration), 'success');
