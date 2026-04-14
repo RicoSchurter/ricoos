@@ -161,6 +161,28 @@ Analizza la mia situazione. Dimmi cosa conta davvero oggi e come mi organizzo. S
 /* ═══════════════════════════════════════
    CHAT AI
 ═══════════════════════════════════════ */
+// Markdown inline minimale per chat AI: escape HTML prima, poi converti
+// i marcatori che l'AI restituisce (**, *, `, #, -) in tag renderizzati.
+function mdChat(text) {
+  let s = esc(text);
+  // Compat: AI a volte restituisce letteralmente <strong>...</strong>
+  s = s.replace(/&lt;strong&gt;/g, '<strong>').replace(/&lt;\/strong&gt;/g, '</strong>');
+  s = s.replace(/&lt;em&gt;/g, '<em>').replace(/&lt;\/em&gt;/g, '</em>');
+  // Code inline `...`
+  s = s.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+  // Bold **...**
+  s = s.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+  // Italic *...* (solo singolo asterisco non adiacente a un altro)
+  s = s.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
+  // Heading markdown a inizio riga -> bold in linea
+  s = s.replace(/(^|\n)\s*#{1,6}\s+([^\n]+)/g, '$1<strong>$2</strong>');
+  // Bullet list markers a inizio riga
+  s = s.replace(/(^|\n)\s*[-*]\s+/g, '$1• ');
+  // Newline
+  s = s.replace(/\n/g, '<br>');
+  return s;
+}
+
 function addChatMessage(pfx, role, text) {
   const targets = pfx === 'all' ? ['d','m'] : [pfx];
   targets.forEach(p => {
@@ -168,10 +190,7 @@ function addChatMessage(pfx, role, text) {
     if (!container) return;
     const div = document.createElement('div');
     div.className = 'chat-msg ' + role;
-    div.innerHTML = esc(text)
-      .replace(/&lt;strong&gt;/g, '<strong>')
-      .replace(/&lt;\/strong&gt;/g, '</strong>')
-      .replace(/\n/g, '<br>');
+    div.innerHTML = mdChat(text);
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
   });

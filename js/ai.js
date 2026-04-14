@@ -145,6 +145,7 @@ function renderAgenda() {
   for(let d = 1; d <= totalDays; d++){
     const date = new Date(year, month, d);
     const iso = dateToISO(date);
+    const holiday = getHoliday(iso);
     const _dayIt = expanded.filter(x => x.data === iso && !x.done && isProfileArea(x.area));
     const _hasUrg = _dayIt.some(x => x.prio === 'alta' || ['test','scadenza'].includes(x.tipo));
     const dayDots = _dayIt.slice(0,3).map(it =>
@@ -154,9 +155,11 @@ function renderAgenda() {
       iso===t ? 'today' : '',
       iso===agDay ? 'selected' : '',
       _dayIt.length ? 'has-items' : '',
-      _hasUrg ? 'has-urgent' : ''
+      _hasUrg ? 'has-urgent' : '',
+      holiday ? 'is-holiday' : ''
     ].filter(Boolean).join(' ');
-    dh += `<button class="month-day ${cls}" onclick="selDay('${iso}')" type="button"><span class="month-num">${d}</span><span class="month-dots">${dayDots}</span></button>`;
+    const titleAttr = holiday ? ` title="${esc(holiday)}"` : '';
+    dh += `<button class="month-day ${cls}"${titleAttr} onclick="selDay('${iso}')" type="button"><span class="month-num">${d}</span><span class="month-dots">${dayDots}</span></button>`;
   }
   dh += '</div>';
   $('dWkGrid').innerHTML = dh;
@@ -169,7 +172,9 @@ function renderAgenda() {
   const agDisplay = agDay
     ? new Date(agDay + 'T12:00:00').toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'})
     : new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
-  const lbl  = `${agDisplay} · ${list.length} element${list.length!==1?'i':'o'}`;
+  const agHoliday = getHoliday(agDay || t);
+  const holPrefix = agHoliday ? `🇨🇭 ${agHoliday} · ` : '';
+  const lbl  = `${holPrefix}${agDisplay} · ${list.length} element${list.length!==1?'i':'o'}`;
   const html = list.length ? list.map(card).join('') : emptyHTML('Nessun impegno per questo giorno');
   $('dAgLbl').textContent = lbl; $('dAgList').innerHTML = html;
   $('mAgLbl').textContent = lbl; $('mAgList').innerHTML = html;

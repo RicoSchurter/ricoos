@@ -1227,6 +1227,11 @@ button.jas-tab {
 .month-dots{display:flex;gap:3px;justify-content:center;align-items:center;margin-top:4px;min-height:8px;}
 .month-dot{width:7px;height:7px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,.45);}
 .month-dot.urgent{background:var(--red)!important;box-shadow:0 0 0 1px rgba(0,0,0,.55),0 0 4px rgba(224,96,96,.5);}
+.month-day.is-holiday{background:rgba(240,120,120,.08);}
+.month-day.is-holiday .month-num{color:#f07878;}
+.month-day.today.is-holiday .month-num{color:#f07878;}
+.month-day.selected.is-holiday{background:var(--gold3);}
+.month-day.selected.is-holiday .month-num{color:#111;}
 
 /* ═══ STARTUP HUB ═══ */
 .startup-grid{display:grid;gap:16px;}
