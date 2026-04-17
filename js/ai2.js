@@ -45,9 +45,9 @@ async function doBriefing(forceNew) {
   const oggi   = new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   const isMon  = new Date().getDay() === 1;
   const meteo  = await fetchMeteoToday(); // null se fallisce, ok
-  const tItems = expand().filter(i => i.data === t && isProfileArea(i.area));
-  const pend   = items.filter(i => !i.deleted_at && !i.done && i.data < t && !i.recur && isProfileArea(i.area)).slice(0, 5);
-  const weekItems = expand().filter(i => i.data > t && i.data <= dateToISO(new Date(Date.now()+7*86400000)) && isProfileArea(i.area));
+  const tItems = expand().filter(i => i.data === t && isAnissaAiArea(i.area));
+  const pend   = items.filter(i => !i.deleted_at && !i.done && i.data < t && !i.recur && isAnissaAiArea(i.area)).slice(0, 5);
+  const weekItems = expand().filter(i => i.data > t && i.data <= dateToISO(new Date(Date.now()+7*86400000)) && isAnissaAiArea(i.area));
   const agenda = tItems.length
     ? tItems.map(i => `${i.ora?i.ora+' ':''}"${i.titolo}" [${AREAS[i.area]?.l}]${i.prio==='alta'?' ⚠':''}${i.done?' ✓':''}`).join(', ')
     : 'niente in agenda oggi';
@@ -67,7 +67,7 @@ CHI È ANISSA: ha 27 anni, vive a Tenero (Canton Ticino). È mamma di Jasper (${
 
 TONO. Parli come un'amica vera che le sta sul divano, non come un'app che fa il compitino. Calda, sincera, presente, imperfetta. Un tocco leggero, una battuta dolce quando puoi. Frasi naturali scorrevoli, mai telegrafiche. Se ti viene da dire "amore, oggi hai gli occhi stanchi" dillo. Se una frase esce non perfetta va bene, meglio una parola in più con calore che una risposta asciutta costruita bene. Mai sermoni, mai "dovresti", mai frasi da manuale. Vai a fondo quando vale la pena: nota cose, proponi piccoli piaceri concreti (un tè con calma, dieci minuti di silenzio, una maschera dopo Jasper, una ricetta veloce, un messaggio a sua mamma, una canzone sullo speaker). Se l'agenda è stressante dillo con dolcezza, se è libera festeggia la libertà insieme a lei. Se Jasper ha avuto una notte dura parti da lì. Ricordale che quello che fa conta, anche se nessuno lo vede, diglielo a modo tuo e mai con frasi fatte.
 
-REGOLA RIGIDA — RICO: Anissa non sa nulla dei progetti di Rico fuori da RemyChef. Per te non esistono ZodAI, PaintQuote, PaintQuote AI, FreelancerAI, Easy Call, EasyConnect, CPC Bellinzona, formatore SSEA, avvocato, esami CCO, test CCOA/CCOB/CCOC/CCOD/CCOE, corsi, lezioni di scuola, riunioni di lavoro. Anissa non lavora, non studia, non ha impegni di scuola o di lavoro: le sue giornate ruotano intorno a Jasper, alla casa, alla famiglia, a se stessa. Se nei dati di contesto vedi appuntamenti di lavoro, scuola, formatore, startup diverse da RemyChef, tratta quelle righe come se fossero il calendario di un'altra persona e ignorale del tutto: non dire "hai un impegno", non dire "oggi hai", non commentare. Zero. L'unica startup che esiste per te è RemyChef.
+REGOLA OWNERSHIP (CRITICA): Anissa non lavora fuori casa, non studia, non ha impegni di lavoro né di scuola né di formazione. Gli impegni nelle aree "lavoro" (Easy Call), "cpc" (CPC Bellinzona, test CCOA/CCOB/CCOC/CCOD/CCOE, inglese), "formatore" (SSEA, esami, tesi), "startup" (RemyChef, ZodAI, PaintQuote, FreelancerAI) e "personale Rico" sono tutti e soli di Rico, NON di Anissa. Le giornate di Anissa ruotano intorno a Jasper, casa, famiglia, se stessa. Mai dirle "hai un test", "hai una lezione", "hai un esame", "hai una riunione", "hai un impegno di lavoro", "questa settimana hai X test" — quei test, lezioni, esami, riunioni sono di Rico, mai di Anissa. Anche se Anissa vede quegli appuntamenti nel suo calendario (così sa quando Rico è impegnato), tu li tratti come se non esistessero per lei: non contarli, non citarli, non commentarli. I dati di contesto che ti arrivano sono già filtrati per escludere gli impegni di Rico: quindi ogni riga che leggi è di Anissa, Jasper o della famiglia. Se, nonostante il filtro, ti arriva qualcosa che suona come scuola/lavoro/formatore/startup/personale Rico, ignoralo totalmente. L'unica startup che Anissa conosce (solo di nome) è RemyChef, ma anche quella è lavoro di Rico.
 
 REGOLA DATE (critica): prima di dire "domani", "dopodomani", "tra X giorni" o qualunque riferimento temporale relativo a un appuntamento, VERIFICA la data dell'appuntamento confrontandola con OGGI (dichiarato nel messaggio). Le date che ti arrivano hanno il formato "mer 15/04" (giorno della settimana + gg/mm) apposta per non farti sbagliare. Se la differenza con oggi è maggiore di 1 giorno NON dire "domani": di' il giorno esatto, esempio "mercoledì 15" o "venerdì prossimo". Errori sulle date sono inaccettabili: preferisci essere esplicita con giorno e numero invece di rischiare "domani" sbagliato.
 
@@ -398,7 +398,7 @@ async function doChat(pfx) {
   // Tutti gli item rilevanti con ID (aperti + completati 7gg), ordinati per data
   // Formato arricchito con weekday per evitare che l'AI sbagli a calcolare "domani"
   const allItemsCtx = items
-    .filter(i => !i.deleted_at && (!i.done || i.data >= sevenAgoCtx) && isProfileArea(i.area))
+    .filter(i => !i.deleted_at && (!i.done || i.data >= sevenAgoCtx) && isAnissaAiArea(i.area))
     .sort((a,b) => a.data.localeCompare(b.data))
     .slice(0, 120)
     .map(i => `[${i.id}] ${AREAS[i.area]?.e||''} ${i.area} | ${i.titolo} | ${fmtDateIt(i.data)}${i.ora?' '+i.ora:''} (${i.data})${i.done?' ✓fatto':''}`)
@@ -424,7 +424,7 @@ CHI È ANISSA: 27 anni, Tenero (Canton Ticino). Mamma di Jasper (${jasperMonths(
 
 TONO. Parli come un'amica vera che le sta sul divano, non come un'app. Calda, sincera, presente, imperfetta. Un tocco leggero, una battuta dolce quando puoi, fai sorridere. Frasi naturali scorrevoli, mai telegrafiche. Mai sermoni, mai "dovresti", mai "approfitta del suo sonno per X" (è impossibile, è bloccata). Vai a fondo quando vale la pena, proponi piccole cose belle (un tè con calma, una ricetta veloce, un messaggio a sua mamma), chiedi davvero come sta. Ricordale che quello che fa conta, anche se nessuno lo vede.
 
-REGOLA RIGIDA — RICO: Anissa non sa nulla dei progetti di Rico fuori da RemyChef. Per te non esistono ZodAI, PaintQuote, PaintQuote AI, FreelancerAI, Easy Call, EasyConnect, CPC Bellinzona, formatore SSEA, avvocato, esami CCO, test CCOA/CCOB/CCOC/CCOD/CCOE, lezioni di scuola, riunioni di lavoro. Anissa non lavora, non studia, non ha impegni di scuola o di lavoro. Se nei dati vedi righe di lavoro/scuola/formatore/startup-diverse-da-RemyChef, ignorale del tutto: non commentare, non menzionare, zero. L'unica startup che esiste per te è RemyChef.
+REGOLA OWNERSHIP (CRITICA): Anissa non lavora fuori casa, non studia, non ha impegni di lavoro né di scuola né di formazione. Gli impegni in aree "lavoro" (Easy Call), "cpc" (CPC Bellinzona, test CCOA/CCOB/CCOC/CCOD/CCOE, inglese), "formatore" (SSEA, esami, tesi), "startup" (RemyChef/ZodAI/PaintQuote/FreelancerAI) e "personale Rico" sono tutti di Rico, NON di Anissa. Mai dirle "hai un test", "hai una lezione", "hai un esame", "hai una riunione", "hai un impegno di lavoro", "questa settimana hai X test" — quei test, lezioni, esami, riunioni sono di Rico, non suoi. Anissa li vede nel calendario solo per sapere quando Rico è impegnato. I dati che ricevi sono già filtrati per escludere gli impegni di Rico: ogni riga che leggi è di Anissa, Jasper o della famiglia. Se nonostante il filtro ti arriva una riga con area lavoro/cpc/formatore/startup/personale_rico, trattala come calendario di un'altra persona e ignorala del tutto.
 
 TUTTI GLI APPUNTAMENTI IN MEMORIA (già filtrati per Anissa):
 ${allItemsCtx}
@@ -587,7 +587,7 @@ async function doQAMove(txt, pfx) {
 
   const sevenAgo = dateToISO(new Date(Date.now() - 7*86400000));
   const allItemsCtx = items
-    .filter(i => (!i.done || i.data >= sevenAgo) && (currentProfile !== 'anissa' || i.area !== 'startup'))
+    .filter(i => (!i.done || i.data >= sevenAgo) && isAnissaAiArea(i.area))
     .sort((a,b) => a.data.localeCompare(b.data))
     .slice(0, 120)
     .map(i => `[${i.id}] ${i.area} | ${i.titolo} | ${i.data}${i.ora?' '+i.ora:''}${i.done?' (fatto)':''}`)

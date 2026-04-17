@@ -14,6 +14,10 @@ function scheduleNotifs() {
         // Verify item still exists and is not done before firing
         const stillExists = items.some(i => i.id === notifId && !i.done);
         if (!stillExists) return;
+        // Re-check profile at fire time: se l'utente ha cambiato profilo dopo
+        // che il timeout era stato schedulato, evita leak cross-profilo
+        // (es. notifica startup scadenzata da Rico mentre è in uso Anissa).
+        if (!isProfileArea(it.area)) return;
         new Notification('Rico OS — Promemoria', {
           body: `"${it.titolo}" tra 10 minuti (${it.ora})`,
           icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">◈</text></svg>'
@@ -179,7 +183,7 @@ function checkSmartNotifs() {
   if (day === 1 && !notifSeen('monday')) {
     const thisWeek = allExp.filter(i => {
       const sun = new Date(now); sun.setDate(now.getDate() + (7 - day));
-      return i.data >= t && i.data <= dateToISO(sun) && !i.done; // local date comparison
+      return i.data >= t && i.data <= dateToISO(sun) && !i.done && isProfileArea(i.area); // local date comparison
     });
     if (thisWeek.length > 0) {
       banners.push(makeBanner({
@@ -238,7 +242,7 @@ function checkSmartNotifs() {
 
   // ── 7. COMPLETION CHECK — 1h dopo orario se ancora non fatto ──
   const completionChecks = allExp.filter(i => {
-    if (i.data !== t || !i.ora || i.done) return false;
+    if (i.data !== t || !i.ora || i.done || !isProfileArea(i.area)) return false;
     const [eh, em] = i.ora.split(':').map(Number);
     const evMin  = eh * 60 + em;
     const nowMin = h * 60 + now.getMinutes();

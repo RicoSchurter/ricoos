@@ -139,7 +139,7 @@ async function suggestMIT() {
     const sp = $(p+'MitSpin'); if(sp) sp.style.display='inline-block';
   });
   const t = toISO();
-  const tItems = expand().filter(i => i.data === t && !i.done && isProfileArea(i.area));
+  const tItems = expand().filter(i => i.data === t && !i.done && isAnissaAiArea(i.area));
   const pend   = items.filter(i => !i.deleted_at && !i.done && i.data < t && !i.recur).slice(0,3);
   const oggi   = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
 

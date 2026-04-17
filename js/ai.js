@@ -173,7 +173,7 @@ function renderAgenda() {
     ? new Date(agDay + 'T12:00:00').toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'})
     : new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
   const agHoliday = getHoliday(agDay || t);
-  const holPrefix = agHoliday ? `🇨🇭 ${agHoliday} · ` : '';
+  const holPrefix = agHoliday ? `${agHoliday} · ` : '';
   const lbl  = `${holPrefix}${agDisplay} · ${list.length} element${list.length!==1?'i':'o'}`;
   const html = list.length ? list.map(card).join('') : emptyHTML('Nessun impegno per questo giorno');
   $('dAgLbl').textContent = lbl; $('dAgList').innerHTML = html;

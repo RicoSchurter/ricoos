@@ -152,8 +152,20 @@ function isValidDate(s) {
 }
 
 /* ═══ AREA FILTERING PER PROFILO ═══
-   Regola: Anissa vede tutto tranne startup. Rico vede tutto. */
+   Regola UI (calendario, agenda, badge, banner):
+     Anissa vede tutto tranne startup. Rico vede tutto. */
 function isProfileArea(area) {
   if (currentProfile === 'anissa') return area !== 'startup';
   return true;
+}
+
+/* Aree personali di Rico — restano visibili nel calendario di Anissa
+   (contesto familiare: deve sapere quando Rico è impegnato) ma NON devono
+   finire nei prompt AI/coach di Anissa, perché il coach deve parlare SOLO
+   della vita di Anissa, mai attribuirle impegni di Rico (scuola, lavoro,
+   formatore, personale Rico). */
+const RICO_PERSONAL_AREAS = ['lavoro','cpc','formatore','personale_rico'];
+function isAnissaAiArea(area) {
+  if (currentProfile !== 'anissa') return true;
+  return area !== 'startup' && !RICO_PERSONAL_AREAS.includes(area);
 }

@@ -209,6 +209,19 @@ async function renderJasper(){
   const completedSleeps = sleeps.filter(s => s.start && s.end).slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
   const lastCompleted = completedSleeps.length ? completedSleeps[completedSleeps.length-1] : null;
 
+  // Cross-midnight: se oggi non ha un pisolino aperto, cercane uno aperto in ieri.
+  // Il pisolino della notte resta salvato sull'entry di ieri (dove è iniziato);
+  // jasperEndSleep() ha già il fallback per chiuderlo lì. Qui lo mostriamo come
+  // attivo così il timer non appare "bloccato" al mattino.
+  let overnightOpening = null;
+  if(!opening){
+    const yesterday = dateToISO(new Date(Date.now() - 86400000));
+    const yEntry = jasperDiary[yesterday] || stData[jasperDiaryKey(yesterday)];
+    if(yEntry && Array.isArray(yEntry.sleeps)){
+      overnightOpening = yEntry.sleeps.find(s => s.start && !s.end) || null;
+    }
+  }
+
   // Card stato sonno (sleeping / awake / mai)
   let sleepCardHtml;
   if(opening){
@@ -217,6 +230,14 @@ async function renderJasper(){
       <div class="jas-sleep-lbl">💤 Sta dormendo</div>
       <div class="jas-sleep-status">da ${formatMin(sleepingFor)}</div>
       <div class="jas-sleep-detail">iniziato alle ${esc(opening.start)}</div>
+      <button class="jas-sleep-btn wake" onclick="jasperEndSleep()" type="button">☀️ Svegliato ora</button>
+    </div>`;
+  } else if(overnightOpening){
+    const sleepingFor = hhmmDiffMin(overnightOpening.start, nowHHMM);
+    sleepCardHtml = `<div class="jas-sleep-card sleeping">
+      <div class="jas-sleep-lbl">🌙 Sta dormendo (notte)</div>
+      <div class="jas-sleep-status">da ${formatMin(sleepingFor)}</div>
+      <div class="jas-sleep-detail">iniziato alle ${esc(overnightOpening.start)} di ieri</div>
       <button class="jas-sleep-btn wake" onclick="jasperEndSleep()" type="button">☀️ Svegliato ora</button>
     </div>`;
   } else if(lastCompleted){
@@ -383,7 +404,16 @@ function startSleepTick(){
     if(jasperTab !== 'oggi') return;
     const today = toISO();
     const entry = jasperDiary[today] || stData[jasperDiaryKey(today)];
-    if(!entry || !(entry.sleeps||[]).some(s => s.start && !s.end)){
+    const hasTodayOpen = entry && (entry.sleeps||[]).some(s => s.start && !s.end);
+    // Cross-midnight: mantieni vivo il tick se ieri ha un pisolino aperto
+    // (pisolino notturno iniziato prima di mezzanotte, non ancora chiuso).
+    let hasOvernightOpen = false;
+    if(!hasTodayOpen){
+      const yesterday = dateToISO(new Date(Date.now() - 86400000));
+      const yEntry = jasperDiary[yesterday] || stData[jasperDiaryKey(yesterday)];
+      hasOvernightOpen = !!(yEntry && (yEntry.sleeps||[]).some(s => s.start && !s.end));
+    }
+    if(!hasTodayOpen && !hasOvernightOpen){
       // Nessun pisolino attivo → stop tick
       clearInterval(_sleepTickInterval);
       _sleepTickInterval = null;
