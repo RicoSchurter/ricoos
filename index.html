@@ -76,6 +76,7 @@
     <button class="sb-btn"        data-v="upload"  onclick="setView('upload')"><span class="sb-ico">⊕</span>Scansiona</button>
     <button class="sb-btn"        data-v="weekend" onclick="setView('weekend')"><span class="sb-ico">🌿</span>Weekend</button>
     <button class="sb-btn"        data-v="jasper"  onclick="setView('jasper')"><span class="sb-ico">👶</span>Jasper</button>
+    <button class="sb-btn"        data-v="spesa"   onclick="setView('spesa')"><span class="sb-ico">🛒</span>Spesa<span class="sp-badge" id="sbBadgeSpesa" style="display:none"></span></button>
     <button class="sb-btn sb-startup-btn" data-v="startup" onclick="setView('startup')"><span class="sb-ico">🚀</span>Startup</button>
     <button class="sb-btn"        onclick="openPDFModal()"><span class="sb-ico">📄</span>PDF Agenda</button>
   </nav>
@@ -188,6 +189,9 @@
 
     <!-- JASPER — solo Anissa -->
     <div class="view" id="dv-jasper"></div>
+
+    <!-- SPESA — condivisa Rico+Anissa -->
+    <div class="view" id="dv-spesa"></div>
 
     <!-- UPLOAD -->
     <div class="view" id="dv-upload">
@@ -306,6 +310,9 @@
     <!-- JASPER — solo Anissa -->
     <div class="view" id="mv-jasper"></div>
 
+    <!-- SPESA — condivisa Rico+Anissa -->
+    <div class="view" id="mv-spesa"></div>
+
     <div class="view" id="mv-upload">
       <div class="sec-lbl">Scansiona documento</div>
       <div class="upload-intro">Fotografa o carica una lista di appuntamenti: l'AI li estrae e li aggiunge al calendario.</div>
@@ -345,6 +352,7 @@
     <button class="bot-btn"        data-v="upload"   onclick="setView('upload')"><span class="bico">⊕</span><span>Scan</span><div class="bot-dot"></div></button>
     <button class="bot-btn"        data-v="weekend"  onclick="setView('weekend')"><span class="bico">🌿</span><span>Weekend</span><div class="bot-dot"></div></button>
     <button class="bot-btn"        data-v="jasper"   onclick="setView('jasper')"><span class="bico">👶</span><span>Jasper</span><div class="bot-dot"></div></button>
+    <button class="bot-btn"        data-v="spesa"    onclick="setView('spesa')"><span class="bico">🛒</span><span>Spesa</span><span class="sp-badge" id="botBadgeSpesa" style="display:none"></span><div class="bot-dot"></div></button>
   </nav>
 
   <button class="mob-fab" onclick="openModal()">+</button>
@@ -468,6 +476,7 @@
   <script src="js/ui.js"></script>
   <script src="js/startup.js"></script>
   <script src="js/jasper.js"></script>
+  <script src="js/shopping.js"></script>
   <script src="js/memory.js"></script>
   <script src="js/mit.js"></script>
   <script src="js/ai.js"></script>

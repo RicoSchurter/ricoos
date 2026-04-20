@@ -398,7 +398,7 @@ async function doChat(pfx) {
   // Tutti gli item rilevanti con ID (aperti + completati 7gg), ordinati per data
   // Formato arricchito con weekday per evitare che l'AI sbagli a calcolare "domani"
   const allItemsCtx = items
-    .filter(i => !i.deleted_at && (!i.done || i.data >= sevenAgoCtx) && isAnissaAiArea(i.area))
+    .filter(i => !i.deleted_at && i.tipo !== 'spesa' && (!i.done || i.data >= sevenAgoCtx) && isAnissaAiArea(i.area))
     .sort((a,b) => a.data.localeCompare(b.data))
     .slice(0, 120)
     .map(i => `[${i.id}] ${AREAS[i.area]?.e||''} ${i.area} | ${i.titolo} | ${fmtDateIt(i.data)}${i.ora?' '+i.ora:''} (${i.data})${i.done?' ✓fatto':''}`)
@@ -587,7 +587,7 @@ async function doQAMove(txt, pfx) {
 
   const sevenAgo = dateToISO(new Date(Date.now() - 7*86400000));
   const allItemsCtx = items
-    .filter(i => (!i.done || i.data >= sevenAgo) && isAnissaAiArea(i.area))
+    .filter(i => i.tipo !== 'spesa' && (!i.done || i.data >= sevenAgo) && isAnissaAiArea(i.area))
     .sort((a,b) => a.data.localeCompare(b.data))
     .slice(0, 120)
     .map(i => `[${i.id}] ${i.area} | ${i.titolo} | ${i.data}${i.ora?' '+i.ora:''}${i.done?' (fatto)':''}`)
@@ -1231,9 +1231,10 @@ function doSearch(q, pfx) {
   } else {
     hits = items.filter(i =>
       !i.deleted_at &&
+      i.tipo !== 'spesa' &&
       (currentProfile !== 'anissa' || i.area !== 'startup') &&
       (
-        i.titolo.toLowerCase().includes(ql) ||
+        (i.titolo||'').toLowerCase().includes(ql) ||
         (i.note||'').toLowerCase().includes(ql) ||
         AREAS[i.area]?.l.toLowerCase().includes(ql) ||
         (i.cpcTag||'').toLowerCase().includes(ql) ||

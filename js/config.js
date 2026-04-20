@@ -24,6 +24,10 @@ const STAGES     = ['Idea','Building','Testing','Live','Growing'];
 const STAGE_CLR  = {Idea:'#706050',Building:'#4db8f0',Testing:'#d4a843',Live:'#3ecfa0',Growing:'#b088f0'};
 const PRIO_CLR   = {alta:'#f07878', media:'#d4a843', bassa:'#6a5a48'};
 
+/* ═══ LISTA SPESA ═══ */
+const SHOPPING_UNITS = ['pz','kg','g','L','ml'];
+const SHOPPING_UNIT_STEPS = { pz:1, kg:0.5, g:100, L:0.5, ml:100 };
+
 /* ═══ FAMIGLIA ═══ */
 const RICO_BD   = new Date('1998-10-10');
 const ANISSA_BD = new Date('1999-03-02');

@@ -200,6 +200,7 @@ function setView(v) {
   if (v === 'oggi')    loadMIT();
   if (v === 'startup') renderStartup();
   if (v === 'jasper')  renderJasper();
+  if (v === 'spesa')   renderShopping();
   document.querySelectorAll('[id^="dv-"],[id^="mv-"]').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.sb-btn[data-v],.bot-btn').forEach(b=>b.classList.remove('active'));
   $('dv-'+v)?.classList.add('active');

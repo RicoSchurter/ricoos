@@ -34,6 +34,7 @@
   renderAll();
   checkSmartNotifs();
   scheduleNotifs();
+  checkShoppingReadyNotification(); // badge + notifica se Anissa ha inviato la lista
 
   // Drag & drop upload
   document.addEventListener('dragover', e => e.preventDefault());
