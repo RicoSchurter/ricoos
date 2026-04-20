@@ -249,6 +249,16 @@ async function renderJasper(){
       <div class="jas-sleep-detail">ultimo pisolino ${esc(lastCompleted.start)}→${esc(lastCompleted.end)} · ${formatMin(duration)}</div>
       <button class="jas-sleep-btn" onclick="jasperStartSleep()" type="button">💤 Dorme ora</button>
     </div>`;
+  } else if(entry.woke_at){
+    // Tipicamente: mattino dopo pisolino notturno cross-midnight chiuso su ieri.
+    // Oggi non ha completati ma sappiamo l'orario di sveglia → timer "Sveglio da X".
+    const awakeFor = hhmmDiffMin(entry.woke_at, nowHHMM);
+    sleepCardHtml = `<div class="jas-sleep-card">
+      <div class="jas-sleep-lbl">☀️ Sveglio</div>
+      <div class="jas-sleep-status">da ${formatMin(awakeFor)}</div>
+      <div class="jas-sleep-detail">svegliato alle ${esc(entry.woke_at)}</div>
+      <button class="jas-sleep-btn" onclick="jasperStartSleep()" type="button">💤 Dorme ora</button>
+    </div>`;
   } else {
     sleepCardHtml = `<div class="jas-sleep-card">
       <div class="jas-sleep-lbl">Sonno</div>
@@ -413,8 +423,13 @@ function startSleepTick(){
       const yEntry = jasperDiary[yesterday] || stData[jasperDiaryKey(yesterday)];
       hasOvernightOpen = !!(yEntry && (yEntry.sleeps||[]).some(s => s.start && !s.end));
     }
-    if(!hasTodayOpen && !hasOvernightOpen){
-      // Nessun pisolino attivo → stop tick
+    // Tick anche quando baby è sveglio, per aggiornare "Sveglio da X":
+    // sia dopo un pisolino diurno (lastCompleted) sia dopo quello notturno (woke_at).
+    const hasAwakeTimer = !hasTodayOpen && !hasOvernightOpen && entry && (
+      (entry.sleeps||[]).some(s => s.start && s.end) || entry.woke_at
+    );
+    if(!hasTodayOpen && !hasOvernightOpen && !hasAwakeTimer){
+      // Niente da aggiornare → stop tick
       clearInterval(_sleepTickInterval);
       _sleepTickInterval = null;
       return;
@@ -945,8 +960,19 @@ function jasperEndSleep(){
       if(!opening){ toast('Nessun pisolino in corso','warn'); return; }
       const end = nowHHMMSwiss();
       opening.end = end;
-      if(targetDate === today) jasperDiary[today] = entry;
+      if(targetDate === today){
+        entry.woke_at = end;
+        jasperDiary[today] = entry;
+      }
       await saveJasperEntry(targetDate, entry);
+      // Cross-midnight: salva woke_at anche nell'entry di oggi, così la UI
+      // mostra "Sveglio da X" al mattino anche senza pisolini completati oggi.
+      if(targetDate !== today){
+        const todayEntry = jasperDiary[today] || (await loadJasperDiary(today));
+        todayEntry.woke_at = end;
+        jasperDiary[today] = todayEntry;
+        await saveJasperEntry(today, todayEntry);
+      }
       renderJasper();
       const duration = hhmmDiffMin(opening.start, end);
       toast('☀️ Ha dormito '+formatMin(duration), 'success');
