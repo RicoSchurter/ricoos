@@ -178,10 +178,16 @@ async function renderJasper(){
   // Pasti di oggi (ordinati per ora, piu recente in cima)
   const meals=(entry.meals||[]).slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
   const mealsListHtml=meals.length
-    ? meals.map((m,i)=>`<div class="jas-meal-row">
-        <span class="jas-meal-time">🍼 ${esc(m.hhmm||'?')}</span>
-        <button class="jas-meal-del" onclick="jasperDeleteMeal(${i})" title="Rimuovi">×</button>
-      </div>`).join('')
+    ? meals.map((m,i)=>{
+        const note = esc(m.note||'');
+        return `<div class="jas-meal-row" onclick="jasperEditMealNote(${i})" title="Tocca per nota">
+          <div class="jas-meal-info">
+            <span class="jas-meal-time">🍼 ${esc(m.hhmm||'?')}</span>
+            ${note ? `<span class="jas-meal-note">${note}</span>` : `<span class="jas-meal-note-empty">+ nota</span>`}
+          </div>
+          <button class="jas-meal-del" onclick="event.stopPropagation();jasperDeleteMeal(${i})" title="Rimuovi">×</button>
+        </div>`;
+      }).join('')
     : '<div class="jas-meal-empty">Nessun pasto registrato oggi</div>';
 
   // Ultimo pasto (tempo fa)
@@ -888,6 +894,28 @@ async function jasperLogMealTime(){
   }).catch(() => {});
 }
 
+function jasperEditMealNote(idx){
+  _jasperOpQueue = _jasperOpQueue.then(async () => {
+    try {
+      const today=toISO();
+      const entry=jasperDiary[today]||(await loadJasperDiary(today));
+      if(!entry.meals||idx<0)return;
+      // Identifica il pasto via stesso ordinamento del render (più recente in cima)
+      const sorted=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
+      const target=sorted[idx];
+      if(!target)return;
+      const real=entry.meals.find(m=>m===target);
+      const v=prompt(`Nota per il pasto delle ${target.hhmm} (es. 120ml, pappa carne):`, real.note||'');
+      if(v===null) return; // annullato
+      real.note = v.trim();
+      jasperDiary[today]=entry;
+      await saveJasperEntry(today,entry);
+      renderJasper();
+      toast(real.note ? '📝 Nota salvata' : 'Nota rimossa','info');
+    } catch(e) { console.error('jasperEditMealNote:', e); toast('Errore','warn'); }
+  }).catch(() => {});
+}
+
 function jasperDeleteMeal(idx){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
@@ -1079,7 +1107,7 @@ function openJasperDayPopup(iso){
     <div class="jas-popup-sec-lbl">🍼 Pasti (${meals.length})</div>
     ${meals.length
       ? meals.map(m=>`<div class="jas-popup-item-row">
-          <div class="jas-popup-meal">🍼 ${esc(m.hhmm||'?')}</div>
+          <div class="jas-popup-meal">🍼 ${esc(m.hhmm||'?')}${m.note?` <span class="jas-popup-meal-note">${esc(m.note)}</span>`:''}</div>
           <button class="jas-popup-item-btn edit" onclick="jasperEditMealFromDay('${iso}','${esc(m.hhmm||'')}',event)" title="Modifica">✎</button>
           <button class="jas-popup-item-btn del" onclick="jasperDeleteMealFromDay('${iso}','${esc(m.hhmm||'')}',event)" title="Rimuovi">×</button>
         </div>`).join('')
@@ -1173,8 +1201,9 @@ function renderPopupEditForm(iso, state){
   let body = '';
   if(type === 'meal'){
     body = `
-      <div class="jas-popup-edit-lbl">Modifica ora pasto</div>
+      <div class="jas-popup-edit-lbl">Modifica pasto</div>
       ${hhmmPickerHTML('popupEditMeal', data.hhmm||'', {withNow:true})}
+      <input type="text" id="popupEditMealNote" class="jas-popup-edit-inp" value="${esc(data.note||'')}" placeholder="nota (es. 120ml, pappa carne)" style="margin-top:8px">
       <div class="jas-popup-edit-btns">
         <button class="jas-popup-edit-save" onclick="jasperSaveMealEdit('${iso}','${esc(data.hhmm||'')}',event)" type="button">✓ Salva</button>
         <button class="jas-popup-edit-cancel" onclick="jasperCancelPopupEdit('${iso}',event)" type="button">✗ Annulla</button>
@@ -1319,7 +1348,9 @@ function jasperDeleteSleepFromDay(iso, startHHMM, event){
 /* ── Popup: edit triggers ── */
 function jasperEditMealFromDay(iso, hhmm, event){
   event?.stopPropagation();
-  _popupEditingState = {type:'meal', iso, data:{hhmm}};
+  const entry = stData[jasperDiaryKey(iso)];
+  const meal = entry?.meals?.find(m => m.hhmm === hhmm);
+  _popupEditingState = {type:'meal', iso, data:{hhmm, note: meal?.note || ''}};
   openJasperDayPopup(iso);
 }
 
@@ -1372,9 +1403,10 @@ function jasperCancelPopupEdit(iso, event){
 /* ── Popup: save edit functions (in queue per evitare race) ── */
 function jasperSaveMealEdit(iso, oldHhmm, event){
   event?.stopPropagation();
-  // Snapshot del nuovo valore PRIMA di entrare in queue (evita problemi se popup re-rendered)
+  // Snapshot dei nuovi valori PRIMA di entrare in queue (evita problemi se popup re-rendered)
   const newHhmm = readHHMMPicker('popupEditMeal');
   if(!newHhmm){ toast('Seleziona un orario','warn'); return; }
+  const newNote = (document.getElementById('popupEditMealNote')?.value || '').trim();
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
       const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
@@ -1385,6 +1417,7 @@ function jasperSaveMealEdit(iso, oldHhmm, event){
         return;
       }
       entry.meals[mealIdx].hhmm = newHhmm;
+      entry.meals[mealIdx].note = newNote;
       const latest = entry.meals.slice().sort((a,b) => (b.hhmm||'').localeCompare(a.hhmm||''))[0];
       entry.lastMeal = latest.hhmm;
       await saveJasperEntry(iso, entry);
