@@ -1,0 +1,2136 @@
+{
+  "version": 1,
+  "backed_up_at": "2026-04-26T05:31:11Z",
+  "source": "github-actions-weekly",
+  "items_count": 84,
+  "startup_data_count": 18,
+  "items": [
+    {
+      "id": "mod1oazmwel8y9",
+      "data": {
+        "id": "mod1oazmwel8y9",
+        "ora": "17:00",
+        "area": "personale",
+        "data": "2026-06-05",
+        "done": false,
+        "note": "Fisioterapista: Vitalini Lara",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-04-24T15:07:40.288921+00:00"
+    },
+    {
+      "id": "mod1oazmm0o4ze",
+      "data": {
+        "id": "mod1oazmm0o4ze",
+        "ora": "17:00",
+        "area": "personale",
+        "data": "2026-05-29",
+        "done": false,
+        "note": "Fisioterapista: Vitalini Lara",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-04-24T15:07:40.288921+00:00"
+    },
+    {
+      "id": "mo8ccbsmp3hget",
+      "data": {
+        "id": "mo8ccbsmp3hget",
+        "ora": "15:00",
+        "area": "startup",
+        "data": "2026-05-15",
+        "done": false,
+        "note": "Controllare le FAQ di Spanish Paint Quote",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "Controllare le FAQ di Spanish Paint Quote",
+        "deleted_at": "2026-04-21T09:27:07.565Z",
+        "startupTag": "paintquote"
+      },
+      "updated_at": "2026-04-21T08:07:27.180388+00:00"
+    },
+    {
+      "id": "mo6rf94dd9ng2g",
+      "data": {
+        "id": "mo6rf94dd9ng2g",
+        "ora": "16:00",
+        "area": "personale",
+        "data": "2026-04-21",
+        "done": true,
+        "note": "Appuntamento confermato via email da malkon.sirop@o...",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Taglio uomo con MELK"
+      },
+      "updated_at": "2026-04-20T05:34:04.711601+00:00"
+    },
+    {
+      "id": "mo61zx20i85s23",
+      "data": {
+        "id": "mo61zx20i85s23",
+        "ora": "",
+        "area": "personale_rico",
+        "data": "2026-04-20",
+        "done": true,
+        "note": "Ricordato il 2026-04-19 (domenica). Da fare domani lunedì.",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "Scrivere email alla fisioterapia per appuntamenti"
+      },
+      "updated_at": "2026-04-19T17:42:19.516272+00:00"
+    },
+    {
+      "id": "mo5gcgci2p27xv",
+      "data": {
+        "id": "mo5gcgci2p27xv",
+        "ora": "11:00",
+        "area": "personale_rico",
+        "data": "2026-04-24",
+        "done": false,
+        "note": "Contattare il responsabile dello stabile per segnalare: guarnizioni finestre, asciugatrice e lavatrice, siliconi sanitari",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Scrivere email a responsabile stabile (guarnizioni finestra, asciugatrice, lavatrice, siliconi sanitari, wc con ruggine da sostituire)",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-19T07:36:12.487204+00:00"
+    },
+    {
+      "id": "mo5gaaeu9bsa2v",
+      "data": {
+        "id": "mo5gaaeu9bsa2v",
+        "ora": "10:00",
+        "area": "personale_rico",
+        "data": "2026-04-21",
+        "done": true,
+        "note": "Aggiornamento conto Postfinance",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "Chiamare Postfinance per aggiornare il conto"
+      },
+      "updated_at": "2026-04-19T07:34:31.716803+00:00"
+    },
+    {
+      "id": "mo1mryafqy5bm7",
+      "data": {
+        "id": "mo1mryafqy5bm7",
+        "ora": "15:30",
+        "area": "startup",
+        "data": "2026-04-20",
+        "done": true,
+        "note": "Follow-up risposte weekend + seconda ondata outreach. Durata 1h30. Fine: 17:00.",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "ZodAI follow-up e outreach"
+      },
+      "updated_at": "2026-04-16T15:25:08.206946+00:00"
+    },
+    {
+      "id": "mo1mryaffgaotu",
+      "data": {
+        "id": "mo1mryaffgaotu",
+        "ora": "13:00",
+        "area": "startup",
+        "data": "2026-04-20",
+        "done": true,
+        "note": "Continuazione test E2E e bug list con Prosvero. Durata 2h30. Fine: 15:30.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Paintquote + Prosvero test E2E"
+      },
+      "updated_at": "2026-04-16T15:25:08.206946+00:00"
+    },
+    {
+      "id": "mo1mryafawfifb",
+      "data": {
+        "id": "mo1mryafawfifb",
+        "ora": "10:20",
+        "area": "startup",
+        "data": "2026-04-20",
+        "done": true,
+        "note": "Test E2E e bug list con Prosvero. Durata 1h40. Fine: 12:00.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Paintquote + Prosvero test E2E"
+      },
+      "updated_at": "2026-04-16T15:25:08.206946+00:00"
+    },
+    {
+      "id": "mo1mhxr0mytrf1",
+      "data": {
+        "id": "mo1mhxr0mytrf1",
+        "ora": "12:30",
+        "area": "startup",
+        "data": "2026-04-17",
+        "done": true,
+        "note": "Test E2E e bug list per Paintquote o Prosvero, durata 2,5h (12:30-15:00)",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "Paintquote o Prosvero test E2E"
+      },
+      "updated_at": "2026-04-16T15:17:21.091383+00:00"
+    },
+    {
+      "id": "mo1mhxr09vyibq",
+      "data": {
+        "id": "mo1mhxr09vyibq",
+        "ora": "08:00",
+        "area": "startup",
+        "data": "2026-04-17",
+        "done": true,
+        "note": "Attività di outreach verso micro-influencer per ZodAI, durata 4h (8:00-12:00)",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "ZodAI outreach micro-influencer"
+      },
+      "updated_at": "2026-04-16T15:17:21.091383+00:00"
+    },
+    {
+      "id": "mo021102vdfe0s",
+      "data": {
+        "id": "mo021102vdfe0s",
+        "ora": "09:00",
+        "area": "personale_rico",
+        "data": "2026-04-18",
+        "done": true,
+        "note": "",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Terapia cranio sacrale"
+      },
+      "updated_at": "2026-04-15T12:56:33.553413+00:00"
+    },
+    {
+      "id": "mo01z9in2lh840",
+      "data": {
+        "id": "mo01z9in2lh840",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-04-16",
+        "done": true,
+        "note": "Comunicare a FSEA che Rico sarà assente il 30 giugno",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "Scrivere email a FSEA – assenza 30 giugno"
+      },
+      "updated_at": "2026-04-15T12:55:11.336169+00:00"
+    },
+    {
+      "id": "mnzz0u0wc87anm",
+      "data": {
+        "id": "mnzz0u0wc87anm",
+        "ora": "18:00",
+        "area": "cpc",
+        "data": "2026-04-15",
+        "done": true,
+        "note": "Reminder serale per preparare lo zaino con la pagella firmata",
+        "prio": "alta",
+        "tipo": "task",
+        "recur": "",
+        "cpcTag": "CCOA",
+        "titolo": "Mettere la pagella firmata nello zaino di scuola"
+      },
+      "updated_at": "2026-04-15T11:32:25.695894+00:00"
+    },
+    {
+      "id": "mnzllaym94dkub",
+      "data": {
+        "id": "mnzllaym94dkub",
+        "ora": "08:20",
+        "area": "cpc",
+        "data": "2026-04-20",
+        "done": true,
+        "note": "Durata 8:20-16:25",
+        "prio": "alta",
+        "tipo": "evento",
+        "recur": "",
+        "cpcTag": "CCOA",
+        "titolo": "Terza giornata corsi interaziendali"
+      },
+      "updated_at": "2026-04-15T05:16:26.228342+00:00"
+    },
+    {
+      "id": "mnwu7t6gvbg5cv",
+      "data": {
+        "id": "mnwu7t6gvbg5cv",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-14",
+        "done": true,
+        "note": "Preparazione orale di inglese",
+        "prio": "alta",
+        "tipo": "compito",
+        "recur": "",
+        "cpcTag": "Inglese",
+        "titolo": "Studiare inglese per orale"
+      },
+      "updated_at": "2026-04-13T06:54:34.553318+00:00"
+    },
+    {
+      "id": "mnwu66zll2oqs8",
+      "data": {
+        "id": "mnwu66zll2oqs8",
+        "ora": "14:00",
+        "area": "startup",
+        "data": "2026-04-13",
+        "done": true,
+        "note": "",
+        "prio": "alta",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "ZodAI — controllare decisione Apple",
+        "startupTag": "remychef"
+      },
+      "updated_at": "2026-04-13T06:53:19.999003+00:00"
+    },
+    {
+      "id": "mnwu66zvntvmyn",
+      "data": {
+        "id": "mnwu66zvntvmyn",
+        "ora": "15:30",
+        "area": "startup",
+        "data": "2026-04-13",
+        "done": true,
+        "note": "",
+        "prio": "alta",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "ZodAI — completare ricerca 14 tester Google Play",
+        "startupTag": "remychef"
+      },
+      "updated_at": "2026-04-13T06:53:19.999003+00:00"
+    },
+    {
+      "id": "mnwse68gs7ut6p",
+      "data": {
+        "id": "mnwse68gs7ut6p",
+        "ora": "12:00",
+        "area": "personale_rico",
+        "data": "2026-05-08",
+        "done": false,
+        "note": "Appuntamento con l'avvocato a Locarno",
+        "prio": "alta",
+        "tipo": "meeting",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Appuntamento avvocato a Locarno",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-13T06:03:32.967095+00:00"
+    },
+    {
+      "id": "mnw9wibkbcywgx",
+      "data": {
+        "id": "mnw9wibkbcywgx",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-20",
+        "done": false,
+        "note": "Materie: ITA e contabilità. Classe CCO C.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Italiano test ITA contabilità"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibkld01bg",
+      "data": {
+        "id": "mnw9wibkld01bg",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-07",
+        "done": false,
+        "note": "Classe CCO A. Nessun dettaglio aggiuntivo indicato.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Esame Cultura CCO A"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "sp_mo8kumk3p0hmhn",
+      "data": {
+        "id": "sp_mo8kumk3p0hmhn",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Peperoni",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 50,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:05:36.819Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:05:36.92058+00:00"
+    },
+    {
+      "id": "sp_mo8kueoo4n7ilw",
+      "data": {
+        "id": "sp_mo8kueoo4n7ilw",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Zucchine",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 40,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:05:26.616Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:05:26.839556+00:00"
+    },
+    {
+      "id": "sp_mo8ku3t5quilgy",
+      "data": {
+        "id": "sp_mo8ku3t5quilgy",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Cetriolo",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 30,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:05:12.521Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:05:12.611406+00:00"
+    },
+    {
+      "id": "sp_mo8ktwaw0yt5lj",
+      "data": {
+        "id": "sp_mo8ktwaw0yt5lj",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Carote grattugiate",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 20,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:05:02.792Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:05:02.880828+00:00"
+    },
+    {
+      "id": "sp_mo8ktd3hvvunz6",
+      "data": {
+        "id": "sp_mo8ktd3hvvunz6",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Insalata verde",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 10,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:04:37.902Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:04:38.061859+00:00"
+    },
+    {
+      "id": "mnw9wibk8wo6oz",
+      "data": {
+        "id": "mnw9wibk8wo6oz",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-13",
+        "done": false,
+        "note": "Materie: ITA e tedesco. Classe CCO B.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Italiano test ITA e tedesco"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibkysnqon",
+      "data": {
+        "id": "mnw9wibkysnqon",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-15",
+        "done": true,
+        "note": "Test orale a coppie. Tema: Working on the phone, scena con XY.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Inglese test orale coppie"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibkasd4sd",
+      "data": {
+        "id": "mnw9wibkasd4sd",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-30",
+        "done": false,
+        "note": "ORALE Frasi di reclamo, redelmittle – 8 situazioni da studiare a memoria. Classe CCO D.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Tedesco orale frasi reclamo"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibk7xjlz7",
+      "data": {
+        "id": "mnw9wibk7xjlz7",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-21",
+        "done": false,
+        "note": "Lettera da scrivere interamente: risposta a un articolo di giornale. Classe CCO C.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Tedesco lettera risposta giornale"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibkz43xfl",
+      "data": {
+        "id": "mnw9wibkz43xfl",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-27",
+        "done": false,
+        "note": "Test orale a coppie. Tema: organizzare un evento (es. cena di Natale), discussione sull'organizzazione. Coppie scelte dalla prof sul momento.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Inglese test orale coppie evento"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibkhsmhi6",
+      "data": {
+        "id": "mnw9wibkhsmhi6",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-21",
+        "done": false,
+        "note": "Economia vale X2. Classe CCO C.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Economia test doppio peso"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnt3f9awz3ih6x",
+      "data": {
+        "id": "mnt3f9awz3ih6x",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-04-17",
+        "done": true,
+        "note": "",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia"
+      },
+      "updated_at": "2026-04-10T16:01:13.831541+00:00"
+    },
+    {
+      "id": "mnsv3b00i1lxkz",
+      "data": {
+        "id": "mnsv3b00i1lxkz",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-06",
+        "done": false,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b008svqdh",
+      "data": {
+        "id": "mnsv3b008svqdh",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-11",
+        "done": false,
+        "note": "Giovedì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00rp5f7d",
+      "data": {
+        "id": "mnsv3b00rp5f7d",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-17",
+        "done": false,
+        "note": "Mercoledì - Ultimo giorno scolastico",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b006absh3",
+      "data": {
+        "id": "mnsv3b006absh3",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-30",
+        "done": false,
+        "note": "Giovedì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsuzgnsvjhn5h",
+      "data": {
+        "id": "mnsuzgnsvjhn5h",
+        "ora": "16:30",
+        "area": "personale",
+        "data": "2026-04-10",
+        "done": true,
+        "note": "",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia"
+      },
+      "updated_at": "2026-04-10T12:04:59.927157+00:00"
+    },
+    {
+      "id": "mnsuzgnsod9u2v",
+      "data": {
+        "id": "mnsuzgnsod9u2v",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-05-22",
+        "done": false,
+        "note": "",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia"
+      },
+      "updated_at": "2026-04-10T12:04:59.927157+00:00"
+    },
+    {
+      "id": "mnsutxe0amr2ts",
+      "data": {
+        "id": "mnsutxe0amr2ts",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-30",
+        "done": false,
+        "note": "Formatore: Y. Maole Kamanda - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "E-learning e blended learning"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0njklba",
+      "data": {
+        "id": "mnsutxe0njklba",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-04-14",
+        "done": true,
+        "note": "Formatore: F. Moro - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Dubbi ed esitazioni nell'adulto: quali le motivazioni?"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0cul68r",
+      "data": {
+        "id": "mnsutxe0cul68r",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-23",
+        "done": false,
+        "note": "Formatore: L. D'Antuono - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Nuove tecnologie a supporto della didattica"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0pu7fy1",
+      "data": {
+        "id": "mnsutxe0pu7fy1",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-05-26",
+        "done": false,
+        "note": "Formatore: L. D'Antuono - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "L'informatica di base per il formatore"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0inhgy0",
+      "data": {
+        "id": "mnsutxe0inhgy0",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-10-27",
+        "done": false,
+        "note": "Formatore: S. Spalletta - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "La valutazione 1"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsv3b0093wlgs",
+      "data": {
+        "id": "mnsv3b0093wlgs",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-17",
+        "done": false,
+        "note": "Mercoledì 17 giugno 2026",
+        "prio": "media",
+        "tipo": "scadenza",
+        "recur": "",
+        "titolo": "Fine anno scolastico"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00l7b359",
+      "data": {
+        "id": "mnsv3b00l7b359",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-28",
+        "done": false,
+        "note": "Giovedì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00y0n8ti",
+      "data": {
+        "id": "mnsv3b00y0n8ti",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-22",
+        "done": true,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00pdmbsj",
+      "data": {
+        "id": "mnsv3b00pdmbsj",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-23",
+        "done": true,
+        "note": "Giovedì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00cknyq7",
+      "data": {
+        "id": "mnsv3b00cknyq7",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-16",
+        "done": true,
+        "note": "Giovedì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00ms50j7",
+      "data": {
+        "id": "mnsv3b00ms50j7",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-15",
+        "done": true,
+        "note": "Mercoledì - Primo giorno utile dopo vacanze di Pasqua",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00pyp7xw",
+      "data": {
+        "id": "mnsv3b00pyp7xw",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-27",
+        "done": false,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00mzhaxc",
+      "data": {
+        "id": "mnsv3b00mzhaxc",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-29",
+        "done": false,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsutxe07xcbco",
+      "data": {
+        "id": "mnsutxe07xcbco",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-12-22",
+        "done": false,
+        "note": "Formatore: F. Moro - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Operare un bilancio finale di un corso"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe02x3o8f",
+      "data": {
+        "id": "mnsutxe02x3o8f",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-11-10",
+        "done": false,
+        "note": "Formatore: S. Spalletta - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "La valutazione 2"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsv3b00t48lub",
+      "data": {
+        "id": "mnsv3b00t48lub",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-10",
+        "done": false,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b0020mcur",
+      "data": {
+        "id": "mnsv3b0020mcur",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-20",
+        "done": false,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00t3ay9l",
+      "data": {
+        "id": "mnsv3b00t3ay9l",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-13",
+        "done": false,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b0030sjpe",
+      "data": {
+        "id": "mnsv3b0030sjpe",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-21",
+        "done": false,
+        "note": "Giovedì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b0098r97u",
+      "data": {
+        "id": "mnsv3b0098r97u",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-07",
+        "done": false,
+        "note": "Giovedì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsutxe0kslbv2",
+      "data": {
+        "id": "mnsutxe0kslbv2",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-04-27",
+        "done": false,
+        "note": "Formatore: F. Moro - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "I meccanismi dell'apprendimento: le strutture cognitive"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0u6bx68",
+      "data": {
+        "id": "mnsutxe0u6bx68",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-09-22",
+        "done": false,
+        "note": "Formatore: O. Balmelli - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Le strategie didattiche: l'approccio induttivo e deduttivo"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0ym5z89",
+      "data": {
+        "id": "mnsutxe0ym5z89",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-11-17",
+        "done": false,
+        "note": "Formatore: F. Moro A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "atelier",
+        "recur": "",
+        "titolo": "Atelier Micro-lezione"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe06ccb8z",
+      "data": {
+        "id": "mnsutxe06ccb8z",
+        "ora": "18:45",
+        "area": "formatore",
+        "data": "2026-09-29",
+        "done": false,
+        "note": "Formatore: M. Garbani - Forma: S - NB Inizio 18.45 per consegne!",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Le condizioni per il raggiungimento della competenza"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0c19tmx",
+      "data": {
+        "id": "mnsutxe0c19tmx",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-11-24",
+        "done": false,
+        "note": "Formatore: F. Moro A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "atelier",
+        "recur": "",
+        "titolo": "Atelier Micro-lezione"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe03bz5ma",
+      "data": {
+        "id": "mnsutxe03bz5ma",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-12-01",
+        "done": false,
+        "note": "Formatore: F. Moro A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "atelier",
+        "recur": "",
+        "titolo": "Atelier Micro-lezione"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0dtdore",
+      "data": {
+        "id": "mnsutxe0dtdore",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-10-20",
+        "done": false,
+        "note": "Formatore: L. Sciaroni - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Intelligenza emotiva e tipi psicologici. I fattori emotivi nei processi di apprendimento 2"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0sa2ug2",
+      "data": {
+        "id": "mnsutxe0sa2ug2",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-10-13",
+        "done": false,
+        "note": "Formatore: L. Sciaroni - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Intelligenza emotiva e tipi psicologici. I fattori emotivi nei processi di apprendimento 1"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnwu7ihkw447sk",
+      "data": {
+        "id": "mnwu7ihkw447sk",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-13",
+        "done": true,
+        "note": "Studio inglese in preparazione all'orale",
+        "prio": "alta",
+        "tipo": "compito",
+        "recur": "",
+        "cpcTag": "Inglese",
+        "titolo": "Studiare inglese per orale"
+      },
+      "updated_at": "2026-04-13T06:54:21.424619+00:00"
+    },
+    {
+      "id": "mnsutxe0iko1yj",
+      "data": {
+        "id": "mnsutxe0iko1yj",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-12-15",
+        "done": false,
+        "note": "Formatore: S. Spalletta - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Costruire consapevolezza"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0sbpsdy",
+      "data": {
+        "id": "mnsutxe0sbpsdy",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-16",
+        "done": false,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Il piano lezione: l'approccio andragogico Bilancio Intermedio"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0hu4spn",
+      "data": {
+        "id": "mnsutxe0hu4spn",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-09-01",
+        "done": false,
+        "note": "Formatore: O. Balmelli - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Le strategie didattiche: la scelta"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe05wr5ue",
+      "data": {
+        "id": "mnsutxe05wr5ue",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-02",
+        "done": false,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Definire gli obiettivi 1 di una lezione e il concetto di competenza"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0x4gci0",
+      "data": {
+        "id": "mnsutxe0x4gci0",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-09-08",
+        "done": false,
+        "note": "Formatore: O. Balmelli - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Le strategie didattiche: i metodi e le tecniche"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0ms5b2j",
+      "data": {
+        "id": "mnsutxe0ms5b2j",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-09",
+        "done": false,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Definire gli obiettivi 2 di una lezione e il concetto di competenza"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe00wex3a",
+      "data": {
+        "id": "mnsutxe00wex3a",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-09-15",
+        "done": false,
+        "note": "Formatore: Y. Maole Kamanda - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "E-learning e blended learning"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0jcczqa",
+      "data": {
+        "id": "mnsutxe0jcczqa",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-10-06",
+        "done": false,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "simulazione",
+        "recur": "",
+        "titolo": "Simulazione"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsv3b00gty8uq",
+      "data": {
+        "id": "mnsv3b00gty8uq",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-03",
+        "done": false,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsuzgnsk2ebrb",
+      "data": {
+        "id": "mnsuzgnsk2ebrb",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-05-08",
+        "done": false,
+        "note": "",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia"
+      },
+      "updated_at": "2026-04-10T12:04:59.927157+00:00"
+    },
+    {
+      "id": "mnsuzgnsi62ya9",
+      "data": {
+        "id": "mnsuzgnsi62ya9",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-04-24",
+        "done": true,
+        "note": "",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia"
+      },
+      "updated_at": "2026-04-10T12:04:59.927157+00:00"
+    },
+    {
+      "id": "mnsutxe0l8qyj3",
+      "data": {
+        "id": "mnsutxe0l8qyj3",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-05-04",
+        "done": false,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Progettare una lezione: come e perché?"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0lyj6rh",
+      "data": {
+        "id": "mnsutxe0lyj6rh",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-04-22",
+        "done": true,
+        "note": "Formatore: F. Moro - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Fondamenti della formazione dell'adulto: l'andragogia"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0pxtle2",
+      "data": {
+        "id": "mnsutxe0pxtle2",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-05-19",
+        "done": false,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Il piano lezione: dall'ipotesi allo strumento"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0bkht5w",
+      "data": {
+        "id": "mnsutxe0bkht5w",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-05-12",
+        "done": false,
+        "note": "Formatore: M. Garbani - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "I meccanismi dell'apprendimento: le strutture cognitive"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    }
+  ],
+  "startup_data": [
+    {
+      "id": "jasper_milestones",
+      "data": {
+        "list": []
+      },
+      "updated_at": "2026-04-12T10:31:19.830919+00:00"
+    },
+    {
+      "id": "jasper_foods",
+      "data": {
+        "list": []
+      },
+      "updated_at": "2026-04-12T10:30:41.095834+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-21",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "09:45"
+          },
+          {
+            "hhmm": "12:30"
+          },
+          {
+            "hhmm": "15:30"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:47",
+            "start": "08:01"
+          },
+          {
+            "end": "11:36",
+            "start": "11:02"
+          },
+          {
+            "end": "14:14",
+            "start": "13:30"
+          },
+          {
+            "end": "17:00",
+            "start": "16:10"
+          },
+          {
+            "end": "07:00",
+            "start": "20:00"
+          }
+        ],
+        "woke_at": "17:57",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-04-21T04:46:01.12058+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-18",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:01"
+          },
+          {
+            "hhmm": "13:30"
+          },
+          {
+            "hhmm": "16:48"
+          },
+          {
+            "hhmm": "20:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:05",
+            "start": "08:05"
+          },
+          {
+            "end": "13:20",
+            "start": "12:21"
+          },
+          {
+            "end": "16:48",
+            "start": "15:53"
+          },
+          {
+            "end": "20:00",
+            "start": "19:20"
+          },
+          {
+            "end": "06:15",
+            "start": "21:00"
+          }
+        ],
+        "lastMeal": "20:45"
+      },
+      "updated_at": "2026-04-18T05:45:34.739007+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-19",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:31"
+          },
+          {
+            "hhmm": "12:45"
+          },
+          {
+            "hhmm": "15:47"
+          },
+          {
+            "hhmm": "18:47"
+          },
+          {
+            "hhmm": "20:31"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:36",
+            "start": "07:55"
+          },
+          {
+            "end": "12:19",
+            "start": "10:56"
+          },
+          {
+            "end": "15:13",
+            "start": "14:34"
+          },
+          {
+            "end": "18:43",
+            "start": "18:08"
+          },
+          {
+            "end": "06:30",
+            "start": "21:11"
+          }
+        ],
+        "lastMeal": "20:31"
+      },
+      "updated_at": "2026-04-19T05:28:31.772541+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-12",
+      "data": {
+        "feed": 1,
+        "mood": 2,
+        "note": "",
+        "foods": [],
+        "meals": [],
+        "notes": [],
+        "sleep": 1,
+        "sleeps": [],
+        "weight": null,
+        "lastMeal": null,
+        "sleep_end": "",
+        "lastMealMl": null,
+        "anissa_mood": 0,
+        "sleep_start": "",
+        "sleep_wakes": ""
+      },
+      "updated_at": "2026-04-12T09:16:33.67063+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-23",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:20"
+          },
+          {
+            "hhmm": "10:45"
+          },
+          {
+            "hhmm": "12:30"
+          },
+          {
+            "hhmm": "15:30"
+          },
+          {
+            "hhmm": "18:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:52",
+            "start": "08:09"
+          },
+          {
+            "end": "11:38",
+            "start": "11:04"
+          },
+          {
+            "end": "14:41",
+            "start": "13:38"
+          },
+          {
+            "end": "17:11",
+            "start": "16:35"
+          },
+          {
+            "end": "06:15",
+            "start": "20:00"
+          }
+        ],
+        "woke_at": "17:11",
+        "lastMeal": "18:00"
+      },
+      "updated_at": "2026-04-23T05:08:03.435895+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-13",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "20:00"
+          },
+          {
+            "hhmm": "17:00"
+          },
+          {
+            "hhmm": "14:00"
+          },
+          {
+            "hhmm": "11:00"
+          },
+          {
+            "hhmm": "07:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "10:00",
+            "start": "08:30"
+          },
+          {
+            "end": "12:40",
+            "start": "11:15"
+          },
+          {
+            "end": "15:45",
+            "start": "14:00"
+          },
+          {
+            "end": "19:15",
+            "start": "18:45"
+          }
+        ],
+        "lastMeal": "07:45"
+      },
+      "updated_at": "2026-04-13T06:06:13.656964+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-22",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "13:30"
+          },
+          {
+            "hhmm": "17:00"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:39",
+            "start": "08:13"
+          },
+          {
+            "end": "12:52",
+            "start": "11:33"
+          },
+          {
+            "end": "16:34",
+            "start": "15:34"
+          },
+          {
+            "end": "07:08",
+            "start": "19:47"
+          }
+        ],
+        "woke_at": "16:34",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-04-22T05:08:23.465682+00:00"
+    },
+    {
+      "id": "jasper_weights",
+      "data": {
+        "list": [
+          {
+            "kg": 3.54,
+            "date": "2025-09-12",
+            "note": ""
+          },
+          {
+            "kg": 4.25,
+            "date": "2025-10-13",
+            "note": ""
+          },
+          {
+            "kg": 4.5,
+            "date": "2025-10-30",
+            "note": ""
+          },
+          {
+            "kg": 4.72,
+            "date": "2025-11-14",
+            "note": ""
+          },
+          {
+            "kg": 5,
+            "date": "2025-11-25",
+            "note": ""
+          },
+          {
+            "kg": 5.3,
+            "date": "2025-12-15",
+            "note": ""
+          },
+          {
+            "kg": 5.6,
+            "date": "2025-12-24",
+            "note": ""
+          },
+          {
+            "kg": 5.8,
+            "date": "2026-01-01",
+            "note": ""
+          },
+          {
+            "kg": 6.2,
+            "date": "2026-01-10",
+            "note": ""
+          },
+          {
+            "kg": 6.5,
+            "date": "2026-01-23",
+            "note": ""
+          },
+          {
+            "kg": 6.7,
+            "date": "2026-02-02",
+            "note": ""
+          },
+          {
+            "kg": 7,
+            "date": "2026-02-09",
+            "note": ""
+          },
+          {
+            "kg": 7.35,
+            "date": "2026-02-28",
+            "note": ""
+          },
+          {
+            "kg": 7.83,
+            "date": "2026-03-17",
+            "note": ""
+          },
+          {
+            "kg": 8,
+            "date": "2026-03-31",
+            "note": ""
+          }
+        ]
+      },
+      "updated_at": "2026-04-12T10:30:13.219137+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-15",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "11:30"
+          },
+          {
+            "hhmm": "14:43"
+          },
+          {
+            "hhmm": "17:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:54",
+            "start": "08:13"
+          },
+          {
+            "end": "11:30",
+            "start": "10:43"
+          },
+          {
+            "end": "14:02",
+            "start": "13:20"
+          },
+          {
+            "end": "16:44",
+            "start": "16:08"
+          },
+          {
+            "end": null,
+            "start": "20:10"
+          }
+        ],
+        "lastMeal": "17:45"
+      },
+      "updated_at": "2026-04-15T06:13:01.267888+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-14",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:17"
+          },
+          {
+            "hhmm": "13:31"
+          },
+          {
+            "hhmm": "16:18"
+          },
+          {
+            "hhmm": "19:36"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:43",
+            "start": "08:12"
+          },
+          {
+            "end": "11:12",
+            "start": "10:29"
+          },
+          {
+            "end": "15:15",
+            "start": "13:44"
+          },
+          {
+            "end": "17:15",
+            "start": "16:45"
+          },
+          {
+            "end": null,
+            "start": "19:46"
+          }
+        ],
+        "lastMeal": "19:36"
+      },
+      "updated_at": "2026-04-14T05:27:52.039502+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-17",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "10:14"
+          },
+          {
+            "hhmm": "13:16"
+          },
+          {
+            "hhmm": "17:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:11",
+            "start": "08:37"
+          },
+          {
+            "end": "11:33",
+            "start": "10:54"
+          },
+          {
+            "end": "14:23",
+            "start": "13:47"
+          },
+          {
+            "end": "17:20",
+            "start": "16:17"
+          }
+        ],
+        "lastMeal": "17:30"
+      },
+      "updated_at": "2026-04-17T05:45:32.210534+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-16",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "08:00"
+          },
+          {
+            "hhmm": "05:00"
+          },
+          {
+            "hhmm": "11:14"
+          },
+          {
+            "hhmm": "13:48"
+          },
+          {
+            "hhmm": "17:04"
+          },
+          {
+            "hhmm": "20:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:30",
+            "start": "08:30"
+          },
+          {
+            "end": "12:11",
+            "start": "11:38"
+          },
+          {
+            "end": "15:41",
+            "start": "14:24"
+          },
+          {
+            "end": "18:37",
+            "start": "18:10"
+          },
+          {
+            "end": "17:44",
+            "start": "20:18"
+          }
+        ],
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-04-16T06:06:22.62292+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-20",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:01"
+          },
+          {
+            "hhmm": "13:00"
+          },
+          {
+            "hhmm": "16:30"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:55",
+            "start": "08:07"
+          },
+          {
+            "end": "12:00",
+            "start": "10:45"
+          },
+          {
+            "end": "15:20",
+            "start": "14:00"
+          },
+          {
+            "end": "18:44",
+            "start": "18:15"
+          },
+          {
+            "end": "06:30",
+            "start": "20:36"
+          }
+        ],
+        "woke_at": "18:44",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-04-20T05:08:55.162699+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-24",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45",
+            "note": "🍼 240 ml"
+          },
+          {
+            "hhmm": "10:00",
+            "note": "🍼 230 ml"
+          },
+          {
+            "hhmm": "12:45",
+            "note": "🍽️ 60 gr spaghetti bolognese"
+          },
+          {
+            "hhmm": "15:01",
+            "note": "🍼 230 ml"
+          },
+          {
+            "hhmm": "18:00",
+            "note": "🍼 230 ml"
+          },
+          {
+            "hhmm": "21:15",
+            "note": "🍼 150 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:23",
+            "start": "07:35"
+          },
+          {
+            "end": "11:31",
+            "start": "10:15"
+          },
+          {
+            "end": "14:11",
+            "start": "13:43"
+          },
+          {
+            "end": "16:38",
+            "start": "16:00"
+          },
+          {
+            "end": "21:00",
+            "start": "19:00"
+          },
+          {
+            "end": "07:00",
+            "start": "21:25"
+          }
+        ],
+        "woke_at": "16:49",
+        "lastMeal": "21:15"
+      },
+      "updated_at": "2026-04-24T04:54:31.228743+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-25",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:45"
+          },
+          {
+            "hhmm": "13:45",
+            "note": "230 gr: pastina, vitello, carota, zucca, colza"
+          },
+          {
+            "hhmm": "16:45"
+          },
+          {
+            "hhmm": "21:30",
+            "note": "170 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:04",
+            "start": "08:33"
+          },
+          {
+            "end": "12:43",
+            "start": "11:06"
+          },
+          {
+            "end": "16:35",
+            "start": "15:35"
+          },
+          {
+            "end": "21:34",
+            "start": "19:15"
+          },
+          {
+            "end": "07:22",
+            "start": "21:34"
+          }
+        ],
+        "woke_at": "21:34",
+        "lastMeal": "21:30"
+      },
+      "updated_at": "2026-04-25T05:17:42.474215+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-26",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:21",
+            "note": ""
+          }
+        ],
+        "notes": [],
+        "sleeps": [],
+        "woke_at": "07:22",
+        "lastMeal": "07:21"
+      },
+      "updated_at": "2026-04-26T05:21:44.030536+00:00"
+    }
+  ]
+}
