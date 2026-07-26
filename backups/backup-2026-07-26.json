@@ -1,0 +1,6813 @@
+{
+  "version": 1,
+  "backed_up_at": "2026-07-26T05:50:50Z",
+  "source": "github-actions-weekly",
+  "items_count": 81,
+  "startup_data_count": 109,
+  "items": [
+    {
+      "id": "mrum1us0rl03by",
+      "data": {
+        "id": "mrum1us0rl03by",
+        "ora": "16:30",
+        "area": "personale_rico",
+        "data": "2026-07-30",
+        "done": false,
+        "note": "Appuntamento dalla dottoressa dermatologa",
+        "prio": "media",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Visita dermatologa"
+      },
+      "updated_at": "2026-07-21T12:09:17.555057+00:00"
+    },
+    {
+      "id": "mrssfhbtkav64r",
+      "data": {
+        "id": "mrssfhbtkav64r",
+        "ora": "16:30",
+        "area": "personale_rico",
+        "data": "2026-07-23",
+        "done": true,
+        "note": "Parrucchiere Melk",
+        "prio": "bassa",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Taglio capelli da Melk"
+      },
+      "updated_at": "2026-07-20T05:32:18.629115+00:00"
+    },
+    {
+      "id": "mrrrzqlcy57gxp",
+      "data": {
+        "id": "mrrrzqlcy57gxp",
+        "ora": "",
+        "area": "personale_rico",
+        "data": "2026-07-27",
+        "done": false,
+        "note": "- attendere risposta: rimborsi RIPAM\n- attendere risposta: rimborso 3’000.- Jasper",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Cose da fare",
+        "startupTag": ""
+      },
+      "updated_at": "2026-07-19T12:32:17.621343+00:00"
+    },
+    {
+      "id": "mr87k3658u94qc",
+      "data": {
+        "id": "mr87k3658u94qc",
+        "ora": "",
+        "area": "personale_rico",
+        "data": "2026-07-16",
+        "done": true,
+        "note": "Aggiornamento informazioni relative ai lavori WC da comunicare o ricevere tramite Wincasa o il custode",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "News WC – Wincasa/custode",
+        "startupTag": ""
+      },
+      "updated_at": "2026-07-05T19:52:37.386544+00:00"
+    },
+    {
+      "id": "mqrrc3qvfhq1w5",
+      "data": {
+        "id": "mqrrc3qvfhq1w5",
+        "ora": "08:30",
+        "area": "personale_anissa",
+        "data": "2026-07-06",
+        "done": true,
+        "note": "Tecnico Paglia Elettrodomestici in arrivo tra le 08:30 e le 08:45",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Intervento Paglia Elettrodomestici"
+      },
+      "updated_at": "2026-06-24T07:34:12.604062+00:00"
+    },
+    {
+      "id": "mqjlarbw2nm9g1",
+      "data": {
+        "id": "mqjlarbw2nm9g1",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-06-29",
+        "done": true,
+        "note": "Moreno ritira set tavolo e sedie a Novaggio",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "titolo": "Moreno va a prendere set tavolo + sedie a Novaggio"
+      },
+      "updated_at": "2026-06-18T14:23:02.554964+00:00"
+    },
+    {
+      "id": "mqfcpvda4dxo5r",
+      "data": {
+        "id": "mqfcpvda4dxo5r",
+        "ora": "16:30",
+        "area": "personale_rico",
+        "data": "2026-06-18",
+        "done": true,
+        "note": "Appuntamento tagliacapelli per Rico",
+        "prio": "media",
+        "tipo": "evento",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Taglio capelli da Rico",
+        "startupTag": ""
+      },
+      "updated_at": "2026-06-15T15:11:46.62715+00:00"
+    },
+    {
+      "id": "mqfcnrtc0kgyaa",
+      "data": {
+        "id": "mqfcnrtc0kgyaa",
+        "ora": "17:00",
+        "area": "personale_anissa",
+        "data": "2026-06-24",
+        "done": true,
+        "note": "personale_anissa",
+        "prio": "media",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Laminazione ciglia da Pamela"
+      },
+      "updated_at": "2026-06-15T15:10:08.609206+00:00"
+    },
+    {
+      "id": "mqf098rryxh38x",
+      "data": {
+        "id": "mqf098rryxh38x",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-07-24",
+        "done": true,
+        "note": "Ars Medica Fisioterapia, avvisare entro le 16:00 del giorno precedente in caso di assenza",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-06-15T09:22:55.685759+00:00"
+    },
+    {
+      "id": "mqf098rr5idjvj",
+      "data": {
+        "id": "mqf098rr5idjvj",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-08-14",
+        "done": false,
+        "note": "Ars Medica Fisioterapia, avvisare entro le 16:00 del giorno precedente in caso di assenza",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-06-15T09:22:55.685759+00:00"
+    },
+    {
+      "id": "mqf098rred360r",
+      "data": {
+        "id": "mqf098rred360r",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-07-17",
+        "done": true,
+        "note": "Ars Medica Fisioterapia, avvisare entro le 16:00 del giorno precedente in caso di assenza",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-06-15T09:22:55.685759+00:00"
+    },
+    {
+      "id": "mqf098rrsvpa4o",
+      "data": {
+        "id": "mqf098rrsvpa4o",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-08-07",
+        "done": false,
+        "note": "Ars Medica Fisioterapia, avvisare entro le 16:00 del giorno precedente in caso di assenza",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-06-15T09:22:55.685759+00:00"
+    },
+    {
+      "id": "mqf098rq70nznf",
+      "data": {
+        "id": "mqf098rq70nznf",
+        "ora": "17:00",
+        "area": "personale",
+        "data": "2026-06-19",
+        "done": true,
+        "note": "Ars Medica Fisioterapia, avvisare entro le 16:00 del giorno precedente in caso di assenza",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Mazzucchelli Federico"
+      },
+      "updated_at": "2026-06-15T09:22:55.685759+00:00"
+    },
+    {
+      "id": "mqf098rrdzy4p6",
+      "data": {
+        "id": "mqf098rrdzy4p6",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-08-21",
+        "done": false,
+        "note": "Ars Medica Fisioterapia, avvisare entro le 16:00 del giorno precedente in caso di assenza",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Mazzucchelli Federico"
+      },
+      "updated_at": "2026-06-15T09:22:55.685759+00:00"
+    },
+    {
+      "id": "mqf098rrqt2fyu",
+      "data": {
+        "id": "mqf098rrqt2fyu",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-07-10",
+        "done": true,
+        "note": "Ars Medica Fisioterapia, avvisare entro le 16:00 del giorno precedente in caso di assenza",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-06-15T09:22:55.685759+00:00"
+    },
+    {
+      "id": "mqf098rr43e2qh",
+      "data": {
+        "id": "mqf098rr43e2qh",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-07-31",
+        "done": false,
+        "note": "Ars Medica Fisioterapia, avvisare entro le 16:00 del giorno precedente in caso di assenza",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-06-15T09:22:55.685759+00:00"
+    },
+    {
+      "id": "mqf098rrfg92bw",
+      "data": {
+        "id": "mqf098rrfg92bw",
+        "ora": "15:30",
+        "area": "personale",
+        "data": "2026-07-03",
+        "done": true,
+        "note": "Ars Medica Fisioterapia, avvisare entro le 16:00 del giorno precedente in caso di assenza",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Mazzucchelli Federico"
+      },
+      "updated_at": "2026-06-15T09:22:55.685759+00:00"
+    },
+    {
+      "id": "mq3gnbxsh05x27",
+      "data": {
+        "id": "mq3gnbxsh05x27",
+        "ora": "",
+        "area": "personale_rico",
+        "data": "2026-06-13",
+        "done": true,
+        "note": "Rico va da Yas a vedere la partita",
+        "prio": "bassa",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Rico serata da Yas a vedere la partita"
+      },
+      "updated_at": "2026-06-07T07:28:31.970686+00:00"
+    },
+    {
+      "id": "mq3gm78141pkin",
+      "data": {
+        "id": "mq3gm78141pkin",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-06-14",
+        "done": true,
+        "note": "Merenda a casa di Nora per il suo compleanno",
+        "prio": "media",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Merenda compleanno Nora"
+      },
+      "updated_at": "2026-06-07T07:27:39.692688+00:00"
+    },
+    {
+      "id": "mpxq85jrw2b4ls",
+      "data": {
+        "id": "mpxq85jrw2b4ls",
+        "ora": "16:00",
+        "area": "cpc",
+        "data": "2026-06-11",
+        "done": true,
+        "note": "Appuntamento con compagnia di classe dopo scuola",
+        "prio": "media",
+        "tipo": "evento",
+        "recur": "",
+        "cpcTag": "CCOA",
+        "titolo": "Uscita con compagni di classe dopo scuola",
+        "startupTag": ""
+      },
+      "updated_at": "2026-06-03T07:10:03.608647+00:00"
+    },
+    {
+      "id": "mppg8k02ro50dw",
+      "data": {
+        "id": "mppg8k02ro50dw",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-06-05",
+        "done": true,
+        "note": "Cena di compleanno da Giorgio, a casa loro",
+        "prio": "media",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Cena compleanno Giorgio"
+      },
+      "updated_at": "2026-05-28T12:08:16.142961+00:00"
+    },
+    {
+      "id": "mp1ew1b35v819c",
+      "data": {
+        "id": "mp1ew1b35v819c",
+        "ora": "",
+        "area": "personale_rico",
+        "data": "2026-05-15",
+        "done": true,
+        "note": "Inviare all'avvocato: certificato salario e documento di prescrizione. Scadenza venerdì 15 maggio 2026.",
+        "prio": "alta",
+        "tipo": "scadenza",
+        "recur": "",
+        "titolo": "Spedire documenti ad avvocato (certificato salario + prescrizione)"
+      },
+      "updated_at": "2026-05-11T16:24:04.608681+00:00"
+    },
+    {
+      "id": "mpi8bdri1q4gcg",
+      "data": {
+        "id": "mpi8bdri1q4gcg",
+        "ora": "",
+        "area": "personale_rico",
+        "data": "2026-05-29",
+        "done": true,
+        "note": "Verificare se email Neovac già inviata prima di procedere. Contatto: zev-inkasso@neovac.ch. Chiedere anche ai nuovi inquilini di pagare il mese di metà marzo direttamente ad Anissa e Rico.",
+        "prio": "alta",
+        "tipo": "task",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Rico: inviare email trasloco a Neovac (zev-inkasso@neovac.ch) + scrivere a nuovi inquilini per pagamento metà marzo",
+        "startupTag": ""
+      },
+      "updated_at": "2026-05-23T10:52:07.933117+00:00"
+    },
+    {
+      "id": "mpa46iqgsiyrbh",
+      "data": {
+        "id": "mpa46iqgsiyrbh",
+        "ora": "",
+        "area": "coppia",
+        "data": "2026-08-24",
+        "done": false,
+        "note": "Secondo anniversario di matrimonio di Anissa e Rico",
+        "prio": "alta",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "2° anniversario di matrimonio"
+      },
+      "updated_at": "2026-05-17T18:34:13.104672+00:00"
+    },
+    {
+      "id": "mpa45app64ts53",
+      "data": {
+        "id": "mpa45app64ts53",
+        "ora": "",
+        "area": "vacanza",
+        "data": "2026-08-03",
+        "done": false,
+        "note": "Vacanza di Rico dal 3 al 7 agosto 2026",
+        "prio": "alta",
+        "tipo": "evento",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Rico in vacanza",
+        "startupTag": ""
+      },
+      "updated_at": "2026-05-17T18:33:16.143071+00:00"
+    },
+    {
+      "id": "mpa44eb6sq09wn",
+      "data": {
+        "id": "mpa44eb6sq09wn",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-07-29",
+        "done": false,
+        "note": "Compleanno di Antonio",
+        "prio": "bassa",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Compleanno Antonio"
+      },
+      "updated_at": "2026-05-17T18:32:34.053002+00:00"
+    },
+    {
+      "id": "mpa440mzhqzhqt",
+      "data": {
+        "id": "mpa440mzhqzhqt",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-07-16",
+        "done": true,
+        "note": "Compleanno di Nora, riferimento Antonio",
+        "prio": "bassa",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Compleanno Nora (Antonio)"
+      },
+      "updated_at": "2026-05-17T18:32:16.789273+00:00"
+    },
+    {
+      "id": "mpa4377v4uxeee",
+      "data": {
+        "id": "mpa4377v4uxeee",
+        "ora": "14:00",
+        "area": "personale_anissa",
+        "data": "2026-07-18",
+        "done": true,
+        "note": "Appuntamento per cambio e nuovi piercing a Monza - personale Anissa",
+        "prio": "media",
+        "tipo": "evento",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Cambio e nuovi piercing a Monza",
+        "startupTag": ""
+      },
+      "updated_at": "2026-05-17T18:31:38.319241+00:00"
+    },
+    {
+      "id": "mpa41u2lbvsqpo",
+      "data": {
+        "id": "mpa41u2lbvsqpo",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-06-14",
+        "done": true,
+        "note": "",
+        "prio": "bassa",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Compleanno Nora"
+      },
+      "updated_at": "2026-05-17T18:30:34.522162+00:00"
+    },
+    {
+      "id": "mpa417ecibg1x2",
+      "data": {
+        "id": "mpa417ecibg1x2",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-07-04",
+        "done": true,
+        "note": "Compleanno di Marzio",
+        "prio": "bassa",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Compleanno Marzio"
+      },
+      "updated_at": "2026-05-17T18:30:05.274973+00:00"
+    },
+    {
+      "id": "mpa40fs7didwbh",
+      "data": {
+        "id": "mpa40fs7didwbh",
+        "ora": "",
+        "area": "vacanza",
+        "data": "2026-06-27",
+        "done": true,
+        "note": "Vacanze dal 27 giugno al 3 luglio a Milano Marittima",
+        "prio": "alta",
+        "tipo": "evento",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Vacanze Milano Marittima",
+        "startupTag": ""
+      },
+      "updated_at": "2026-05-17T18:29:29.509932+00:00"
+    },
+    {
+      "id": "mpa3z717pkalsx",
+      "data": {
+        "id": "mpa3z717pkalsx",
+        "ora": "09:30",
+        "area": "famiglia",
+        "data": "2026-06-16",
+        "done": true,
+        "note": "Visita pediatrica con vaccini del 9° mese per Jasper",
+        "prio": "alta",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Visita 9° mese + vaccini - Jasper"
+      },
+      "updated_at": "2026-05-17T18:28:31.509655+00:00"
+    },
+    {
+      "id": "mpa3ybrnear50n",
+      "data": {
+        "id": "mpa3ybrnear50n",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-06-05",
+        "done": true,
+        "note": "",
+        "prio": "bassa",
+        "tipo": "evento",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Compleanno Giorgio",
+        "startupTag": ""
+      },
+      "updated_at": "2026-05-17T18:27:50.880469+00:00"
+    },
+    {
+      "id": "mpa3wm9wf74jdy",
+      "data": {
+        "id": "mpa3wm9wf74jdy",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-06-05",
+        "done": true,
+        "note": "Giorno di vacanza scolastica per Rico",
+        "prio": "bassa",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Rico ha vacanza"
+      },
+      "updated_at": "2026-05-17T18:26:31.152869+00:00"
+    },
+    {
+      "id": "moptdzxv1gkahe",
+      "data": {
+        "id": "moptdzxv1gkahe",
+        "ora": "",
+        "area": "famiglia",
+        "data": "2026-05-31",
+        "done": true,
+        "note": "Grigliata sociale con il gruppo del corso preparto",
+        "prio": "media",
+        "tipo": "evento",
+        "recur": "",
+        "titolo": "Grigliata con gruppo corso preparto"
+      },
+      "updated_at": "2026-05-03T13:36:42.810934+00:00"
+    },
+    {
+      "id": "mnwu7t6gvbg5cv",
+      "data": {
+        "id": "mnwu7t6gvbg5cv",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-14",
+        "done": true,
+        "note": "Preparazione orale di inglese",
+        "prio": "alta",
+        "tipo": "compito",
+        "recur": "",
+        "cpcTag": "Inglese",
+        "titolo": "Studiare inglese per orale"
+      },
+      "updated_at": "2026-04-13T06:54:34.553318+00:00"
+    },
+    {
+      "id": "mnwu7ihkw447sk",
+      "data": {
+        "id": "mnwu7ihkw447sk",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-13",
+        "done": true,
+        "note": "Studio inglese in preparazione all'orale",
+        "prio": "alta",
+        "tipo": "compito",
+        "recur": "",
+        "cpcTag": "Inglese",
+        "titolo": "Studiare inglese per orale"
+      },
+      "updated_at": "2026-04-13T06:54:21.424619+00:00"
+    },
+    {
+      "id": "mnw9wibkz43xfl",
+      "data": {
+        "id": "mnw9wibkz43xfl",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-27",
+        "done": true,
+        "note": "Test orale a coppie. Tema: organizzare un evento (es. cena di Natale), discussione sull'organizzazione. Coppie scelte dalla prof sul momento.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Inglese test orale coppie evento"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibk8wo6oz",
+      "data": {
+        "id": "mnw9wibk8wo6oz",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-13",
+        "done": true,
+        "note": "Materie: ITA e tedesco. Classe CCO B.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Italiano test ITA e tedesco"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibkbcywgx",
+      "data": {
+        "id": "mnw9wibkbcywgx",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-20",
+        "done": true,
+        "note": "Materie: ITA e contabilità. Classe CCO C.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Italiano test ITA contabilità"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibkysnqon",
+      "data": {
+        "id": "mnw9wibkysnqon",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-15",
+        "done": true,
+        "note": "Test orale a coppie. Tema: Working on the phone, scena con XY.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Inglese test orale coppie"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibk7xjlz7",
+      "data": {
+        "id": "mnw9wibk7xjlz7",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-21",
+        "done": true,
+        "note": "Lettera da scrivere interamente: risposta a un articolo di giornale. Classe CCO C.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Tedesco lettera risposta giornale"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnsv3b00pyp7xw",
+      "data": {
+        "id": "mnsv3b00pyp7xw",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-27",
+        "done": true,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00gty8uq",
+      "data": {
+        "id": "mnsv3b00gty8uq",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-03",
+        "done": true,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00t48lub",
+      "data": {
+        "id": "mnsv3b00t48lub",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-10",
+        "done": true,
+        "note": "Mercoledì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mod1oazmm0o4ze",
+      "data": {
+        "id": "mod1oazmm0o4ze",
+        "ora": "17:00",
+        "area": "personale",
+        "data": "2026-05-29",
+        "done": true,
+        "note": "Fisioterapista: Vitalini Lara",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-04-24T15:07:40.288921+00:00"
+    },
+    {
+      "id": "mod1oazmwel8y9",
+      "data": {
+        "id": "mod1oazmwel8y9",
+        "ora": "17:00",
+        "area": "personale",
+        "data": "2026-06-05",
+        "done": true,
+        "note": "Fisioterapista: Vitalini Lara",
+        "prio": "media",
+        "tipo": "appuntamento",
+        "recur": "",
+        "titolo": "Fisioterapia Vitalini Lara"
+      },
+      "updated_at": "2026-04-24T15:07:40.288921+00:00"
+    },
+    {
+      "id": "sp_mo8kumk3p0hmhn",
+      "data": {
+        "id": "sp_mo8kumk3p0hmhn",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Peperoni",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 50,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:05:36.819Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:05:36.92058+00:00"
+    },
+    {
+      "id": "mnsutxe0x4gci0",
+      "data": {
+        "id": "mnsutxe0x4gci0",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-09-08",
+        "done": false,
+        "note": "Formatore: O. Balmelli - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Le strategie didattiche: i metodi e le tecniche"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0sa2ug2",
+      "data": {
+        "id": "mnsutxe0sa2ug2",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-10-13",
+        "done": false,
+        "note": "Formatore: L. Sciaroni - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Intelligenza emotiva e tipi psicologici. I fattori emotivi nei processi di apprendimento 1"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0dtdore",
+      "data": {
+        "id": "mnsutxe0dtdore",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-10-20",
+        "done": false,
+        "note": "Formatore: L. Sciaroni - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Intelligenza emotiva e tipi psicologici. I fattori emotivi nei processi di apprendimento 2 - ONLINE‼️",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "sp_mo8kueoo4n7ilw",
+      "data": {
+        "id": "sp_mo8kueoo4n7ilw",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Zucchine",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 40,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:05:26.616Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:05:26.839556+00:00"
+    },
+    {
+      "id": "mnsutxe0ym5z89",
+      "data": {
+        "id": "mnsutxe0ym5z89",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-11-17",
+        "done": false,
+        "note": "Formatore: F. Moro A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "atelier",
+        "recur": "",
+        "titolo": "Atelier Micro-lezione"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe02x3o8f",
+      "data": {
+        "id": "mnsutxe02x3o8f",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-11-10",
+        "done": false,
+        "note": "Formatore: S. Spalletta - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "La valutazione 2 - ONLINE‼️",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe07xcbco",
+      "data": {
+        "id": "mnsutxe07xcbco",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-12-22",
+        "done": false,
+        "note": "Formatore: F. Moro - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Operare un bilancio finale di un corso"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe05wr5ue",
+      "data": {
+        "id": "mnsutxe05wr5ue",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-02",
+        "done": true,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Definire gli obiettivi 1 di una lezione e il concetto di competenza"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0amr2ts",
+      "data": {
+        "id": "mnsutxe0amr2ts",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-30",
+        "done": true,
+        "note": "Formatore: Y. Maole Kamanda - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "E-learning e blended learning - ONLINE‼️ - ASSENTE X VACANZA",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe03bz5ma",
+      "data": {
+        "id": "mnsutxe03bz5ma",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-12-01",
+        "done": false,
+        "note": "Formatore: F. Moro A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "atelier",
+        "recur": "",
+        "titolo": "Atelier Micro-lezione"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0ms5b2j",
+      "data": {
+        "id": "mnsutxe0ms5b2j",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-09",
+        "done": true,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Definire gli obiettivi 2 di una lezione e il concetto di competenza"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0c19tmx",
+      "data": {
+        "id": "mnsutxe0c19tmx",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-11-24",
+        "done": false,
+        "note": "Formatore: F. Moro A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "atelier",
+        "recur": "",
+        "titolo": "Atelier Micro-lezione"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe06ccb8z",
+      "data": {
+        "id": "mnsutxe06ccb8z",
+        "ora": "18:45",
+        "area": "formatore",
+        "data": "2026-09-29",
+        "done": false,
+        "note": "Formatore: M. Garbani - Forma: S - NB Inizio 18.45 per consegne!",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Le condizioni per il raggiungimento della competenza - ONLINE‼️",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0inhgy0",
+      "data": {
+        "id": "mnsutxe0inhgy0",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-10-27",
+        "done": false,
+        "note": "Formatore: S. Spalletta - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "La valutazione 1 - ONLINE‼️",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "sp_mo8ku3t5quilgy",
+      "data": {
+        "id": "sp_mo8ku3t5quilgy",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Cetriolo",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 30,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:05:12.521Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:05:12.611406+00:00"
+    },
+    {
+      "id": "sp_mo8ktwaw0yt5lj",
+      "data": {
+        "id": "sp_mo8ktwaw0yt5lj",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Carote grattugiate",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 20,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:05:02.792Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:05:02.880828+00:00"
+    },
+    {
+      "id": "sp_mo8ktd3hvvunz6",
+      "data": {
+        "id": "sp_mo8ktd3hvvunz6",
+        "qty": 1,
+        "area": "coppia",
+        "nome": "Insalata verde",
+        "note": "",
+        "tipo": "spesa",
+        "unit": "pz",
+        "order": 10,
+        "active": false,
+        "bought": false,
+        "readyAt": null,
+        "createdAt": "2026-04-21T12:04:37.902Z",
+        "readySeenBy": []
+      },
+      "updated_at": "2026-04-21T12:04:38.061859+00:00"
+    },
+    {
+      "id": "mo5gcgci2p27xv",
+      "data": {
+        "id": "mo5gcgci2p27xv",
+        "ora": "11:00",
+        "area": "personale_rico",
+        "data": "2026-05-29",
+        "done": true,
+        "note": "Contattare il responsabile dello stabile per segnalare: guarnizioni finestre, asciugatrice e lavatrice, siliconi sanitari",
+        "prio": "media",
+        "tipo": "task",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Scrivere email a responsabile stabile (guarnizioni finestra, asciugatrice, lavatrice, siliconi sanitari, wc con ruggine da sostituire)",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-19T07:36:12.487204+00:00"
+    },
+    {
+      "id": "mo1mryaffgaotu",
+      "data": {
+        "id": "mo1mryaffgaotu",
+        "ora": "13:00",
+        "area": "startup",
+        "data": "2026-04-20",
+        "done": true,
+        "note": "Continuazione test E2E e bug list con Prosvero. Durata 2h30. Fine: 15:30.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Paintquote + Prosvero test E2E"
+      },
+      "updated_at": "2026-04-16T15:25:08.206946+00:00"
+    },
+    {
+      "id": "mo1mryafawfifb",
+      "data": {
+        "id": "mo1mryafawfifb",
+        "ora": "10:20",
+        "area": "startup",
+        "data": "2026-04-20",
+        "done": true,
+        "note": "Test E2E e bug list con Prosvero. Durata 1h40. Fine: 12:00.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Paintquote + Prosvero test E2E"
+      },
+      "updated_at": "2026-04-16T15:25:08.206946+00:00"
+    },
+    {
+      "id": "mnw9wibkasd4sd",
+      "data": {
+        "id": "mnw9wibkasd4sd",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-04-30",
+        "done": true,
+        "note": "ORALE Frasi di reclamo, redelmittle – 8 situazioni da studiare a memoria. Classe CCO D.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Tedesco orale frasi reclamo"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnw9wibkhsmhi6",
+      "data": {
+        "id": "mnw9wibkhsmhi6",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-21",
+        "done": true,
+        "note": "Economia vale X2. Classe CCO C.",
+        "prio": "media",
+        "tipo": "test",
+        "recur": "",
+        "titolo": "Economia test doppio peso"
+      },
+      "updated_at": "2026-04-12T21:25:55.357001+00:00"
+    },
+    {
+      "id": "mnsv3b0093wlgs",
+      "data": {
+        "id": "mnsv3b0093wlgs",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-17",
+        "done": true,
+        "note": "Mercoledì 17 giugno 2026",
+        "prio": "media",
+        "tipo": "scadenza",
+        "recur": "",
+        "titolo": "Fine anno scolastico"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00l7b359",
+      "data": {
+        "id": "mnsv3b00l7b359",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-05-28",
+        "done": true,
+        "note": "Giovedì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b00rp5f7d",
+      "data": {
+        "id": "mnsv3b00rp5f7d",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-17",
+        "done": true,
+        "note": "Mercoledì - Ultimo giorno scolastico",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsv3b008svqdh",
+      "data": {
+        "id": "mnsv3b008svqdh",
+        "ora": "",
+        "area": "cpc",
+        "data": "2026-06-11",
+        "done": true,
+        "note": "Giovedì",
+        "prio": "media",
+        "tipo": "lezione",
+        "recur": "",
+        "titolo": "Lezione CPC Bellinzona"
+      },
+      "updated_at": "2026-04-10T12:08:00.047491+00:00"
+    },
+    {
+      "id": "mnsutxe0sbpsdy",
+      "data": {
+        "id": "mnsutxe0sbpsdy",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-16",
+        "done": true,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Il piano lezione: l'approccio andragogico Bilancio Intermedio"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0hu4spn",
+      "data": {
+        "id": "mnsutxe0hu4spn",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-09-01",
+        "done": false,
+        "note": "Formatore: O. Balmelli - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Le strategie didattiche: la scelta"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0iko1yj",
+      "data": {
+        "id": "mnsutxe0iko1yj",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-12-15",
+        "done": false,
+        "note": "Formatore: S. Spalletta - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Costruire consapevolezza - ONLINE‼️",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0cul68r",
+      "data": {
+        "id": "mnsutxe0cul68r",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-06-23",
+        "done": true,
+        "note": "Formatore: L. D'Antuono - Forma: S",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "cpcTag": "",
+        "titolo": "Nuove tecnologie a supporto della didattica - ONLINE‼️",
+        "startupTag": ""
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0u6bx68",
+      "data": {
+        "id": "mnsutxe0u6bx68",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-09-22",
+        "done": false,
+        "note": "Formatore: O. Balmelli - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "Le strategie didattiche: l'approccio induttivo e deduttivo"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe00wex3a",
+      "data": {
+        "id": "mnsutxe00wex3a",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-09-15",
+        "done": false,
+        "note": "Formatore: Y. Maole Kamanda - Forma: P",
+        "prio": "media",
+        "tipo": "formazione",
+        "recur": "",
+        "titolo": "E-learning e blended learning"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    },
+    {
+      "id": "mnsutxe0jcczqa",
+      "data": {
+        "id": "mnsutxe0jcczqa",
+        "ora": "",
+        "area": "formatore",
+        "data": "2026-10-06",
+        "done": false,
+        "note": "Formatore: A. Piazza - Forma: P",
+        "prio": "media",
+        "tipo": "simulazione",
+        "recur": "",
+        "titolo": "Simulazione"
+      },
+      "updated_at": "2026-04-10T12:00:41.679507+00:00"
+    }
+  ],
+  "startup_data": [
+    {
+      "id": "jasper_milestones",
+      "data": {
+        "list": []
+      },
+      "updated_at": "2026-04-12T10:31:19.830919+00:00"
+    },
+    {
+      "id": "jasper_foods",
+      "data": {
+        "list": []
+      },
+      "updated_at": "2026-04-12T10:30:41.095834+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-21",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "09:45"
+          },
+          {
+            "hhmm": "12:30"
+          },
+          {
+            "hhmm": "15:30"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:47",
+            "start": "08:01"
+          },
+          {
+            "end": "11:36",
+            "start": "11:02"
+          },
+          {
+            "end": "14:14",
+            "start": "13:30"
+          },
+          {
+            "end": "17:00",
+            "start": "16:10"
+          },
+          {
+            "end": "07:00",
+            "start": "20:00"
+          }
+        ],
+        "woke_at": "17:57",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-04-21T04:46:01.12058+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-18",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:01"
+          },
+          {
+            "hhmm": "13:30"
+          },
+          {
+            "hhmm": "16:48"
+          },
+          {
+            "hhmm": "20:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:05",
+            "start": "08:05"
+          },
+          {
+            "end": "13:20",
+            "start": "12:21"
+          },
+          {
+            "end": "16:48",
+            "start": "15:53"
+          },
+          {
+            "end": "20:00",
+            "start": "19:20"
+          },
+          {
+            "end": "06:15",
+            "start": "21:00"
+          }
+        ],
+        "lastMeal": "20:45"
+      },
+      "updated_at": "2026-04-18T05:45:34.739007+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-19",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:31"
+          },
+          {
+            "hhmm": "12:45"
+          },
+          {
+            "hhmm": "15:47"
+          },
+          {
+            "hhmm": "18:47"
+          },
+          {
+            "hhmm": "20:31"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:36",
+            "start": "07:55"
+          },
+          {
+            "end": "12:19",
+            "start": "10:56"
+          },
+          {
+            "end": "15:13",
+            "start": "14:34"
+          },
+          {
+            "end": "18:43",
+            "start": "18:08"
+          },
+          {
+            "end": "06:30",
+            "start": "21:11"
+          }
+        ],
+        "lastMeal": "20:31"
+      },
+      "updated_at": "2026-04-19T05:28:31.772541+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-12",
+      "data": {
+        "feed": 1,
+        "mood": 2,
+        "note": "",
+        "foods": [],
+        "meals": [],
+        "notes": [],
+        "sleep": 1,
+        "sleeps": [],
+        "weight": null,
+        "lastMeal": null,
+        "sleep_end": "",
+        "lastMealMl": null,
+        "anissa_mood": 0,
+        "sleep_start": "",
+        "sleep_wakes": ""
+      },
+      "updated_at": "2026-04-12T09:16:33.67063+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-23",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:20"
+          },
+          {
+            "hhmm": "10:45"
+          },
+          {
+            "hhmm": "12:30"
+          },
+          {
+            "hhmm": "15:30"
+          },
+          {
+            "hhmm": "18:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:52",
+            "start": "08:09"
+          },
+          {
+            "end": "11:38",
+            "start": "11:04"
+          },
+          {
+            "end": "14:41",
+            "start": "13:38"
+          },
+          {
+            "end": "17:11",
+            "start": "16:35"
+          },
+          {
+            "end": "06:15",
+            "start": "20:00"
+          }
+        ],
+        "woke_at": "17:11",
+        "lastMeal": "18:00"
+      },
+      "updated_at": "2026-04-23T05:08:03.435895+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-13",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "20:00"
+          },
+          {
+            "hhmm": "17:00"
+          },
+          {
+            "hhmm": "14:00"
+          },
+          {
+            "hhmm": "11:00"
+          },
+          {
+            "hhmm": "07:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "10:00",
+            "start": "08:30"
+          },
+          {
+            "end": "12:40",
+            "start": "11:15"
+          },
+          {
+            "end": "15:45",
+            "start": "14:00"
+          },
+          {
+            "end": "19:15",
+            "start": "18:45"
+          }
+        ],
+        "lastMeal": "07:45"
+      },
+      "updated_at": "2026-04-13T06:06:13.656964+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-22",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "13:30"
+          },
+          {
+            "hhmm": "17:00"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:39",
+            "start": "08:13"
+          },
+          {
+            "end": "12:52",
+            "start": "11:33"
+          },
+          {
+            "end": "16:34",
+            "start": "15:34"
+          },
+          {
+            "end": "07:08",
+            "start": "19:47"
+          }
+        ],
+        "woke_at": "16:34",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-04-22T05:08:23.465682+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-15",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "11:30"
+          },
+          {
+            "hhmm": "14:43"
+          },
+          {
+            "hhmm": "17:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:54",
+            "start": "08:13"
+          },
+          {
+            "end": "11:30",
+            "start": "10:43"
+          },
+          {
+            "end": "14:02",
+            "start": "13:20"
+          },
+          {
+            "end": "16:44",
+            "start": "16:08"
+          },
+          {
+            "end": null,
+            "start": "20:10"
+          }
+        ],
+        "lastMeal": "17:45"
+      },
+      "updated_at": "2026-04-15T06:13:01.267888+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-14",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:17"
+          },
+          {
+            "hhmm": "13:31"
+          },
+          {
+            "hhmm": "16:18"
+          },
+          {
+            "hhmm": "19:36"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:43",
+            "start": "08:12"
+          },
+          {
+            "end": "11:12",
+            "start": "10:29"
+          },
+          {
+            "end": "15:15",
+            "start": "13:44"
+          },
+          {
+            "end": "17:15",
+            "start": "16:45"
+          },
+          {
+            "end": null,
+            "start": "19:46"
+          }
+        ],
+        "lastMeal": "19:36"
+      },
+      "updated_at": "2026-04-14T05:27:52.039502+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-17",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "10:14"
+          },
+          {
+            "hhmm": "13:16"
+          },
+          {
+            "hhmm": "17:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:11",
+            "start": "08:37"
+          },
+          {
+            "end": "11:33",
+            "start": "10:54"
+          },
+          {
+            "end": "14:23",
+            "start": "13:47"
+          },
+          {
+            "end": "17:20",
+            "start": "16:17"
+          }
+        ],
+        "lastMeal": "17:30"
+      },
+      "updated_at": "2026-04-17T05:45:32.210534+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-16",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "08:00"
+          },
+          {
+            "hhmm": "05:00"
+          },
+          {
+            "hhmm": "11:14"
+          },
+          {
+            "hhmm": "13:48"
+          },
+          {
+            "hhmm": "17:04"
+          },
+          {
+            "hhmm": "20:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:30",
+            "start": "08:30"
+          },
+          {
+            "end": "12:11",
+            "start": "11:38"
+          },
+          {
+            "end": "15:41",
+            "start": "14:24"
+          },
+          {
+            "end": "18:37",
+            "start": "18:10"
+          },
+          {
+            "end": "17:44",
+            "start": "20:18"
+          }
+        ],
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-04-16T06:06:22.62292+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-20",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:01"
+          },
+          {
+            "hhmm": "13:00"
+          },
+          {
+            "hhmm": "16:30"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:55",
+            "start": "08:07"
+          },
+          {
+            "end": "12:00",
+            "start": "10:45"
+          },
+          {
+            "end": "15:20",
+            "start": "14:00"
+          },
+          {
+            "end": "18:44",
+            "start": "18:15"
+          },
+          {
+            "end": "06:30",
+            "start": "20:36"
+          }
+        ],
+        "woke_at": "18:44",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-04-20T05:08:55.162699+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-18",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "10:00"
+          },
+          {
+            "hhmm": "13:00"
+          },
+          {
+            "hhmm": "16:30"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:39",
+            "start": "07:36"
+          },
+          {
+            "end": "11:05",
+            "start": "10:36"
+          },
+          {
+            "end": "13:44",
+            "start": "13:13"
+          },
+          {
+            "end": "17:51",
+            "start": "16:50"
+          },
+          {
+            "end": "07:13",
+            "start": "20:10"
+          }
+        ],
+        "woke_at": "17:51",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-05-18T04:35:56.030981+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-20",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "08:00"
+          },
+          {
+            "hhmm": "11:45"
+          },
+          {
+            "hhmm": "15:00"
+          },
+          {
+            "hhmm": "17:00"
+          },
+          {
+            "hhmm": "20:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "11:29",
+            "start": "10:10"
+          },
+          {
+            "end": "14:29",
+            "start": "13:35"
+          },
+          {
+            "end": "17:46",
+            "start": "17:09"
+          },
+          {
+            "end": "07:19",
+            "start": "20:14"
+          }
+        ],
+        "woke_at": "17:46",
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-05-20T05:54:51.776353+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-22",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "11:00"
+          },
+          {
+            "hhmm": "14:30"
+          },
+          {
+            "hhmm": "17:30"
+          },
+          {
+            "hhmm": "19:15",
+            "note": "180 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:36",
+            "start": "08:59"
+          },
+          {
+            "end": "13:52",
+            "start": "13:17"
+          },
+          {
+            "end": "16:55",
+            "start": "15:18"
+          },
+          {
+            "end": "07:10",
+            "start": "19:30"
+          }
+        ],
+        "woke_at": "16:55",
+        "lastMeal": "19:15"
+      },
+      "updated_at": "2026-05-22T05:28:33.283251+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-24",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45",
+            "note": "🍼 240 ml"
+          },
+          {
+            "hhmm": "10:00",
+            "note": "🍼 230 ml"
+          },
+          {
+            "hhmm": "12:45",
+            "note": "🍽️ 60 gr spaghetti bolognese"
+          },
+          {
+            "hhmm": "15:01",
+            "note": "🍼 230 ml"
+          },
+          {
+            "hhmm": "18:00",
+            "note": "🍼 230 ml"
+          },
+          {
+            "hhmm": "21:15",
+            "note": "🍼 150 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:23",
+            "start": "07:35"
+          },
+          {
+            "end": "11:31",
+            "start": "10:15"
+          },
+          {
+            "end": "14:11",
+            "start": "13:43"
+          },
+          {
+            "end": "16:38",
+            "start": "16:00"
+          },
+          {
+            "end": "21:00",
+            "start": "19:00"
+          },
+          {
+            "end": "07:00",
+            "start": "21:25"
+          }
+        ],
+        "woke_at": "16:49",
+        "lastMeal": "21:15"
+      },
+      "updated_at": "2026-04-24T04:54:31.228743+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-27",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:15"
+          },
+          {
+            "hhmm": "13:30",
+            "note": "180 gr: stelline, pollo, mix verdure, oliva"
+          },
+          {
+            "hhmm": "16:15"
+          },
+          {
+            "hhmm": "20:00",
+            "note": "120 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:52",
+            "start": "08:19"
+          },
+          {
+            "end": "12:59",
+            "start": "10:59"
+          },
+          {
+            "end": "18:08",
+            "start": "16:51"
+          },
+          {
+            "end": "08:00",
+            "start": "20:15"
+          }
+        ],
+        "woke_at": "18:08",
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-04-27T04:53:30.393271+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-01",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:15",
+            "note": "80 ml"
+          },
+          {
+            "hhmm": "11:45",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "14:45",
+            "note": "210 ml"
+          },
+          {
+            "hhmm": "17:45",
+            "note": "170 ml"
+          },
+          {
+            "hhmm": "20:45",
+            "note": "120 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:46",
+            "start": "08:45"
+          },
+          {
+            "end": "13:02",
+            "start": "12:00"
+          },
+          {
+            "end": "16:02",
+            "start": "15:10"
+          },
+          {
+            "end": "18:50",
+            "start": "18:25"
+          },
+          {
+            "end": "06:45",
+            "start": "21:47"
+          }
+        ],
+        "woke_at": "19:08",
+        "lastMeal": "20:45"
+      },
+      "updated_at": "2026-05-01T05:12:30.233524+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-03",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:15"
+          },
+          {
+            "hhmm": "13:00",
+            "note": "190 gr: patata, pollo, mais"
+          },
+          {
+            "hhmm": "16:45"
+          },
+          {
+            "hhmm": "20:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:23",
+            "start": "07:43"
+          },
+          {
+            "end": "12:36",
+            "start": "11:16"
+          },
+          {
+            "end": "16:01",
+            "start": "14:32"
+          },
+          {
+            "end": "19:10",
+            "start": "18:24"
+          },
+          {
+            "end": "06:41",
+            "start": "20:11"
+          }
+        ],
+        "woke_at": "19:10",
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-05-03T04:51:41.368765+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-30",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "10:15",
+            "note": "210 ml"
+          },
+          {
+            "hhmm": "13:30",
+            "note": "190 gr: spatzle, manzo, carota, pomodoro"
+          },
+          {
+            "hhmm": "17:01"
+          },
+          {
+            "hhmm": "20:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:42",
+            "start": "08:12"
+          },
+          {
+            "end": "11:50",
+            "start": "10:40"
+          },
+          {
+            "end": "14:46",
+            "start": "14:15"
+          },
+          {
+            "end": "20:03",
+            "start": "18:42"
+          }
+        ],
+        "woke_at": "20:03",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-04-30T05:13:31.841619+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-25",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:45"
+          },
+          {
+            "hhmm": "13:45",
+            "note": "230 gr: pastina, vitello, carota, zucca, colza"
+          },
+          {
+            "hhmm": "16:45"
+          },
+          {
+            "hhmm": "21:30",
+            "note": "170 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:04",
+            "start": "08:33"
+          },
+          {
+            "end": "12:43",
+            "start": "11:06"
+          },
+          {
+            "end": "16:35",
+            "start": "15:35"
+          },
+          {
+            "end": "21:34",
+            "start": "19:15"
+          },
+          {
+            "end": "07:22",
+            "start": "21:34"
+          }
+        ],
+        "woke_at": "21:34",
+        "lastMeal": "21:30"
+      },
+      "updated_at": "2026-04-25T05:17:42.474215+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-26",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:21",
+            "note": ""
+          },
+          {
+            "hhmm": "11:01"
+          },
+          {
+            "hhmm": "14:00",
+            "note": "260 gr: pastina, vitello, carota, zucca, colza"
+          },
+          {
+            "hhmm": "17:15",
+            "note": "140 ml"
+          },
+          {
+            "hhmm": "20:32"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:38",
+            "start": "09:00"
+          },
+          {
+            "end": "12:22",
+            "start": "11:46"
+          },
+          {
+            "end": "15:38",
+            "start": "14:25"
+          },
+          {
+            "end": "18:48",
+            "start": "18:18"
+          },
+          {
+            "end": "06:53",
+            "start": "20:32"
+          }
+        ],
+        "woke_at": "18:48",
+        "lastMeal": "20:32"
+      },
+      "updated_at": "2026-04-26T05:21:44.030536+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-29",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "02:30"
+          },
+          {
+            "hhmm": "08:00"
+          },
+          {
+            "hhmm": "11:45"
+          },
+          {
+            "hhmm": "14:30"
+          },
+          {
+            "hhmm": "17:45"
+          },
+          {
+            "hhmm": "20:30",
+            "note": "180 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "07:50",
+            "start": "03:00"
+          },
+          {
+            "end": "10:24",
+            "start": "09:09"
+          },
+          {
+            "end": "12:39",
+            "start": "12:08"
+          },
+          {
+            "end": "16:16",
+            "start": "15:14"
+          },
+          {
+            "end": "18:50",
+            "start": "18:15"
+          },
+          {
+            "end": "07:13",
+            "start": "21:11"
+          }
+        ],
+        "woke_at": "19:22",
+        "lastMeal": "20:30"
+      },
+      "updated_at": "2026-04-29T00:43:45.5052+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-04-28",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "02:30"
+          },
+          {
+            "hhmm": "08:00"
+          },
+          {
+            "hhmm": "11:00",
+            "note": "210 ml"
+          },
+          {
+            "hhmm": "14:45"
+          },
+          {
+            "hhmm": "17:46"
+          },
+          {
+            "hhmm": "20:15"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "08:26",
+            "text": "Raffreddore"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:37",
+            "start": "09:00"
+          },
+          {
+            "end": "13:16",
+            "start": "11:20"
+          },
+          {
+            "end": "15:26",
+            "start": "14:57"
+          },
+          {
+            "end": "18:25",
+            "start": "18:00"
+          }
+        ],
+        "woke_at": "18:25",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-04-28T06:25:40.505776+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-02",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:00"
+          },
+          {
+            "hhmm": "13:00"
+          },
+          {
+            "hhmm": "16:45"
+          },
+          {
+            "hhmm": "20:00",
+            "note": "180 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:50",
+            "start": "08:21"
+          },
+          {
+            "end": "12:26",
+            "start": "10:20"
+          },
+          {
+            "end": "16:35",
+            "start": "15:11"
+          },
+          {
+            "end": "18:57",
+            "start": "18:21"
+          },
+          {
+            "end": "06:51",
+            "start": "20:36"
+          }
+        ],
+        "woke_at": "18:57",
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-05-02T06:10:29.53112+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-04",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "10:00"
+          },
+          {
+            "hhmm": "14:00"
+          },
+          {
+            "hhmm": "18:45"
+          },
+          {
+            "hhmm": "20:15",
+            "note": "220 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:36",
+            "start": "07:44"
+          },
+          {
+            "end": "10:58",
+            "start": "10:30"
+          },
+          {
+            "end": "13:41",
+            "start": "13:10"
+          },
+          {
+            "end": "18:33",
+            "start": "16:33"
+          },
+          {
+            "end": "06:45",
+            "start": "20:47"
+          }
+        ],
+        "woke_at": "18:33",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-05-04T04:41:52.146919+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-05",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "13:30",
+            "note": "200 gr: riso, manzo, carota, parmigiano grattugiato, olio oliva"
+          },
+          {
+            "hhmm": "17:30"
+          },
+          {
+            "hhmm": "19:30",
+            "note": "150 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:45",
+            "start": "08:15"
+          },
+          {
+            "end": "12:39",
+            "start": "11:12"
+          },
+          {
+            "end": "16:29",
+            "start": "14:54"
+          },
+          {
+            "end": "06:16",
+            "start": "20:01"
+          }
+        ],
+        "woke_at": "16:29",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-05-05T05:10:51.900561+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-17",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "03:15",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "11:00"
+          },
+          {
+            "hhmm": "14:30"
+          },
+          {
+            "hhmm": "19:30"
+          },
+          {
+            "hhmm": "17:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:19",
+            "start": "07:58"
+          },
+          {
+            "end": "12:47",
+            "start": "11:15"
+          },
+          {
+            "end": "16:49",
+            "start": "15:51"
+          },
+          {
+            "end": "06:35",
+            "start": "19:36"
+          }
+        ],
+        "woke_at": "16:49",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-05-17T01:23:30.927712+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-19",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "14:00"
+          },
+          {
+            "hhmm": "17:30"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:04",
+            "start": "08:25"
+          },
+          {
+            "end": "12:25",
+            "start": "10:50"
+          },
+          {
+            "end": "15:07",
+            "start": "14:38"
+          },
+          {
+            "end": "07:54",
+            "start": "19:30"
+          }
+        ],
+        "woke_at": "15:07",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-05-19T05:13:02.079142+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-06",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:45"
+          },
+          {
+            "hhmm": "13:30",
+            "note": "210 gr: stelline, manzo, broccoli, carota, olio oliva"
+          },
+          {
+            "hhmm": "17:00",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "20:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:35",
+            "start": "07:35"
+          },
+          {
+            "end": "12:26",
+            "start": "11:00"
+          },
+          {
+            "end": "15:56",
+            "start": "14:43"
+          },
+          {
+            "end": "20:08",
+            "start": "18:57"
+          }
+        ],
+        "woke_at": "20:08",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-05-06T04:16:30.611825+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-12",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "10:45"
+          },
+          {
+            "hhmm": "13:45"
+          },
+          {
+            "hhmm": "17:30",
+            "note": "100 ml: mela, pera, zucca, carota + 190 ml: bibi"
+          },
+          {
+            "hhmm": "21:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:46",
+            "start": "08:20"
+          },
+          {
+            "end": "11:55",
+            "start": "11:20"
+          },
+          {
+            "end": "15:21",
+            "start": "14:18"
+          },
+          {
+            "end": "18:51",
+            "start": "18:00"
+          },
+          {
+            "end": "07:40",
+            "start": "22:08"
+          }
+        ],
+        "woke_at": "18:51",
+        "lastMeal": "21:15"
+      },
+      "updated_at": "2026-05-12T05:10:34.131443+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-14",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "14:30"
+          },
+          {
+            "hhmm": "13:00",
+            "note": "100 ml: mela/banana/spinaci/cetrioli"
+          },
+          {
+            "hhmm": "18:30"
+          },
+          {
+            "hhmm": "21:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "07:15",
+            "start": "00:01"
+          },
+          {
+            "end": "09:18",
+            "start": "08:41"
+          },
+          {
+            "end": "14:20",
+            "start": "14:00"
+          },
+          {
+            "end": "15:39",
+            "start": "14:50"
+          },
+          {
+            "end": "07:42",
+            "start": "18:45"
+          }
+        ],
+        "woke_at": "15:39",
+        "lastMeal": "21:15"
+      },
+      "updated_at": "2026-05-14T05:52:18.98662+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-13",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:45"
+          },
+          {
+            "hhmm": "10:45"
+          },
+          {
+            "hhmm": "14:00"
+          },
+          {
+            "hhmm": "17:15",
+            "note": "100 ml: mela, pera, finocchio + 150 ml: bibi"
+          },
+          {
+            "hhmm": "20:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:14",
+            "start": "08:34"
+          },
+          {
+            "end": "12:10",
+            "start": "10:50"
+          },
+          {
+            "end": "15:27",
+            "start": "14:08"
+          },
+          {
+            "end": "18:34",
+            "start": "18:00"
+          }
+        ],
+        "woke_at": "18:34",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-05-13T05:40:58.360934+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-11",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:45"
+          },
+          {
+            "hhmm": "16:00"
+          },
+          {
+            "hhmm": "20:00",
+            "note": "100 gr: riso al latte"
+          },
+          {
+            "hhmm": "21:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:16",
+            "start": "07:30"
+          },
+          {
+            "end": "11:34",
+            "start": "10:58"
+          },
+          {
+            "end": "15:33",
+            "start": "13:17"
+          },
+          {
+            "end": "18:52",
+            "start": "17:57"
+          },
+          {
+            "end": "07:10",
+            "start": "21:14"
+          }
+        ],
+        "woke_at": "18:52",
+        "lastMeal": "21:00"
+      },
+      "updated_at": "2026-05-11T04:32:09.5669+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-08",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "10:00"
+          },
+          {
+            "hhmm": "13:15"
+          },
+          {
+            "hhmm": "16:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:30",
+            "start": "07:52"
+          },
+          {
+            "end": "12:24",
+            "start": "10:21"
+          },
+          {
+            "end": "16:09",
+            "start": "15:36"
+          },
+          {
+            "end": "07:10",
+            "start": "19:16"
+          }
+        ],
+        "woke_at": "16:09",
+        "lastMeal": "16:45"
+      },
+      "updated_at": "2026-05-08T04:43:21.553603+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-09",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:45"
+          },
+          {
+            "hhmm": "14:00",
+            "note": "90 gr: riso, vitello, cavolfiore"
+          },
+          {
+            "hhmm": "15:45"
+          },
+          {
+            "hhmm": "21:30",
+            "note": "140 ml"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "10:04",
+            "start": "08:45"
+          },
+          {
+            "end": "12:26",
+            "start": "11:57"
+          },
+          {
+            "end": "17:19",
+            "start": "16:18"
+          },
+          {
+            "end": "06:37",
+            "start": "19:50"
+          }
+        ],
+        "woke_at": "17:19",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-05-09T05:10:12.575603+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-15",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:45"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "15:00"
+          },
+          {
+            "hhmm": "17:45"
+          },
+          {
+            "hhmm": "20:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:25",
+            "start": "08:43"
+          },
+          {
+            "end": "11:55",
+            "start": "11:15"
+          },
+          {
+            "end": "15:40",
+            "start": "15:10"
+          },
+          {
+            "end": "19:13",
+            "start": "18:30"
+          },
+          {
+            "end": "06:39",
+            "start": "20:30"
+          }
+        ],
+        "woke_at": "19:13",
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-05-15T05:42:22.710736+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-07",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "13:30",
+            "note": "210 gr: stelline, coniglio, cavolfiore, zucca, olio colza"
+          },
+          {
+            "hhmm": "17:00"
+          },
+          {
+            "hhmm": "20:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:23",
+            "start": "07:49"
+          },
+          {
+            "end": "12:30",
+            "start": "11:15"
+          },
+          {
+            "end": "16:17",
+            "start": "15:15"
+          },
+          {
+            "end": "19:47",
+            "start": "19:17"
+          }
+        ],
+        "woke_at": "19:47",
+        "lastMeal": "20:45"
+      },
+      "updated_at": "2026-05-07T04:28:44.361574+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-10",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:37"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "14:00",
+            "note": "200 gr: spaghetti bolognese"
+          },
+          {
+            "hhmm": "17:12"
+          },
+          {
+            "hhmm": "20:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "10:16",
+            "start": "09:05"
+          },
+          {
+            "end": "13:58",
+            "start": "12:49"
+          },
+          {
+            "end": "17:13",
+            "start": "16:10"
+          },
+          {
+            "end": "06:32",
+            "start": "20:33"
+          }
+        ],
+        "woke_at": "19:23",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-05-10T04:37:54.805179+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-16",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "09:45"
+          },
+          {
+            "hhmm": "12:45"
+          },
+          {
+            "hhmm": "15:45"
+          },
+          {
+            "hhmm": "18:45"
+          },
+          {
+            "hhmm": "20:45",
+            "note": "180 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:44",
+            "start": "07:28"
+          },
+          {
+            "end": "10:50",
+            "start": "10:15"
+          },
+          {
+            "end": "13:26",
+            "start": "12:52"
+          },
+          {
+            "end": "18:40",
+            "start": "17:27"
+          },
+          {
+            "end": "07:09",
+            "start": "21:16"
+          }
+        ],
+        "woke_at": "18:40",
+        "lastMeal": "20:45"
+      },
+      "updated_at": "2026-05-16T04:39:55.713517+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-21",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "13:30"
+          },
+          {
+            "hhmm": "17:15"
+          },
+          {
+            "hhmm": "20:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:28",
+            "start": "08:43"
+          },
+          {
+            "end": "12:53",
+            "start": "11:44"
+          },
+          {
+            "end": "16:57",
+            "start": "16:03"
+          },
+          {
+            "end": "07:28",
+            "start": "20:29"
+          }
+        ],
+        "woke_at": "16:57",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-05-21T05:19:30.199649+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-23",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "13:45"
+          },
+          {
+            "hhmm": "17:15"
+          },
+          {
+            "hhmm": "19:30",
+            "note": "180 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:37",
+            "start": "08:30"
+          },
+          {
+            "end": "12:07",
+            "start": "11:38"
+          },
+          {
+            "end": "15:17",
+            "start": "14:12"
+          },
+          {
+            "end": "06:48",
+            "start": "20:01"
+          }
+        ],
+        "woke_at": "15:17",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-05-23T05:10:33.658294+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-01",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "09:15"
+          },
+          {
+            "hhmm": "12:30",
+            "note": "90 gr: spaghetti bolognese"
+          },
+          {
+            "hhmm": "16:00",
+            "note": "80 gr: mix frutta + 20 gr: albicocca"
+          },
+          {
+            "hhmm": "19:30"
+          },
+          {
+            "hhmm": "18:30",
+            "note": "40 gr: spaghetti bolognese"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:09",
+            "start": "07:32"
+          },
+          {
+            "end": "11:39",
+            "start": "10:29"
+          },
+          {
+            "end": "15:45",
+            "start": "14:30"
+          },
+          {
+            "end": "06:40",
+            "start": "19:40"
+          }
+        ],
+        "woke_at": "15:45",
+        "lastMeal": "18:30"
+      },
+      "updated_at": "2026-06-01T04:12:40.154443+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-28",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:45",
+            "note": "40 gr frutta + 190 ml bibi"
+          },
+          {
+            "hhmm": "13:00",
+            "note": "180 gr: patata, vitello, zucchina + anguria"
+          },
+          {
+            "hhmm": "16:00",
+            "note": "100 gr: mela, fragola"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:40",
+            "start": "08:03"
+          },
+          {
+            "end": "11:50",
+            "start": "10:52"
+          },
+          {
+            "end": "14:42",
+            "start": "14:15"
+          },
+          {
+            "end": "16:52",
+            "start": "16:19"
+          },
+          {
+            "end": "06:18",
+            "start": "20:01"
+          }
+        ],
+        "woke_at": "16:52",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-05-28T04:16:55.776536+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-25",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "09:56"
+          },
+          {
+            "hhmm": "13:06"
+          },
+          {
+            "hhmm": "16:36"
+          },
+          {
+            "hhmm": "20:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:04",
+            "start": "08:25"
+          },
+          {
+            "end": "12:49",
+            "start": "11:23"
+          },
+          {
+            "end": "15:20",
+            "start": "14:51"
+          },
+          {
+            "end": "18:38",
+            "start": "18:10"
+          },
+          {
+            "end": "06:18",
+            "start": "20:33"
+          }
+        ],
+        "woke_at": "18:38",
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-05-25T04:50:45.918466+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-24",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "14:30"
+          },
+          {
+            "hhmm": "17:15"
+          },
+          {
+            "hhmm": "20:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:05",
+            "start": "08:25"
+          },
+          {
+            "end": "11:38",
+            "start": "10:57"
+          },
+          {
+            "end": "14:15",
+            "start": "13:35"
+          },
+          {
+            "end": "18:15",
+            "start": "17:30"
+          },
+          {
+            "end": "06:50",
+            "start": "20:42"
+          }
+        ],
+        "woke_at": "19:39",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-05-24T04:48:48.802178+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-26",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "10:00"
+          },
+          {
+            "hhmm": "13:15"
+          },
+          {
+            "hhmm": "16:45"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:11",
+            "start": "07:37"
+          },
+          {
+            "end": "12:41",
+            "start": "11:54"
+          },
+          {
+            "end": "16:39",
+            "start": "15:29"
+          },
+          {
+            "end": "06:36",
+            "start": "20:07"
+          }
+        ],
+        "woke_at": "16:39",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-05-26T04:18:51.655235+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-31",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:30"
+          },
+          {
+            "hhmm": "13:30"
+          },
+          {
+            "hhmm": "16:45"
+          },
+          {
+            "hhmm": "18:45",
+            "note": "140 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:24",
+            "start": "07:43"
+          },
+          {
+            "end": "11:23",
+            "start": "10:04"
+          },
+          {
+            "end": "15:54",
+            "start": "14:55"
+          },
+          {
+            "end": "06:12",
+            "start": "19:00"
+          }
+        ],
+        "woke_at": "15:54",
+        "lastMeal": "18:45"
+      },
+      "updated_at": "2026-05-31T04:11:44.339941+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-29",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "11:30",
+            "note": "190 gr: couscous, lenticchie, peperone, carota, zucchina"
+          },
+          {
+            "hhmm": "15:00",
+            "note": "80 gr: mela, banana, fragola, mirtilli, more, ribes rossi"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "12:52",
+            "text": "12:50 supposta Dafalgan x male dentini"
+          },
+          {
+            "ts": "17:18",
+            "text": "28.05.2026 incisivo dx"
+          },
+          {
+            "ts": "20:26",
+            "text": "19:45 supposta Dafalgan x male dentini"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "11:09",
+            "start": "09:21"
+          },
+          {
+            "end": "14:48",
+            "start": "13:12"
+          },
+          {
+            "end": "17:32",
+            "start": "16:50"
+          },
+          {
+            "end": "06:42",
+            "start": "20:39"
+          }
+        ],
+        "woke_at": "17:32",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-05-29T04:18:11.162507+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-27",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "14:00",
+            "note": "180 gr: spatzle, manzo, carota, pomodoro"
+          },
+          {
+            "hhmm": "17:30"
+          },
+          {
+            "hhmm": "20:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:04",
+            "start": "07:50"
+          },
+          {
+            "end": "12:47",
+            "start": "11:34"
+          },
+          {
+            "end": "16:56",
+            "start": "15:04"
+          },
+          {
+            "end": "06:16",
+            "start": "20:23"
+          }
+        ],
+        "woke_at": "16:56",
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-05-27T04:36:12.626515+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-05-30",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "10:00"
+          },
+          {
+            "hhmm": "13:00",
+            "note": "180 gr: patata, pollo, zucchina"
+          },
+          {
+            "hhmm": "16:10"
+          },
+          {
+            "hhmm": "20:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:49",
+            "start": "07:51"
+          },
+          {
+            "end": "12:00",
+            "start": "11:30"
+          },
+          {
+            "end": "15:38",
+            "start": "15:06"
+          },
+          {
+            "end": "19:41",
+            "start": "18:22"
+          },
+          {
+            "end": "06:11",
+            "start": "21:23"
+          }
+        ],
+        "woke_at": "19:41",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-05-30T04:42:55.210992+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-02",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:30"
+          },
+          {
+            "hhmm": "09:00"
+          },
+          {
+            "hhmm": "12:30",
+            "note": "190 gr: patata, pollo, carota"
+          },
+          {
+            "hhmm": "15:45"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:49",
+            "start": "08:00"
+          },
+          {
+            "end": "11:55",
+            "start": "11:03"
+          },
+          {
+            "end": "15:08",
+            "start": "13:55"
+          },
+          {
+            "end": "17:47",
+            "start": "17:05"
+          },
+          {
+            "end": "07:00",
+            "start": "19:48"
+          }
+        ],
+        "woke_at": "17:47",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-06-02T04:40:28.178903+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-05",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:30"
+          },
+          {
+            "hhmm": "13:00"
+          },
+          {
+            "hhmm": "16:00"
+          },
+          {
+            "hhmm": "20:15"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:05",
+            "start": "07:16"
+          },
+          {
+            "end": "12:09",
+            "start": "10:49"
+          },
+          {
+            "end": "15:40",
+            "start": "14:13"
+          },
+          {
+            "end": "06:29",
+            "start": "20:20"
+          }
+        ],
+        "woke_at": "15:40",
+        "lastMeal": "20:15"
+      },
+      "updated_at": "2026-06-05T04:22:02.222124+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-04",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:30"
+          },
+          {
+            "hhmm": "12:15"
+          },
+          {
+            "hhmm": "15:30"
+          },
+          {
+            "hhmm": "20:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:10",
+            "start": "07:30"
+          },
+          {
+            "end": "14:02",
+            "start": "12:20"
+          },
+          {
+            "end": "17:51",
+            "start": "16:52"
+          },
+          {
+            "end": "06:22",
+            "start": "20:26"
+          }
+        ],
+        "woke_at": "17:51",
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-06-04T04:25:39.557876+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-21",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:00"
+          },
+          {
+            "hhmm": "09:00"
+          },
+          {
+            "hhmm": "13:00"
+          },
+          {
+            "hhmm": "16:15",
+            "note": "170 gr: yogurt bianco, banana, pesca, albicocca, mirtilli + pezzi"
+          },
+          {
+            "hhmm": "18:30"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "08:01",
+            "text": "05:45 Dafalgan supposta"
+          },
+          {
+            "ts": "11:27",
+            "text": "11:15 Dafalgan supposta"
+          },
+          {
+            "ts": "14:46",
+            "text": "14:45 Dafalgan supposta"
+          },
+          {
+            "ts": "18:41",
+            "text": "18:30 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "12:48",
+            "start": "11:30"
+          },
+          {
+            "end": "15:28",
+            "start": "14:53"
+          },
+          {
+            "end": "07:01",
+            "start": "18:55"
+          }
+        ],
+        "woke_at": "18:55",
+        "lastMeal": "18:30"
+      },
+      "updated_at": "2026-06-21T05:29:05.723116+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-19",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "10:15",
+            "note": "80 gr: 4 frutti + 1/4 pesca"
+          },
+          {
+            "hhmm": "13:15",
+            "note": "100 gr: pastina, tonno, verdure"
+          },
+          {
+            "hhmm": "16:30"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:56",
+            "start": "07:30"
+          },
+          {
+            "end": "12:45",
+            "start": "11:13"
+          },
+          {
+            "end": "16:14",
+            "start": "15:24"
+          },
+          {
+            "end": "07:46",
+            "start": "20:15"
+          }
+        ],
+        "woke_at": "16:14",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-06-19T04:12:13.794693+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-20",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:15"
+          },
+          {
+            "hhmm": "08:15"
+          },
+          {
+            "hhmm": "12:15",
+            "note": "190 gr: patata, pollo, carota"
+          },
+          {
+            "hhmm": "15:30"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "12:40",
+            "text": "10:45 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "10:38",
+            "start": "10:00"
+          },
+          {
+            "end": "13:09",
+            "start": "12:40"
+          },
+          {
+            "end": "17:00",
+            "start": "15:53"
+          },
+          {
+            "end": "07:29",
+            "start": "19:30"
+          }
+        ],
+        "woke_at": "17:00",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-06-20T05:43:47.639825+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-03",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15"
+          },
+          {
+            "hhmm": "10:30"
+          },
+          {
+            "hhmm": "13:30"
+          },
+          {
+            "hhmm": "16:30"
+          },
+          {
+            "hhmm": "20:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:18",
+            "start": "08:17"
+          },
+          {
+            "end": "11:34",
+            "start": "10:53"
+          },
+          {
+            "end": "15:00",
+            "start": "13:54"
+          },
+          {
+            "end": "18:02",
+            "start": "17:22"
+          },
+          {
+            "end": "06:25",
+            "start": "20:35"
+          }
+        ],
+        "woke_at": "20:37",
+        "lastMeal": "20:30"
+      },
+      "updated_at": "2026-06-03T05:00:33.487556+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-02",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "10:45",
+            "note": "100 gr: fruttino"
+          },
+          {
+            "hhmm": "14:00",
+            "note": "200 gr: pastina, manzo, verdure"
+          },
+          {
+            "hhmm": "17:15",
+            "note": "100 gr: banana, mela, fragola, lampone"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "13:39",
+            "text": "08:30 Dafalgan supposta"
+          },
+          {
+            "ts": "18:31",
+            "text": "18:30 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "10:15",
+            "start": "09:45"
+          },
+          {
+            "end": "13:48",
+            "start": "11:37"
+          },
+          {
+            "end": "16:20",
+            "start": "15:53"
+          },
+          {
+            "end": "07:09",
+            "start": "19:26"
+          }
+        ],
+        "woke_at": "16:38",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-07-02T05:20:13.348487+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-01",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "09:15"
+          },
+          {
+            "hhmm": "12:45",
+            "note": "200 gr: pastina, manzo, verdure"
+          },
+          {
+            "hhmm": "16:00"
+          },
+          {
+            "hhmm": "18:45",
+            "note": "120 ml"
+          },
+          {
+            "hhmm": "20:30"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "10:43",
+            "text": "09:15 Dafalgan supposta"
+          },
+          {
+            "ts": "14:00",
+            "text": "13:45 Dafalgan supposta"
+          },
+          {
+            "ts": "17:37",
+            "text": "17:00 Dafalgan supposta"
+          },
+          {
+            "ts": "20:50",
+            "text": "20:30 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "08:20",
+            "start": "07:41"
+          },
+          {
+            "end": "12:32",
+            "start": "10:42"
+          },
+          {
+            "end": "15:33",
+            "start": "14:50"
+          },
+          {
+            "end": "19:33",
+            "start": "19:01"
+          },
+          {
+            "end": "07:20",
+            "start": "21:46"
+          }
+        ],
+        "woke_at": "19:33",
+        "lastMeal": "20:30"
+      },
+      "updated_at": "2026-07-01T04:12:15.987492+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-07",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:15"
+          },
+          {
+            "hhmm": "13:30"
+          },
+          {
+            "hhmm": "16:45"
+          },
+          {
+            "hhmm": "20:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "10:55",
+            "start": "09:30"
+          },
+          {
+            "end": "14:36",
+            "start": "14:02"
+          },
+          {
+            "end": "18:30",
+            "start": "17:05"
+          },
+          {
+            "end": "06:42",
+            "start": "20:00"
+          }
+        ],
+        "woke_at": "20:14",
+        "lastMeal": "20:00"
+      },
+      "updated_at": "2026-06-07T05:40:04.20889+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-03",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:30"
+          },
+          {
+            "hhmm": "09:45",
+            "note": "100 gr: fruttino more"
+          },
+          {
+            "hhmm": "12:30"
+          },
+          {
+            "hhmm": "15:45",
+            "note": "100 gr: mix fruttino"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "11:46",
+            "text": "11:45 Viburcol supposta"
+          },
+          {
+            "ts": "17:43",
+            "text": "17:45 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "11:15",
+            "start": "10:00"
+          },
+          {
+            "end": "14:12",
+            "start": "13:01"
+          },
+          {
+            "end": "17:15",
+            "start": "16:46"
+          }
+        ],
+        "woke_at": "17:15",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-07-03T05:09:49.181884+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-08",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:15"
+          },
+          {
+            "hhmm": "13:15"
+          },
+          {
+            "hhmm": "16:30"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:40",
+            "start": "07:56"
+          },
+          {
+            "end": "11:36",
+            "start": "10:37"
+          },
+          {
+            "end": "15:09",
+            "start": "13:45"
+          },
+          {
+            "end": "18:10",
+            "start": "17:32"
+          }
+        ],
+        "woke_at": "18:10",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-06-08T04:42:41.120453+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-06",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "10:15"
+          },
+          {
+            "hhmm": "13:45",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "16:30"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:59",
+            "start": "07:22"
+          },
+          {
+            "end": "13:20",
+            "start": "12:00"
+          },
+          {
+            "end": "16:07",
+            "start": "15:35"
+          },
+          {
+            "end": "07:40",
+            "start": "19:35"
+          }
+        ],
+        "woke_at": "16:07",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-06-06T04:29:39.008356+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-18",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "09:45",
+            "note": "100 gr: banana, mela, pesca, albicocca"
+          },
+          {
+            "hhmm": "12:45",
+            "note": "100 gr: pastina, tonno, verdure"
+          },
+          {
+            "hhmm": "15:45",
+            "note": "80 gr: 4 frutti"
+          },
+          {
+            "hhmm": "18:00"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:29",
+            "start": "07:57"
+          },
+          {
+            "end": "12:12",
+            "start": "10:53"
+          },
+          {
+            "end": "14:45",
+            "start": "14:15"
+          },
+          {
+            "end": "06:12",
+            "start": "20:07"
+          }
+        ],
+        "woke_at": "12:12",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-06-18T04:33:53.613821+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-11",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:00"
+          },
+          {
+            "hhmm": "09:15",
+            "note": "80 gr: yogurt, banana, mela, cocco"
+          },
+          {
+            "hhmm": "12:15",
+            "note": "250 gr: patate, manzo, spinaci, olio colza"
+          },
+          {
+            "hhmm": "15:00"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "11:05",
+            "start": "09:48"
+          },
+          {
+            "end": "13:38",
+            "start": "13:00"
+          },
+          {
+            "end": "16:07",
+            "start": "15:33"
+          },
+          {
+            "end": "07:12",
+            "start": "19:12"
+          }
+        ],
+        "woke_at": "16:07",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-06-11T05:55:54.127313+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-10",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:15",
+            "note": "240 ml"
+          },
+          {
+            "hhmm": "10:00",
+            "note": "240 ml"
+          },
+          {
+            "hhmm": "13:15",
+            "note": "100 gr: mela, banana, lamponi + qualche striscia banana"
+          },
+          {
+            "hhmm": "17:00",
+            "note": "200 gr: patata, manzo, carota, zucca, cavolfiore, olio evo"
+          },
+          {
+            "hhmm": "19:00",
+            "note": "200 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:55",
+            "start": "08:19"
+          },
+          {
+            "end": "12:33",
+            "start": "10:51"
+          },
+          {
+            "end": "15:59",
+            "start": "14:34"
+          },
+          {
+            "end": "07:55",
+            "start": "19:10"
+          }
+        ],
+        "woke_at": "15:59",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-06-10T05:03:02.795032+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-17",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:30"
+          },
+          {
+            "hhmm": "08:45",
+            "note": "80 gr: quinoa, banana, mela, mango, cocco"
+          },
+          {
+            "hhmm": "12:15",
+            "note": "120 gr: pastina, formaggino, piselli, olio oliva"
+          },
+          {
+            "hhmm": "15:15",
+            "note": "100 gr: mela, mirtilli"
+          },
+          {
+            "hhmm": "17:30",
+            "note": "100 gr: pastina, formaggino, piselli, olio oliva + puffs"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "11:05",
+            "start": "09:47"
+          },
+          {
+            "end": "14:41",
+            "start": "13:28"
+          },
+          {
+            "end": "06:33",
+            "start": "18:58"
+          }
+        ],
+        "woke_at": "14:41",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-06-17T03:26:01.468397+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-14",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "10:00"
+          },
+          {
+            "hhmm": "13:15",
+            "note": "50 gr: pastina, formaggino, zucchina, olio evo + 3 puffs"
+          },
+          {
+            "hhmm": "16:00"
+          },
+          {
+            "hhmm": "19:45",
+            "note": "120 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:47",
+            "start": "08:32"
+          },
+          {
+            "end": "12:48",
+            "start": "12:15"
+          },
+          {
+            "end": "15:53",
+            "start": "15:15"
+          },
+          {
+            "end": "06:01",
+            "start": "19:53"
+          }
+        ],
+        "woke_at": "15:53",
+        "lastMeal": "19:45"
+      },
+      "updated_at": "2026-06-14T04:29:04.450696+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-12",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "03:45"
+          },
+          {
+            "hhmm": "07:45"
+          },
+          {
+            "hhmm": "11:00"
+          },
+          {
+            "hhmm": "14:00",
+            "note": "240 gr: pastina, coniglio, broccolo, olio colza"
+          },
+          {
+            "hhmm": "18:00",
+            "note": "90 gr: banana, fragola"
+          },
+          {
+            "hhmm": "19:15"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "00:36",
+            "text": "00:30 supposta Dafalgan x male dentini"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:20",
+            "start": "08:45"
+          },
+          {
+            "end": "13:02",
+            "start": "11:30"
+          },
+          {
+            "end": "16:56",
+            "start": "15:58"
+          },
+          {
+            "end": "07:19",
+            "start": "19:54"
+          }
+        ],
+        "woke_at": "16:56",
+        "lastMeal": "19:15"
+      },
+      "updated_at": "2026-06-11T22:36:09.319429+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-09",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "07:00"
+          },
+          {
+            "hhmm": "10:00"
+          },
+          {
+            "hhmm": "13:00"
+          },
+          {
+            "hhmm": "16:45"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "06:50",
+            "start": "00:00"
+          },
+          {
+            "end": "09:01",
+            "start": "08:24"
+          },
+          {
+            "end": "12:12",
+            "start": "11:01"
+          },
+          {
+            "end": "16:38",
+            "start": "14:38"
+          },
+          {
+            "end": "07:03",
+            "start": "19:58"
+          }
+        ],
+        "woke_at": "16:38",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-06-09T04:53:00.826194+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-15",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15",
+            "note": "240 ml"
+          },
+          {
+            "hhmm": "09:15",
+            "note": "100 gr: patata dolce, zucca, prugna, fragola"
+          },
+          {
+            "hhmm": "12:15",
+            "note": "100 gr: spaghetti bolognese"
+          },
+          {
+            "hhmm": "16:00",
+            "note": "100 gr: yogurt bianco, banana"
+          },
+          {
+            "hhmm": "18:15",
+            "note": "110 gr: spaghetti bolognese"
+          },
+          {
+            "hhmm": "19:30",
+            "note": "220 ml"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "07:44",
+            "start": "07:10"
+          },
+          {
+            "end": "11:51",
+            "start": "10:40"
+          },
+          {
+            "end": "15:50",
+            "start": "14:37"
+          },
+          {
+            "end": "06:13",
+            "start": "19:50"
+          }
+        ],
+        "woke_at": "15:50",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-06-15T04:01:34.902533+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-16",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "09:00"
+          },
+          {
+            "hhmm": "12:15",
+            "note": "130 gr: pastina, manzo, verdure, olio oliva"
+          },
+          {
+            "hhmm": "16:00",
+            "note": "120 gr: yogurt bianco, banana"
+          },
+          {
+            "hhmm": "18:00",
+            "note": "130 gr: pastina, manzo, verdure, olio oliva"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "13:57",
+            "text": "Vaccino 9 mesi"
+          },
+          {
+            "ts": "13:57",
+            "text": "14:00 supposta Dafalgan"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "08:25",
+            "start": "07:35"
+          },
+          {
+            "end": "11:42",
+            "start": "10:45"
+          },
+          {
+            "end": "15:35",
+            "start": "14:06"
+          },
+          {
+            "end": "05:26",
+            "start": "19:00"
+          }
+        ],
+        "woke_at": "15:35",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-06-16T04:13:59.492714+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-13",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "04:30"
+          },
+          {
+            "hhmm": "07:45"
+          },
+          {
+            "hhmm": "11:30"
+          },
+          {
+            "hhmm": "14:45"
+          },
+          {
+            "hhmm": "17:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "08:41",
+            "start": "07:43"
+          },
+          {
+            "end": "12:24",
+            "start": "11:50"
+          },
+          {
+            "end": "15:29",
+            "start": "14:57"
+          },
+          {
+            "end": "06:29",
+            "start": "19:02"
+          }
+        ],
+        "woke_at": "15:29",
+        "lastMeal": "17:30"
+      },
+      "updated_at": "2026-06-13T02:22:03.420239+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-22",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "03:45"
+          },
+          {
+            "hhmm": "06:30",
+            "note": "190 ml"
+          },
+          {
+            "hhmm": "09:45",
+            "note": "90 gr: yogurt bianco, banana, mirtilli"
+          },
+          {
+            "hhmm": "14:15",
+            "note": "110 gr: patate, manzo, carote + 1 ft pane toast"
+          },
+          {
+            "hhmm": "17:30",
+            "note": "110 gr: patate, manzo, carota + 70 gr: yogurt bianco, banana, mirtilli"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "03:37",
+            "text": "03:30 Dafalgan supposta"
+          },
+          {
+            "ts": "08:12",
+            "text": "08:15 Viburcol supposta"
+          },
+          {
+            "ts": "11:31",
+            "text": "11:30 Viburcol supposta"
+          },
+          {
+            "ts": "16:00",
+            "text": "16:00 Viburcol supposta"
+          },
+          {
+            "ts": "18:55",
+            "text": "19:00 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:27",
+            "start": "08:15"
+          },
+          {
+            "end": "14:03",
+            "start": "11:56"
+          },
+          {
+            "end": "16:45",
+            "start": "16:11"
+          },
+          {
+            "end": "08:03",
+            "start": "19:06"
+          }
+        ],
+        "woke_at": "16:45",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-06-22T01:37:33.516863+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-29",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "09:30",
+            "note": "100 gr: mela, pera, rabarbaro"
+          },
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "12:30",
+            "note": "200 gr: pastina, manzo, verdure"
+          },
+          {
+            "hhmm": "15:30",
+            "note": "100 gr: mela, mirtilli, more"
+          },
+          {
+            "hhmm": "18:45"
+          },
+          {
+            "hhmm": "20:45"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "16:29",
+            "text": "16:00 Dafalgan supposta"
+          },
+          {
+            "ts": "16:29",
+            "text": "12:00 Dafalgan supposta"
+          },
+          {
+            "ts": "21:03",
+            "text": "20:45 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "11:00",
+            "start": "09:42"
+          },
+          {
+            "end": "14:47",
+            "start": "13:43"
+          },
+          {
+            "end": "18:15",
+            "start": "17:00"
+          },
+          {
+            "end": "06:01",
+            "start": "21:02"
+          }
+        ],
+        "woke_at": "18:15",
+        "lastMeal": "20:45"
+      },
+      "updated_at": "2026-06-29T04:35:14.306404+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-28",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:15"
+          },
+          {
+            "hhmm": "09:15"
+          },
+          {
+            "hhmm": "11:30",
+            "note": "100 gr: mela, banana, cetriolo, spinaci"
+          },
+          {
+            "hhmm": "14:30",
+            "note": "200 gr: pastina, prosciutto, carote"
+          },
+          {
+            "hhmm": "18:00",
+            "note": "100 gr: mela, fragola, mirtilli, lamponi"
+          },
+          {
+            "hhmm": "19:45",
+            "note": "100 gr: mela, pera, zucca, carota + 5x puffs"
+          },
+          {
+            "hhmm": "21:30"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "21:49",
+            "text": "18:45 Viburcol supposta"
+          },
+          {
+            "ts": "21:49",
+            "text": "19:15 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:56",
+            "start": "09:20"
+          },
+          {
+            "end": "14:00",
+            "start": "12:31"
+          },
+          {
+            "end": "17:35",
+            "start": "16:30"
+          },
+          {
+            "end": "06:35",
+            "start": "21:48"
+          }
+        ],
+        "woke_at": "17:48",
+        "lastMeal": "21:30"
+      },
+      "updated_at": "2026-06-28T03:53:24.371418+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-23",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:30"
+          },
+          {
+            "hhmm": "08:30"
+          },
+          {
+            "hhmm": "12:15",
+            "note": "1 ft pane toast con 1/2 avocato e 1/2 formaggino + qualche pezzo avocado + 100 gr: banana, mela, fragola"
+          },
+          {
+            "hhmm": "16:30",
+            "note": "100 gr: banana, mela, pesca, albicocca"
+          },
+          {
+            "hhmm": "18:00",
+            "note": "1x frittatina: uovo, carota, zucchina + 3x puffs"
+          },
+          {
+            "hhmm": "18:30"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "19:23",
+            "text": "19:15 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "11:53",
+            "start": "10:55"
+          },
+          {
+            "end": "16:12",
+            "start": "14:15"
+          },
+          {
+            "end": "06:07",
+            "start": "19:56"
+          }
+        ],
+        "woke_at": "16:12",
+        "lastMeal": "18:30"
+      },
+      "updated_at": "2026-06-23T03:42:41.356301+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-25",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:45"
+          },
+          {
+            "hhmm": "09:00"
+          },
+          {
+            "hhmm": "13:00",
+            "note": "200 gr: patata, pollo, verdure"
+          },
+          {
+            "hhmm": "16:00",
+            "note": "90 gr yogurt bianco + 1/2 banana"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "16:36",
+            "text": "16:30 Dafalgan supposta"
+          },
+          {
+            "ts": "18:54",
+            "text": "19:00 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "08:45",
+            "start": "07:29"
+          },
+          {
+            "end": "12:47",
+            "start": "11:12"
+          },
+          {
+            "end": "15:53",
+            "start": "15:15"
+          },
+          {
+            "end": "06:46",
+            "start": "19:14"
+          }
+        ],
+        "woke_at": "15:53",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-06-25T04:17:48.043017+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-27",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:00"
+          },
+          {
+            "hhmm": "09:00"
+          },
+          {
+            "hhmm": "12:00"
+          },
+          {
+            "hhmm": "15:15"
+          },
+          {
+            "hhmm": "18:30",
+            "note": "200 gr: patate, pollo, verdure"
+          },
+          {
+            "hhmm": "20:45"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "09:50",
+            "text": "07:45 Dafalgan supposta"
+          },
+          {
+            "ts": "13:34",
+            "text": "12:30 Dafalgan supposta"
+          },
+          {
+            "ts": "20:55",
+            "text": "20:45 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "08:20",
+            "start": "08:00"
+          },
+          {
+            "end": "10:29",
+            "start": "09:55"
+          },
+          {
+            "end": "13:28",
+            "start": "12:46"
+          },
+          {
+            "end": "17:53",
+            "start": "17:26"
+          },
+          {
+            "end": "05:53",
+            "start": "20:55"
+          }
+        ],
+        "woke_at": "17:53",
+        "lastMeal": "20:45"
+      },
+      "updated_at": "2026-06-27T03:47:02.909015+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-24",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "10:00",
+            "note": "100 gr: banana, mela, lamponi"
+          },
+          {
+            "hhmm": "13:00",
+            "note": "200 gr: patate, piselli, fagiolini"
+          },
+          {
+            "hhmm": "16:30",
+            "note": "90 gr: patata, patata dolce, carota, pastinaca"
+          },
+          {
+            "hhmm": "19:04"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "11:19",
+            "text": "11:15 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:43",
+            "start": "08:24"
+          },
+          {
+            "end": "12:34",
+            "start": "11:51"
+          },
+          {
+            "end": "16:16",
+            "start": "14:32"
+          },
+          {
+            "end": "06:17",
+            "start": "19:35"
+          }
+        ],
+        "woke_at": "16:16",
+        "lastMeal": "19:04"
+      },
+      "updated_at": "2026-06-24T04:07:36.862402+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-26",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "04:45"
+          },
+          {
+            "hhmm": "07:45"
+          },
+          {
+            "hhmm": "11:00"
+          },
+          {
+            "hhmm": "14:00"
+          },
+          {
+            "hhmm": "17:45"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "07:50",
+            "text": "07:45 Dafalgan supposta"
+          },
+          {
+            "ts": "15:14",
+            "text": "15:15 Viburcol supposta"
+          },
+          {
+            "ts": "17:57",
+            "text": "17:45 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:36",
+            "start": "08:10"
+          },
+          {
+            "end": "13:26",
+            "start": "12:06"
+          },
+          {
+            "end": "05:47",
+            "start": "17:57"
+          }
+        ],
+        "woke_at": "13:26",
+        "lastMeal": "17:45"
+      },
+      "updated_at": "2026-06-26T04:46:08.174036+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-06-30",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "10:00",
+            "note": "100 gr: mela, banana, cetrioli, spinaci + puffs"
+          },
+          {
+            "hhmm": "13:45",
+            "note": "200 gr: patate, legumi + puffs"
+          },
+          {
+            "hhmm": "17:00",
+            "note": "100 gr: mela, mango, pesca"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "12:36",
+            "text": "11:00 Viburcol supposta"
+          },
+          {
+            "ts": "14:48",
+            "text": "14:45 Viburcol supposta"
+          },
+          {
+            "ts": "19:16",
+            "text": "18:45 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "08:40",
+            "start": "08:10"
+          },
+          {
+            "end": "13:36",
+            "start": "11:15"
+          },
+          {
+            "end": "16:45",
+            "start": "16:24"
+          },
+          {
+            "end": "06:12",
+            "start": "19:16"
+          }
+        ],
+        "woke_at": "16:45",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-06-30T04:01:40.72021+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-10",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:45"
+          },
+          {
+            "hhmm": "09:15"
+          },
+          {
+            "hhmm": "12:15",
+            "note": "280 gr: pastina, vitello, broccoli, cavolfiore, avocado, parmigiano, olio colza"
+          },
+          {
+            "hhmm": "15:45",
+            "note": "230 gr: banana, lamponi, mela, pera, albicocca, prugna"
+          },
+          {
+            "hhmm": "18:45",
+            "note": "300 gr: patate, formaggino, carote, zucchine + sticks"
+          },
+          {
+            "hhmm": "19:45",
+            "note": "170 ml"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "20:00",
+            "text": "19:45 Viburcol supposta"
+          },
+          {
+            "ts": "20:00",
+            "text": "11:45 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:08",
+            "start": "07:51"
+          },
+          {
+            "end": "15:27",
+            "start": "13:23"
+          },
+          {
+            "end": "07:59",
+            "start": "20:00"
+          }
+        ],
+        "woke_at": "20:00",
+        "lastMeal": "19:45"
+      },
+      "updated_at": "2026-07-10T03:36:06.091617+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-05",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "09:00"
+          },
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "12:30",
+            "note": "220 gr: pastina, manzo, zucca"
+          },
+          {
+            "hhmm": "16:00",
+            "note": "100 gr: banana, pesca"
+          },
+          {
+            "hhmm": "18:30"
+          },
+          {
+            "hhmm": "21:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "11:39",
+            "start": "10:23"
+          },
+          {
+            "end": "15:04",
+            "start": "14:05"
+          },
+          {
+            "end": "20:30",
+            "start": "19:45"
+          },
+          {
+            "end": "07:33",
+            "start": "21:54"
+          }
+        ],
+        "woke_at": "21:54",
+        "lastMeal": "21:45"
+      },
+      "updated_at": "2026-07-05T04:22:32.263964+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-04",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "09:00",
+            "note": "Fruttino"
+          },
+          {
+            "hhmm": "12:30",
+            "note": "200 gr: pastina, prosciutto, verdure"
+          },
+          {
+            "hhmm": "16:00",
+            "note": "Fruttino"
+          },
+          {
+            "hhmm": "19:00",
+            "note": "200 gr: pastina, tonno, verdure"
+          },
+          {
+            "hhmm": "20:45"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "10:22",
+            "text": "09:15 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "08:00",
+            "start": "06:30"
+          },
+          {
+            "end": "10:48",
+            "start": "09:33"
+          },
+          {
+            "end": "14:30",
+            "start": "13:10"
+          },
+          {
+            "end": "07:43",
+            "start": "20:56"
+          }
+        ],
+        "woke_at": "16:59",
+        "lastMeal": "20:45"
+      },
+      "updated_at": "2026-07-04T06:15:42.397554+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-11",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "03:30"
+          },
+          {
+            "hhmm": "06:45"
+          },
+          {
+            "hhmm": "10:30",
+            "note": "200 gr: yogurt, lamponi, banana"
+          },
+          {
+            "hhmm": "13:45",
+            "note": "200 gr: patate, legumi verdi + 50 gr: mela, pesca, fragola"
+          },
+          {
+            "hhmm": "16:15"
+          },
+          {
+            "hhmm": "18:15",
+            "note": "200 gr: yogurt, banana, mela, pesca, fragola"
+          },
+          {
+            "hhmm": "19:45"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "08:00",
+            "text": "03:15 Dafalgan supposta"
+          },
+          {
+            "ts": "16:25",
+            "text": "16:15 Viburcol supposta"
+          },
+          {
+            "ts": "20:06",
+            "text": "19:45 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "10:13",
+            "start": "08:57"
+          },
+          {
+            "end": "13:37",
+            "start": "12:36"
+          },
+          {
+            "end": "17:23",
+            "start": "16:25"
+          },
+          {
+            "end": "05:56",
+            "start": "20:19"
+          }
+        ],
+        "woke_at": "17:23",
+        "lastMeal": "19:45"
+      },
+      "updated_at": "2026-07-11T05:59:55.974769+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-08",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:30"
+          },
+          {
+            "hhmm": "12:00",
+            "note": "220 gr: pasta bolognese"
+          },
+          {
+            "hhmm": "15:30",
+            "note": "200 gr: yogurt, banana, pesca"
+          },
+          {
+            "hhmm": "18:45"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "11:01",
+            "start": "09:52"
+          },
+          {
+            "end": "14:32",
+            "start": "13:09"
+          },
+          {
+            "end": "06:28",
+            "start": "19:00"
+          }
+        ],
+        "woke_at": "14:32",
+        "lastMeal": "18:45"
+      },
+      "updated_at": "2026-07-08T05:51:45.342968+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-06",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15"
+          },
+          {
+            "hhmm": "09:30",
+            "note": "100 gr: yogurt, banana, fragola, lamponi"
+          },
+          {
+            "hhmm": "11:45",
+            "note": "220 gr: pasta bolognese"
+          },
+          {
+            "hhmm": "14:30"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "16:19",
+            "text": "14:30 Viburcol supposta"
+          },
+          {
+            "ts": "18:59",
+            "text": "18:45 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "10:34",
+            "start": "09:58"
+          },
+          {
+            "end": "13:30",
+            "start": "12:42"
+          },
+          {
+            "end": "16:00",
+            "start": "15:00"
+          },
+          {
+            "end": "06:57",
+            "start": "18:58"
+          }
+        ],
+        "woke_at": "13:30",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-07-06T05:33:15.138227+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-09",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "04:15"
+          },
+          {
+            "hhmm": "07:00",
+            "note": "100 ml"
+          },
+          {
+            "hhmm": "08:45"
+          },
+          {
+            "hhmm": "11:45",
+            "note": "200 gr: pastina, manzo, verdure"
+          },
+          {
+            "hhmm": "14:45",
+            "note": "200 gr: yogurt, banana, mela, prugna"
+          },
+          {
+            "hhmm": "18:15",
+            "note": "225 gr: pastina, vitello, broccoli, cavolfiori, parmigiano, olio colza"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "07:22",
+            "text": "05:15 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "10:09",
+            "start": "09:01"
+          },
+          {
+            "end": "12:51",
+            "start": "12:21"
+          },
+          {
+            "end": "15:40",
+            "start": "15:10"
+          },
+          {
+            "end": "06:27",
+            "start": "19:30"
+          }
+        ],
+        "woke_at": "15:51",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-07-09T03:16:22.20434+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-07",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:30"
+          },
+          {
+            "hhmm": "08:30"
+          },
+          {
+            "hhmm": "11:00",
+            "note": "250 gr: patate, carote, zucchine, zucca"
+          },
+          {
+            "hhmm": "17:15"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "12:02",
+            "text": "12:00 Viburcol supposta"
+          },
+          {
+            "ts": "19:18",
+            "text": "19:00 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:42",
+            "start": "08:26"
+          },
+          {
+            "end": "13:55",
+            "start": "13:15"
+          },
+          {
+            "end": "18:10",
+            "start": "17:25"
+          }
+        ],
+        "woke_at": "19:34",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-07-07T04:57:30.860445+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-12",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:00"
+          },
+          {
+            "hhmm": "08:45"
+          },
+          {
+            "hhmm": "11:30",
+            "note": "250 gr: pastina, prosciutto, verdure, olio oliva"
+          },
+          {
+            "hhmm": "14:45",
+            "note": "200 gr: yogurt, banana, lamponi"
+          },
+          {
+            "hhmm": "18:30",
+            "note": "250 gr: patate, zucchine, carote"
+          },
+          {
+            "hhmm": "19:30",
+            "note": "180 ml"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "19:32",
+            "text": "19:30 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "10:09",
+            "start": "08:50"
+          },
+          {
+            "end": "14:04",
+            "start": "12:54"
+          },
+          {
+            "end": "17:30",
+            "start": "16:52"
+          },
+          {
+            "end": "06:42",
+            "start": "20:01"
+          }
+        ],
+        "woke_at": "20:01",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-07-12T03:56:25.833493+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-13",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:15"
+          },
+          {
+            "hhmm": "08:00"
+          },
+          {
+            "hhmm": "11:45",
+            "note": "200 gr: patate, lenticchie, zucchine, carote, olio oliva"
+          },
+          {
+            "hhmm": "14:45",
+            "note": "200 gr: yogurt, banana, lamponi"
+          },
+          {
+            "hhmm": "19:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:23",
+            "start": "08:03"
+          },
+          {
+            "end": "13:08",
+            "start": "12:15"
+          },
+          {
+            "end": "15:50",
+            "start": "15:20"
+          },
+          {
+            "end": "07:45",
+            "start": "19:30"
+          }
+        ],
+        "woke_at": "19:41",
+        "lastMeal": "19:00"
+      },
+      "updated_at": "2026-07-13T04:42:26.220327+00:00"
+    },
+    {
+      "id": "jasper_weights",
+      "data": {
+        "list": [
+          {
+            "kg": 3.54,
+            "date": "2025-09-12",
+            "note": ""
+          },
+          {
+            "kg": 4.25,
+            "date": "2025-10-13",
+            "note": ""
+          },
+          {
+            "kg": 4.5,
+            "date": "2025-10-30",
+            "note": ""
+          },
+          {
+            "kg": 4.72,
+            "date": "2025-11-14",
+            "note": ""
+          },
+          {
+            "kg": 5,
+            "date": "2025-11-25",
+            "note": ""
+          },
+          {
+            "kg": 5.3,
+            "date": "2025-12-15",
+            "note": ""
+          },
+          {
+            "kg": 5.6,
+            "date": "2025-12-24",
+            "note": ""
+          },
+          {
+            "kg": 5.8,
+            "date": "2026-01-01",
+            "note": ""
+          },
+          {
+            "kg": 6.2,
+            "date": "2026-01-10",
+            "note": ""
+          },
+          {
+            "kg": 6.5,
+            "date": "2026-01-23",
+            "note": ""
+          },
+          {
+            "kg": 6.7,
+            "date": "2026-02-02",
+            "note": ""
+          },
+          {
+            "kg": 7,
+            "date": "2026-02-09",
+            "note": ""
+          },
+          {
+            "kg": 7.35,
+            "date": "2026-02-28",
+            "note": ""
+          },
+          {
+            "kg": 7.83,
+            "date": "2026-03-17",
+            "note": ""
+          },
+          {
+            "kg": 8,
+            "date": "2026-03-31",
+            "note": ""
+          },
+          {
+            "kg": 8.7,
+            "date": "2026-04-30",
+            "note": ""
+          },
+          {
+            "kg": 8.8,
+            "date": "2026-05-11",
+            "note": ""
+          },
+          {
+            "kg": 8.8,
+            "date": "2026-05-26",
+            "note": ""
+          },
+          {
+            "kg": 8.9,
+            "date": "2026-06-08",
+            "note": ""
+          },
+          {
+            "kg": 9.1,
+            "date": "2026-07-13",
+            "note": ""
+          }
+        ]
+      },
+      "updated_at": "2026-04-12T10:30:13.219137+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-14",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:15"
+          },
+          {
+            "hhmm": "08:45"
+          },
+          {
+            "hhmm": "12:00",
+            "note": "200 gr: patate, pollo, verdure + 50 gr: avena, mela, mango, cocco"
+          },
+          {
+            "hhmm": "14:45",
+            "note": "200 gr: yogurt, banana, avena, mela, mango, cocco"
+          },
+          {
+            "hhmm": "17:45",
+            "note": "280 gr: couscous, uovo, zucchine, parmigiano, olio oliva"
+          },
+          {
+            "hhmm": "19:45",
+            "note": "180 ml"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "19:55",
+            "text": "19:00 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "10:28",
+            "start": "09:12"
+          },
+          {
+            "end": "13:36",
+            "start": "12:46"
+          },
+          {
+            "end": "16:21",
+            "start": "15:50"
+          },
+          {
+            "end": "06:20",
+            "start": "20:00"
+          }
+        ],
+        "woke_at": "16:21",
+        "lastMeal": "19:45"
+      },
+      "updated_at": "2026-07-14T05:45:44.90721+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-15",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:00"
+          },
+          {
+            "hhmm": "09:15"
+          },
+          {
+            "hhmm": "12:00",
+            "note": "270 gr: couscous, uovo, zucchine, parmigiano, olio oliva"
+          },
+          {
+            "hhmm": "15:00",
+            "note": "250 gr: yogurt, banana, pesca, avena, mela, mango, cocco"
+          },
+          {
+            "hhmm": "18:00",
+            "note": "200 gr: maccheroncini, agnello, passata pomodoro, parmigiano, olio oliva"
+          },
+          {
+            "hhmm": "19:15",
+            "note": "170 ml"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "12:14",
+            "text": "09:30 Viburcol supposta"
+          },
+          {
+            "ts": "19:25",
+            "text": "19:00 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:10",
+            "start": "08:10"
+          },
+          {
+            "end": "13:27",
+            "start": "12:13"
+          },
+          {
+            "end": "16:39",
+            "start": "15:39"
+          },
+          {
+            "end": "07:33",
+            "start": "19:43"
+          }
+        ],
+        "woke_at": "16:39",
+        "lastMeal": "19:15"
+      },
+      "updated_at": "2026-07-15T04:20:58.07582+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-16",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:00"
+          },
+          {
+            "hhmm": "08:00"
+          },
+          {
+            "hhmm": "12:00",
+            "note": "220 gr: spatzle, gulasch, verdure"
+          },
+          {
+            "hhmm": "14:30"
+          },
+          {
+            "hhmm": "19:00"
+          },
+          {
+            "hhmm": "17:30",
+            "note": "200 gr: pastina, vitello, zucchina, passata pomodoro, parmigiano, olio oliva"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "14:59",
+            "text": "14:15 Viburcol supposta"
+          },
+          {
+            "ts": "19:04",
+            "text": "19:00 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "10:23",
+            "start": "09:15"
+          },
+          {
+            "end": "13:01",
+            "start": "12:33"
+          },
+          {
+            "end": "15:31",
+            "start": "15:01"
+          },
+          {
+            "end": "06:27",
+            "start": "19:30"
+          }
+        ],
+        "woke_at": "15:31",
+        "lastMeal": "17:30"
+      },
+      "updated_at": "2026-07-16T05:33:08.06963+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-17",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30"
+          },
+          {
+            "hhmm": "09:45",
+            "note": "230 gr: yogurt, banana, mela, lamponi, mirtilli, avena"
+          },
+          {
+            "hhmm": "13:45",
+            "note": "200 gr: pastina, vitello, zucchine, passata pomodoro, parmigiano, olio colza"
+          },
+          {
+            "hhmm": "16:30"
+          },
+          {
+            "hhmm": "19:30"
+          }
+        ],
+        "notes": [],
+        "sleeps": [
+          {
+            "end": "09:21",
+            "start": "08:46"
+          },
+          {
+            "end": "13:38",
+            "start": "12:25"
+          },
+          {
+            "end": "17:19",
+            "start": "16:43"
+          },
+          {
+            "end": "07:18",
+            "start": "20:05"
+          }
+        ],
+        "woke_at": "17:19",
+        "lastMeal": "19:30"
+      },
+      "updated_at": "2026-07-17T04:27:11.21966+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-18",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:15"
+          },
+          {
+            "hhmm": "08:30"
+          },
+          {
+            "hhmm": "11:52",
+            "note": "pappa pastina tonno e verdure"
+          },
+          {
+            "hhmm": "15:33",
+            "note": "1/2 yogurt e banana + 10 mirtilli"
+          },
+          {
+            "hhmm": "18:38"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "22:36",
+            "text": "18:30 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "11:08",
+            "start": "10:13"
+          },
+          {
+            "end": "14:26",
+            "start": "13:24"
+          },
+          {
+            "end": "07:31",
+            "start": "18:38"
+          }
+        ],
+        "woke_at": "14:26",
+        "lastMeal": "18:38"
+      },
+      "updated_at": "2026-07-18T05:18:41.465561+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-19",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:30"
+          },
+          {
+            "hhmm": "08:30"
+          },
+          {
+            "hhmm": "12:15",
+            "note": "210 gr: pastina, uovo, zucchina, olio oliva"
+          },
+          {
+            "hhmm": "15:15",
+            "note": "200 gr: yogurt, banana, mela, pera"
+          },
+          {
+            "hhmm": "17:00"
+          },
+          {
+            "hhmm": "19:15"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "05:20",
+            "text": "05:15 Dafalgan supposta"
+          },
+          {
+            "ts": "12:45",
+            "text": "12:00 Dafalgan supposta"
+          },
+          {
+            "ts": "16:32",
+            "text": "16:30 Viburcol supposta"
+          },
+          {
+            "ts": "19:28",
+            "text": "19:00 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "11:00",
+            "start": "09:53"
+          },
+          {
+            "end": "13:40",
+            "start": "13:11"
+          },
+          {
+            "end": "06:25",
+            "start": "19:28"
+          }
+        ],
+        "woke_at": "13:40",
+        "lastMeal": "19:15"
+      },
+      "updated_at": "2026-07-19T03:20:25.230446+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-20",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:30",
+            "note": "190 ml"
+          },
+          {
+            "hhmm": "09:15"
+          },
+          {
+            "hhmm": "12:15",
+            "note": "210 gr: pastina, uovo, zucchina, olio oliva"
+          },
+          {
+            "hhmm": "15:00",
+            "note": "100: avena, banana, fragola, lamponi"
+          },
+          {
+            "hhmm": "19:00"
+          },
+          {
+            "hhmm": "17:30",
+            "note": "200 gr: spätzle, gulasch, verdure"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "17:23",
+            "text": "14:00 Viburcol supposta"
+          },
+          {
+            "ts": "19:22",
+            "text": "19:00 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "11:08",
+            "start": "09:22"
+          },
+          {
+            "end": "15:02",
+            "start": "14:22"
+          },
+          {
+            "end": "07:18",
+            "start": "19:23"
+          }
+        ],
+        "woke_at": "15:02",
+        "lastMeal": "17:30"
+      },
+      "updated_at": "2026-07-20T04:25:19.474146+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-21",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:30",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "08:45"
+          },
+          {
+            "hhmm": "11:00",
+            "note": "150 gr: riso, tacchino, broccoli, carote, finocchio"
+          },
+          {
+            "hhmm": "14:45",
+            "note": "200 gr: yogurt, banana, mirtilli"
+          },
+          {
+            "hhmm": "12:45",
+            "note": "70 gr: riso, tacchino, broccoli, carote, finocchio"
+          },
+          {
+            "hhmm": "19:00",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "17:30",
+            "note": "220 gr: pastina, ragù, avocado, parmigiano"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "10:00",
+            "text": "09:00 Viburcol supposta"
+          },
+          {
+            "ts": "15:05",
+            "text": "14:45 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "12:36",
+            "start": "11:31"
+          },
+          {
+            "end": "16:15",
+            "start": "15:06"
+          },
+          {
+            "end": "06:36",
+            "start": "19:40"
+          }
+        ],
+        "woke_at": "19:23",
+        "lastMeal": "17:30"
+      },
+      "updated_at": "2026-07-21T05:18:51.71606+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-23",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:30",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "08:00",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "10:45",
+            "note": "100 gr: fruttino verdure"
+          },
+          {
+            "hhmm": "13:30",
+            "note": "220 gr: couscous, pollo, verdure"
+          },
+          {
+            "hhmm": "15:30",
+            "note": "210 ml"
+          },
+          {
+            "hhmm": "19:30",
+            "note": "120 ml"
+          },
+          {
+            "hhmm": "18:30",
+            "note": "220 gr: riso, tacchino, verdure"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "15:41",
+            "text": "09:45 Dafalgan supposta"
+          },
+          {
+            "ts": "15:41",
+            "text": "15:15 Dafalgan supposta"
+          },
+          {
+            "ts": "19:26",
+            "text": "19:30 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:30",
+            "start": "08:05"
+          },
+          {
+            "end": "13:08",
+            "start": "11:57"
+          },
+          {
+            "end": "16:16",
+            "start": "15:41"
+          },
+          {
+            "end": "07:36",
+            "start": "20:05"
+          }
+        ],
+        "woke_at": "16:16",
+        "lastMeal": "18:30"
+      },
+      "updated_at": "2026-07-23T04:14:15.118648+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-24",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:45"
+          },
+          {
+            "hhmm": "08:30",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "12:00",
+            "note": "220 gr: pasta, merluzzo, broccoli"
+          },
+          {
+            "hhmm": "14:15",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "17:30",
+            "note": "230 gr: couscous, ceci, formaggino, zucchina, olio oliva"
+          },
+          {
+            "hhmm": "18:45",
+            "note": "150 ml"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "14:29",
+            "text": "13:30 Viburcol supposta"
+          },
+          {
+            "ts": "19:06",
+            "text": "18:30 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "11:13",
+            "start": "09:50"
+          },
+          {
+            "end": "15:33",
+            "start": "14:29"
+          },
+          {
+            "end": "06:42",
+            "start": "19:36"
+          }
+        ],
+        "woke_at": "15:33",
+        "lastMeal": "18:45"
+      },
+      "updated_at": "2026-07-24T05:29:41.334546+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-25",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "06:15",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "08:30",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "11:45",
+            "note": "230 gr: couscous, ceci, formaggino, zucchina, olio oliva"
+          },
+          {
+            "hhmm": "14:30",
+            "note": "100 gr: fruttino"
+          },
+          {
+            "hhmm": "17:45",
+            "note": "230 gr: couscous, ceci, formaggino, zucchina, olio oliva"
+          },
+          {
+            "hhmm": "18:45",
+            "note": "120 ml"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "10:02",
+            "text": "08:15 Dafalgan supposta"
+          },
+          {
+            "ts": "17:56",
+            "text": "14:30 Viburcol supposta"
+          },
+          {
+            "ts": "19:06",
+            "text": "18:45 Viburcol supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "10:00",
+            "start": "09:00"
+          },
+          {
+            "end": "14:17",
+            "start": "12:56"
+          },
+          {
+            "end": "07:39",
+            "start": "19:00"
+          }
+        ],
+        "woke_at": "14:17",
+        "lastMeal": "18:45"
+      },
+      "updated_at": "2026-07-25T04:42:32.947433+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-26",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "03:00"
+          },
+          {
+            "hhmm": "06:00"
+          }
+        ],
+        "notes": [],
+        "sleeps": [],
+        "woke_at": "07:39",
+        "lastMeal": "06:00"
+      },
+      "updated_at": "2026-07-26T01:08:29.97702+00:00"
+    },
+    {
+      "id": "jasper_diary_2026-07-22",
+      "data": {
+        "meals": [
+          {
+            "hhmm": "05:30",
+            "note": "180 ml"
+          },
+          {
+            "hhmm": "08:30"
+          },
+          {
+            "hhmm": "11:30",
+            "note": "220 gr: spaghetti bolognese"
+          },
+          {
+            "hhmm": "15:00",
+            "note": "200 gr: yogurt, banana, lamponi"
+          },
+          {
+            "hhmm": "18:30"
+          }
+        ],
+        "notes": [
+          {
+            "ts": "16:43",
+            "text": "16:15 Dafalgan supposta"
+          }
+        ],
+        "sleeps": [
+          {
+            "end": "09:46",
+            "start": "09:10"
+          },
+          {
+            "end": "13:39",
+            "start": "12:16"
+          },
+          {
+            "end": "06:14",
+            "start": "18:45"
+          }
+        ],
+        "woke_at": "13:39",
+        "lastMeal": "18:30"
+      },
+      "updated_at": "2026-07-22T04:36:57.29334+00:00"
+    }
+  ]
+}
