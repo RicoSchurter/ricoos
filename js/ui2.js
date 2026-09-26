@@ -1,6 +1,9 @@
+let _notifSchedDate = null; // giorno a cui si riferisce scheduledNotifIds
 function scheduleNotifs() {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   const t = toISO();
+  // Nuovo giorno nella stessa sessione: azzera il set anti-doppioni
+  if (_notifSchedDate !== t) { scheduledNotifIds.clear(); _notifSchedDate = t; }
   const now = new Date();
   expand().filter(i => i.data === t && i.ora && !i.done && (currentProfile !== 'anissa' || i.area !== 'startup')).forEach(it => {
     const notifId = it.recurChild ? it.parentId : it.id;
@@ -12,7 +15,7 @@ function scheduleNotifs() {
       scheduledNotifIds.add(notifId);
       setTimeout(() => {
         // Verify item still exists and is not done before firing
-        const stillExists = items.some(i => i.id === notifId && !i.done);
+        const stillExists = items.some(i => i.id === notifId && !i.deleted_at && !isItemDoneOn(i, t));
         if (!stillExists) return;
         // Re-check profile at fire time: se l'utente ha cambiato profilo dopo
         // che il timeout era stato schedulato, evita leak cross-profilo
@@ -146,11 +149,16 @@ function checkSmartNotifs() {
     const key = 'nb-overdue';
     const names = overdue.slice(0,2).map(i=>i.titolo).join(', ');
     const extra = overdue.length > 2 ? ` e altri ${overdue.length-2}` : '';
-    banners.push(makeBanner({
-      id: key, type:'urgent', ico:'⚠️',
-      title: `${overdue.length} elemento${overdue.length>1?'i':''} scadut${overdue.length>1?'i':'o'} e non completat${overdue.length>1?'i':'o'}`,
-      msg: names + extra + ' — da ieri o prima.'
-    }));
+    const one = overdue.length === 1;
+    banners.push(`<div class="notif-banner urgent" id="${key}">
+      <span class="nb-ico">⚠️</span>
+      <div class="nb-body">
+        <div class="nb-title">${overdue.length} ${one?'elemento scaduto e non completato':'elementi scaduti e non completati'}</div>
+        <div class="nb-msg">${esc(names + extra)} — da ieri o prima.</div>
+        <div style="margin-top:8px"><button onclick="moveOverdueToToday()" style="padding:5px 12px;background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;color:var(--txt2);font-size:12px;cursor:pointer;font-family:inherit">→ Sposta ${one?'':'tutti '}a oggi</button></div>
+      </div>
+      <button class="notif-dismiss" onclick="dismissNotif('${key}')">×</button>
+    </div>`);
   }
 
   // ── 2. UPCOMING in 2h ──
@@ -224,7 +232,7 @@ function checkSmartNotifs() {
     if (todayOpen.length > 0) {
       banners.push(makeBanner({
         id: 'nb-evening', type:'warn', ico:'🌙',
-        title: `Hai ancora ${todayOpen.length} elemento${todayOpen.length>1?'i':''} aperti oggi`,
+        title: todayOpen.length > 1 ? `Hai ancora ${todayOpen.length} elementi aperti oggi` : 'Hai ancora 1 elemento aperto oggi',
         msg: todayOpen.slice(0,3).map(i=>'"'+i.titolo+'"').join(', ')
           + (todayOpen.length>3?` e altri ${todayOpen.length-3}`:'')
       }));
@@ -232,7 +240,7 @@ function checkSmartNotifs() {
     } else if (todayDone.length > 0) {
       banners.push(makeBanner({
         id: 'nb-evening', type:'ok', ico:'🌙',
-        title: `Ottima giornata! ${todayDone.length} element${todayDone.length>1?'i':' '}completat${todayDone.length>1?'i':'o'}`,
+        title: `Ottima giornata! ${todayDone.length} element${todayDone.length>1?'i':'o'} completat${todayDone.length>1?'i':'o'}`,
         msg: 'Tutto fatto per oggi. Goditi la serata con la famiglia. 🌿'
       }));
       pushedEvening = true;
@@ -258,7 +266,7 @@ function checkSmartNotifs() {
           <div class="nb-title">Hai completato "${esc(it.titolo.slice(0,30))}"?</div>
           <div class="nb-msg">Era alle ${esc(it.ora)} — segnalo come fatto?</div>
           <div style="display:flex;gap:8px;margin-top:8px">
-            <button onclick="toggle('${pid}');dismissNotif('${esc(key)}')" style="padding:5px 12px;background:var(--green);border:none;border-radius:6px;color:#111;font-size:12px;cursor:pointer;font-family:inherit">✓ Sì, fatto</button>
+            <button onclick="toggle('${pid}','${t}');dismissNotif('${esc(key)}')" style="padding:5px 12px;background:var(--green);border:none;border-radius:6px;color:#111;font-size:12px;cursor:pointer;font-family:inherit">✓ Sì, fatto</button>
             <button onclick="dismissNotif('${esc(key)}')" style="padding:5px 12px;background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;color:var(--txt3);font-size:12px;cursor:pointer;font-family:inherit">No, non ancora</button>
           </div>
         </div>
@@ -283,7 +291,7 @@ function checkSmartNotifs() {
 ═══════════════════════════════════════ */
 async function apiCall(messages, maxTokens=500, system=null) {
   // Sanifica messages: Anthropic accetta solo {role, content}.
-  // chatHistory puo contenere campi extra (es. hidden:true) che fanno fallire la richiesta.
+  // messages puo contenere campi extra (es. hidden:true) che fanno fallire la richiesta.
   const cleanMessages = (messages||[]).map(m => ({role:m.role, content:m.content}));
   const body = {model:'claude-sonnet-4-6', max_tokens:maxTokens, messages:cleanMessages};
   if (system) body.system = system;

@@ -1,4 +1,4 @@
-/* ═══ VOCE — Web Speech API (singleton condiviso qa+chat) ═══ */
+/* ═══ VOCE — Web Speech API (aggiunta rapida) ═══ */
 let _voiceRecognition = null;
 let _voiceActive      = false;
 
@@ -7,7 +7,6 @@ function initVoice() {
   if (!SpeechRec) return;
   ['d','m'].forEach(p => {
     const mic = $(p+'QaMic'); if(mic) mic.classList.add('show');
-    const chatMic = $(p+'ChatMic'); if(chatMic) chatMic.classList.add('show');
   });
   _voiceRecognition = new SpeechRec();
   _voiceRecognition.lang = 'it-IT';
@@ -16,39 +15,11 @@ function initVoice() {
   _voiceRecognition.maxAlternatives = 1;
 }
 
-// Clear listening state da TUTTI i mic (qa + chat, desktop + mobile)
+// Clear listening state dei mic aggiunta rapida (desktop + mobile)
 function _clearAllMicListening() {
   ['d','m'].forEach(p => {
     const qaMic = $(p+'QaMic'); if(qaMic) qaMic.classList.remove('listening');
-    const chatMic = $(p+'ChatMic'); if(chatMic) chatMic.classList.remove('listening');
   });
-}
-
-function startVoiceChat(pfx) {
-  if (!_voiceRecognition) { toast('Voce non supportata in questo browser','warn'); return; }
-  if (_voiceActive) { _voiceRecognition.stop(); return; }
-  const inp = $(pfx + 'ChatInp');
-  const mic = $(pfx + 'ChatMic');
-  _voiceActive = true;
-  _clearAllMicListening(); // sicurezza: pulisci stato qa-mic se attivo
-  if (mic) mic.classList.add('listening');
-  _voiceRecognition.onresult = (e) => {
-    const transcript = e.results[0][0].transcript;
-    if (inp) inp.value = transcript;
-    // NO auto-submit: user rilegge e invia manualmente
-  };
-  _voiceRecognition.onerror = (e) => {
-    toast('Errore microfono — ' + (e.error === 'not-allowed' ? 'abilita il microfono' : e.error), 'warn');
-  };
-  _voiceRecognition.onend = () => {
-    _voiceActive = false;
-    _clearAllMicListening();
-  };
-  try { _voiceRecognition.start(); }
-  catch(e) {
-    _voiceActive = false;
-    _clearAllMicListening();
-  }
 }
 
 function startVoice(pfx) {
@@ -59,7 +30,7 @@ function startVoice(pfx) {
   const mic = $(pfx + 'QaMic');
 
   _voiceActive = true;
-  _clearAllMicListening(); // pulisci stato chat-mic se attivo
+  _clearAllMicListening();
   if (mic) mic.classList.add('listening');
 
   _voiceRecognition.onresult = (e) => {
@@ -103,7 +74,7 @@ function initSwipe() {
     }, {passive:true});
     cont.addEventListener('touchend', () => {
       if (!el) return;
-      if (dx > 80) { const pid = el.dataset.pid; if (pid) toggle(pid); }
+      if (dx > 80) { const pid = el.dataset.pid; if (pid) toggle(pid, el.dataset.date); }
       el.style.transform = '';
       dx = 0; el = null;
     });
@@ -200,19 +171,12 @@ function setView(v) {
   if (v === 'oggi')    loadMIT();
   if (v === 'startup') renderStartup();
   if (v === 'jasper')  renderJasper();
-  if (v === 'spesa')   renderShopping();
   document.querySelectorAll('[id^="dv-"],[id^="mv-"]').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.sb-btn[data-v],.bot-btn').forEach(b=>b.classList.remove('active'));
   $('dv-'+v)?.classList.add('active');
   $('mv-'+v)?.classList.add('active');
   document.querySelectorAll(`[data-v="${v}"]`).forEach(b=>b.classList.add('active'));
   if (v==='agenda') renderAgenda();
-  if (v==='briefing') {
-    checkNightReset();
-    if (briefingDate !== toISO() && !briefingLoading) {
-      setTimeout(() => doBriefing(), 250);
-    }
-  }
   renderAreas(); // aggiorna chip "OGGI" vs "Tutti" in base alla vista
   if (isMob()) window.scrollTo(0,0);
 }
@@ -222,7 +186,7 @@ function setView(v) {
 ═══════════════════════════════════════ */
 function openModal() {
   resetPills();
-  fS = {tipo:'task', area:'lavoro', st:'remychef', cpc:'CCOA', prio:'media'};
+  fS = {tipo:'task', area:defaultArea(), st:'remychef', cpc:'CCOA', prio:'media'};
   $('fData').value = agDay || toISO();
   $('fOra').value = '';
   $('fNote').value = '';
@@ -235,7 +199,7 @@ function closeModal() {
   $('addOverlay').classList.remove('open');
   ['fTit','fOra','fNote'].forEach(id=>$(id).value='');
   $('fRecur').value='';
-  fS={tipo:'task',area:'lavoro',st:'remychef',cpc:'CCOA',prio:'media'};
+  fS={tipo:'task',area:defaultArea(),st:'remychef',cpc:'CCOA',prio:'media'};
   editingItemId = null;
   resetPills();
   const btn=$('modalSubmitBtn'); const ttl=$('modalTitle');
@@ -278,6 +242,9 @@ function openEditModal(id) {
   setOnePill('gPrio', fS.prio, 'prio');
   if (fS.area === 'startup')  { $('fStField').style.display='block';  setOnePill('gSt',  fS.st,  'st');  }
   if (fS.area === 'cpc')      { $('fCpcField').style.display='block'; setOnePill('gCpc', fS.cpc, 'cpc'); }
+  // Se l'area dell'impegno è tra quelle nascoste, mostra tutte le aree
+  const selArea = document.querySelector('#gArea .pill.on');
+  if (selArea && !selArea.offsetParent) toggleAreaPills();
 
   // Mostra/nascondi bottone stop ricorrenza
   const stopWrap = $('stopRecurWrap');
@@ -356,7 +323,7 @@ function setOnePill(groupId, val, group) {
 
 function resetPills() {
   setOnePill('gTipo','task','tipo');
-  setOnePill('gArea','lavoro','area');
+  setOnePill('gArea',defaultArea(),'area');
   setOnePill('gSt','remychef','st');
   setOnePill('gCpc','CCOA','cpc');
   setOnePill('gPrio','media','prio');
@@ -365,7 +332,7 @@ function resetPills() {
 }
 
 function toggleAreaPills() {
-  document.querySelectorAll('.area-extra').forEach(p => p.classList.toggle('show'));
+  document.querySelectorAll('.area-extra, .area-anissa-more').forEach(p => p.classList.toggle('show'));
   const tog = document.querySelector('.area-toggle');
   if (tog) tog.textContent = tog.textContent.includes('+') ? '− Meno' : '+ Altro';
 }
@@ -457,56 +424,3 @@ function updateKeyUI() {
   });
 }
 
-let _clearDataPending = false;
-function clearData() {
-  if (!_clearDataPending) {
-    _clearDataPending = true;
-    toast('⚠️ Tocca di nuovo per confermare la cancellazione di TUTTI i dati', 'warn');
-    setTimeout(() => { _clearDataPending = false; }, 4000);
-    return;
-  }
-  _clearDataPending = false;
-  localStorage.removeItem('rico_items');
-  localStorage.removeItem('rico_st');
-  // Purge all notification tracking keys
-  Object.keys(localStorage).filter(k => k.startsWith('notif_')).forEach(k => localStorage.removeItem(k));
-  dismissedBanners.clear();
-  items = []; stData = {};
-  Object.keys(STS).forEach(k => stData[k] = {stage:'Building', next:'', block:'', updated:''});
-  renderAll();
-  checkSmartNotifs();
-  closeSettings();
-  toast('Dati cancellati', 'warn');
-}
-
-/* ═══════════════════════════════════════
-   AI BRIEFING
-═══════════════════════════════════════ */
-let briefingLoading = false;
-let briefingDate    = null;
-// Persistito in localStorage per evitare reset spuri ad ogni refresh dopo le 04:00
-let briefingResetDate = localStorage.getItem('rico_briefing_reset') || null;
-
-/* Reset chat alle 4:00 svizzere: notte profonda, garantito chat nuova al mattino */
-function checkNightReset() {
-  const swissH = parseInt(new Date().toLocaleString('en-US', {timeZone:'Europe/Zurich', hour:'2-digit', hour12:false}));
-  const swissDateStr = new Date().toLocaleDateString('sv-SE', {timeZone:'Europe/Zurich'}); // YYYY-MM-DD
-  if (swissH >= 4 && briefingResetDate !== swissDateStr) {
-    // Salva memoria PRIMA di resettare — copia snapshot sincrona
-    const _histSnap = chatHistory.slice();
-    saveMemory(_histSnap).catch(()=>{});
-    chatHistory    = [];
-    briefingDate   = null;
-    briefingResetDate = swissDateStr;
-    try { localStorage.setItem('rico_briefing_reset', swissDateStr); } catch(e) { /* quota ignora */ }
-    if (typeof scheduledNotifIds !== 'undefined') scheduledNotifIds.clear();
-    // Purge chat localStorage dei giorni precedenti
-    if (typeof purgeOldChats === 'function') purgeOldChats();
-    // Pulisci UI chat
-    ['d','m'].forEach(p => {
-      const msgs = $(p+'ChatMsgs'); if(msgs) msgs.innerHTML = '';
-      const box  = $(p+'AiBox');   if(box)  { box.innerHTML=''; box.classList.remove('show'); }
-      const conf = $(p+'ChatConfirm'); if(conf){ conf.style.display='none'; conf.innerHTML=''; }
-    });
-  }
-}

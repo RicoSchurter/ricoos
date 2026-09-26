@@ -1,21 +1,4 @@
 /* ═══ COSTANTI JASPER ═══ */
-const JASPER_MILESTONES = [
-  {m:0,  e:'🎂', l:'Nascita'},
-  {m:1,  e:'👁',  l:'Fissa'},
-  {m:2,  e:'😊', l:'Sorride'},
-  {m:3,  e:'🦒', l:'Regge la testa'},
-  {m:4,  e:'😄', l:'Ride'},
-  {m:5,  e:'🔄', l:'Si gira'},
-  {m:6,  e:'🪑', l:'Siede'},
-  {m:7,  e:'🫳', l:'Prende oggetti'},
-  {m:8,  e:'💬', l:'Lallazione'},
-  {m:9,  e:'🐛', l:'Gattona'},
-  {m:10, e:'🧗', l:'Si tira su'},
-  {m:12, e:'👣', l:'Primi passi'},
-  {m:15, e:'🚶', l:'Cammina'},
-  {m:18, e:'💬', l:'Parola'},
-  {m:24, e:'🗣', l:'Frasi'},
-];
 
 const JASPER_PHRASES = [
   'Ogni settimana Jasper scopre qualcosa di nuovo — sei lì a vederlo tutto.',
@@ -35,6 +18,7 @@ let jasperCalMonth = null; // {year, month} per il calendario
 let _jasperRendering = false;
 
 function jasperSetTab(tab) {
+  if (tab !== 'oggi' && tab !== 'storico' && tab !== 'crescita') tab = 'oggi';
   jasperTab = tab;
   // Se renderJasper e ancora in corso, aspetta che finisca prima di renderizzare il sub-tab
   if (_jasperRendering) {
@@ -45,7 +29,6 @@ function jasperSetTab(tab) {
   document.querySelectorAll('.jas-tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === tab));
   if (tab === 'storico') renderJasperStorico();
   if (tab === 'crescita') renderJasperCrescita();
-  if (tab === 'cibo') renderJasperCibo();
 }
 
 /* ── Età ── */
@@ -110,9 +93,9 @@ function hhmmPickerHTML(idPrefix, hhmm, opts){
     : '';
   const placeholder = o.allowEmpty ? ' placeholder="--"' : '';
   return `<div class="jas-hhmm-picker">
-    <input type="number" min="0" max="23" step="1" inputmode="numeric" class="jas-hhmm-inp" id="${idPrefix}H" value="${hh}"${placeholder}>
+    <input type="number" min="0" max="23" step="1" inputmode="numeric" class="jas-hhmm-inp" id="${idPrefix}H" value="${hh}"${placeholder} oninput="this.dataset.touched='1'">
     <span class="jas-hhmm-sep">:</span>
-    <input type="number" min="0" max="59" step="1" inputmode="numeric" class="jas-hhmm-inp" id="${idPrefix}M" value="${mm}"${placeholder}>
+    <input type="number" min="0" max="59" step="1" inputmode="numeric" class="jas-hhmm-inp" id="${idPrefix}M" value="${mm}"${placeholder} oninput="this.dataset.touched='1'">
     ${nowBtn}
   </div>`;
 }
@@ -134,21 +117,201 @@ function jasperHHMMPickerNow(idPrefix){
   const [h,m] = now.split(':');
   const hEl = document.getElementById(idPrefix+'H');
   const mEl = document.getElementById(idPrefix+'M');
-  if(hEl) hEl.value = String(parseInt(h,10)).padStart(2,'0');
-  if(mEl) mEl.value = String(parseInt(m,10)).padStart(2,'0');
+  if(hEl){ hEl.value = String(parseInt(h,10)).padStart(2,'0'); hEl.dataset.touched = '1'; }
+  if(mEl){ mEl.value = String(parseInt(m,10)).padStart(2,'0'); mEl.dataset.touched = '1'; }
 }
 
-async function saveJasperEntry(date,data){
-  const key=jasperDiaryKey(date);
-  stData[key]=data;
-  // localStorage = source of truth: always write synchronously
-  localStorage.setItem('rico_st',JSON.stringify(stData));
-  // Supabase = backup sync: fire-and-forget with logging
-  sbFetch('startup_data',{
-    method:'POST',
-    prefer:'resolution=merge-duplicates,return=minimal',
-    body:JSON.stringify({id:key,data})
-  }).catch(e => console.warn('saveJasperEntry Supabase sync failed (localStorage OK):', e));
+/* ── Salvataggio sicuro di un giorno del diario ──
+   Rilegge la versione aggiornata dal server (stMutate) e applica la modifica su quella:
+   niente più sovrascritture partendo da dati vecchi o vuoti.
+   fn riceve l'entry del giorno e ritorna false per annullare. */
+function _jasNormEntry(e){
+  if(!e || typeof e !== 'object') e = {};
+  if(!Array.isArray(e.sleeps)) e.sleeps = [];
+  if(!Array.isArray(e.meals)) e.meals = [];
+  if(!Array.isArray(e.notes)) e.notes = [];
+  if(!('lastMeal' in e)) e.lastMeal = null;
+  return e;
+}
+async function jasperMutateDay(date, fn){
+  const key = jasperDiaryKey(date);
+  const val = await stMutate(key, e => fn(_jasNormEntry(e)), () => ({notes:[],meals:[],sleeps:[],lastMeal:null}));
+  if (stData[key]) jasperDiary[date] = _jasNormEntry(JSON.parse(JSON.stringify(stData[key])));
+  return val;
+}
+
+/* ── Tempo assoluto dei sonni (anche a cavallo della mezzanotte) ── */
+const _HHMM_RE = /^\d{2}:\d{2}$/;
+function jasAbs(iso, hhmm){
+  const [y,m,d] = iso.split('-').map(Number);
+  const [h,mi] = (hhmm || '00:00').split(':').map(Number);
+  return new Date(y, m-1, d, h, mi, 0, 0);
+}
+function jasHHMM(dt){ return String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0'); }
+function _fmtDur(min){ return min < 1 ? '0 min' : formatMin(Math.round(min)); }
+function _median(a){
+  if(!a.length) return null;
+  const s = [...a].sort((x,y) => x-y), m = Math.floor(s.length/2);
+  return s.length % 2 ? s[m] : Math.round((s[m-1] + s[m]) / 2);
+}
+/* Notte = sonno che passa la mezzanotte o dura almeno 4 ore.
+   Sonno in corso: notte se è iniziato dopo le 18:00 o prima delle 05:00. */
+function jasIsNight(x){
+  if (x.en) return dateToISO(x.en) !== dateToISO(x.st) || (x.en - x.st) / 60000 >= 240;
+  const h = x.st.getHours();
+  return h >= 18 || h < 5;
+}
+/* Tutti i sonni registrati tra due date, come intervalli con inizio/fine reali, ordinati */
+function jasperIntervals(fromISO, toISO){
+  const out = [];
+  const d = new Date(fromISO + 'T12:00:00');
+  const end = new Date(toISO + 'T12:00:00');
+  while (d <= end) {
+    const iso = dateToISO(d);
+    const e = stData[jasperDiaryKey(iso)];
+    ((e && Array.isArray(e.sleeps)) ? e.sleeps : []).forEach(s => {
+      if (!s || !_HHMM_RE.test(s.start || '')) return;
+      const st = jasAbs(iso, s.start);
+      let en = null;
+      if (s.end && _HHMM_RE.test(s.end)) {
+        en = jasAbs(iso, s.end);
+        if (en <= st) en = new Date(en.getTime() + 86400000);
+      }
+      out.push({day: iso, start: s.start, end: en ? s.end : null, st, en});
+    });
+    d.setDate(d.getDate() + 1);
+  }
+  out.sort((a, b) => a.st - b.st);
+  out.forEach(x => { x.night = jasIsNight(x); });
+  return out;
+}
+/* Veglia tipica (mediana ultimi 14 giorni): dal risveglio al 1° pisolino e dopo un pisolino */
+function jasperWakeStats(){
+  const iv = jasperIntervals(dateToISO(new Date(Date.now() - 15*86400000)), toISO()).filter(x => x.en);
+  const morning = [], other = [];
+  for (let i = 1; i < iv.length; i++) {
+    const g = (iv[i].st - iv[i-1].en) / 60000;
+    if (g <= 10 || g >= 8*60) continue; // oltre 8h = dati mancanti, non veglia
+    if (iv[i-1].night) { if (!iv[i].night) morning.push(g); }
+    else other.push(g);
+  }
+  return {
+    morning: morning.length >= 5 ? _median(morning) : null,
+    other:   other.length   >= 5 ? _median(other)   : null
+  };
+}
+/* Intervallo tipico tra due pasti (mediana ultimi 7 giorni, esclusi i buchi della notte) */
+function jasperMealStats(){
+  const pts = [];
+  for (let i = 7; i >= 0; i--) {
+    const iso = dateToISO(new Date(Date.now() - i*86400000));
+    const e = stData[jasperDiaryKey(iso)];
+    ((e && e.meals) || []).forEach(m => { if (m && _HHMM_RE.test(m.hhmm || '')) pts.push(jasAbs(iso, m.hhmm)); });
+  }
+  pts.sort((a, b) => a - b);
+  const gaps = [];
+  for (let i = 1; i < pts.length; i++) {
+    const g = (pts[i] - pts[i-1]) / 60000;
+    if (g >= 30 && g <= 8*60) gaps.push(g);
+  }
+  return gaps.length >= 5 ? _median(gaps) : null;
+}
+function jasperAgeLabel(months, days){
+  const dd = days > 0 ? days + ' giorn' + (days === 1 ? 'o' : 'i') : '';
+  if (months < 12) {
+    const mm = months + ' mes' + (months === 1 ? 'e' : 'i');
+    return dd ? mm + ' e ' + dd : mm;
+  }
+  const y = Math.floor(months / 12), m = months % 12;
+  const parts = [y + (y === 1 ? ' anno' : ' anni')];
+  if (m) parts.push(m + ' mes' + (m === 1 ? 'e' : 'i'));
+  if (dd) parts.push(dd);
+  return parts.length === 1 ? parts[0] : parts.slice(0, -1).join(', ') + ' e ' + parts[parts.length - 1];
+}
+/* Riepilogo di un giorno: notte finita quel mattino, pisolini, pasti */
+function jasperDaySummary(iso){
+  const prev = dateToISO(new Date(new Date(iso + 'T12:00:00').getTime() - 86400000));
+  const iv = jasperIntervals(prev, iso);
+  const night = iv.find(x => x.night && x.en && dateToISO(x.en) === iso) || null;
+  const naps = iv.filter(x => x.day === iso && !x.night && x.en);
+  const napMin = naps.reduce((s, x) => s + (x.en - x.st) / 60000, 0);
+  const e = stData[jasperDiaryKey(iso)] || {};
+  return {night, naps, napMin: Math.round(napMin), meals: (e.meals || []).length};
+}
+function jasperDaySummaryText(iso){
+  const s = jasperDaySummary(iso);
+  const n = s.night ? `Notte ${_fmtDur((s.night.en - s.night.st) / 60000)} (${s.night.start}→${s.night.end})` : 'Notte non registrata';
+  return `${n} · ${s.naps.length} pisolin${s.naps.length === 1 ? 'o' : 'i'} (${_fmtDur(s.napMin)}) · ${s.meals} past${s.meals === 1 ? 'o' : 'i'}`;
+}
+
+/* ── Aggiornamento senza cancellare quello che Anissa sta scrivendo ── */
+function jasperUserBusy(){
+  const host = jasperActive();
+  if (!host) return false;
+  const ae = document.activeElement;
+  if (ae && host.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return true;
+  const note = host.querySelector('#jasNoteInp');
+  if (note && note.value.trim()) return true;
+  const form = host.querySelector('#jasManualSleepForm');
+  if (form && form.style.display === 'block') return true;
+  if (host.querySelector('.jas-hhmm-inp[data-touched="1"]')) return true;
+  const pop = document.getElementById('jasperDayPopup');
+  if (pop && pop.classList.contains('open')) return true;
+  return false;
+}
+function jasperSoftRefresh(){
+  if (currentView !== 'jasper') return;
+  if (jasperUserBusy()) return;
+  renderJasper();
+}
+
+/* ── Grafici SVG (nessuna libreria esterna) ── */
+function jasSvgBars(vals, labels, opts){
+  const W = 320, H = 120, padB = 16, padT = 14;
+  const n = vals.length;
+  const gap = n > 40 ? 1 : n > 14 ? 2 : 4;
+  const valid = vals.filter(v => v != null);
+  const max = Math.max(opts.min || 1, ...(valid.length ? valid : [0]));
+  const bw = (W - gap * (n - 1)) / n;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.title || '')}">`;
+  vals.forEach((v, i) => {
+    const x = i * (bw + gap);
+    if (v == null) { s += `<rect x="${x.toFixed(1)}" y="${H - padB - 2}" width="${bw.toFixed(1)}" height="2" fill="#2a2010"/>`; return; }
+    const h = Math.max(2, (v / max) * (H - padB - padT));
+    const y = H - padB - h;
+    s += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${opts.color}"/>`;
+    if (n <= 14) s += `<text x="${(x + bw/2).toFixed(1)}" y="${(y - 3).toFixed(1)}" font-size="9" text-anchor="middle" fill="#c9a860">${opts.fmt(v)}</text>`;
+  });
+  labels.forEach((l, i) => {
+    if (!l) return;
+    const x = i * (bw + gap) + bw / 2;
+    s += `<text x="${x.toFixed(1)}" y="${H - 3}" font-size="9" text-anchor="middle" fill="#8a7050">${esc(l)}</text>`;
+  });
+  return s + '</svg>';
+}
+function jasSvgWeight(list){
+  const pts = list.filter(w => w && isValidDate(w.date) && typeof w.kg === 'number').sort((a,b) => a.date.localeCompare(b.date));
+  if (pts.length < 2) return '';
+  const W = 320, H = 150, pl = 30, pr = 10, pt = 14, pb = 22;
+  const t0 = new Date(pts[0].date + 'T12:00:00').getTime();
+  const t1 = new Date(pts[pts.length-1].date + 'T12:00:00').getTime();
+  const kmin = Math.min(...pts.map(p => p.kg)) - 0.2, kmax = Math.max(...pts.map(p => p.kg)) + 0.2;
+  const X = t => pl + (t1 === t0 ? 0 : (t - t0) / (t1 - t0)) * (W - pl - pr);
+  const Y = k => pt + (1 - (k - kmin) / (kmax - kmin)) * (H - pt - pb);
+  const xy = pts.map(p => [X(new Date(p.date + 'T12:00:00').getTime()), Y(p.kg)]);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Curva del peso">`;
+  [kmin + 0.2, (kmin + kmax) / 2, kmax - 0.2].forEach(k => {
+    s += `<line x1="${pl}" x2="${W - pr}" y1="${Y(k).toFixed(1)}" y2="${Y(k).toFixed(1)}" stroke="#2a2010" stroke-width="1"/>`;
+    s += `<text x="${pl - 4}" y="${(Y(k) + 3).toFixed(1)}" font-size="9" text-anchor="end" fill="#8a7050">${k.toFixed(1)}</text>`;
+  });
+  s += `<polyline fill="none" stroke="#d4a843" stroke-width="2" points="${xy.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')}"/>`;
+  xy.forEach(p => { s += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.5" fill="#f0c860"/>`; });
+  const lbl = d => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {day:'numeric', month:'short', year:'2-digit'});
+  s += `<text x="${pl}" y="${H - 5}" font-size="9" fill="#8a7050">${esc(lbl(pts[0].date))}</text>`;
+  s += `<text x="${W - pr}" y="${H - 5}" font-size="9" text-anchor="end" fill="#8a7050">${esc(lbl(pts[pts.length-1].date))}</text>`;
+  const last = xy[xy.length - 1];
+  s += `<text x="${(last[0] - 4).toFixed(1)}" y="${(last[1] - 7).toFixed(1)}" font-size="10" text-anchor="end" fill="#f0c860">${pts[pts.length-1].kg} kg</text>`;
+  return s + '</svg>';
 }
 
 /* ── Render principale ── */
@@ -168,19 +331,21 @@ async function renderJasper(){
 
   const{months,days,totalD}=jasperAgeDetails();
   const today=toISO();
+  const yISO=dateToISO(new Date(Date.now()-86400000));
+  const nowD=new Date();
   const entry=await loadJasperDiary(today);
   jasperDiary[today]=entry;
 
   const phrase=JASPER_PHRASES[Math.floor(totalD/7)%JASPER_PHRASES.length];
   const ageEmoji=months<3?'👶':months<6?'🍼':months<9?'🧸':months<12?'🐣':'👦';
-  const ageStr=months+' mes'+(months===1?'e':'i')+(days>0?' e '+days+' giorn'+(days===1?'o':'i'):'');
+  const ageStr=jasperAgeLabel(months,days);
 
   // Pasti di oggi (ordinati per ora, piu recente in cima)
   const meals=(entry.meals||[]).slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
   const mealsListHtml=meals.length
     ? meals.map((m,i)=>{
         const note = esc(m.note||'');
-        return `<div class="jas-meal-row" onclick="jasperEditMealNote(${i})" title="Tocca per nota">
+        return `<div class="jas-meal-row" onclick="jasperEditMealNote(${i})" title="Tocca per modificare">
           <div class="jas-meal-info">
             <span class="jas-meal-time">🍼 ${esc(m.hhmm||'?')}</span>
             ${note ? `<span class="jas-meal-note">${note}</span>` : `<span class="jas-meal-note-empty">+ nota</span>`}
@@ -190,78 +355,76 @@ async function renderJasper(){
       }).join('')
     : '<div class="jas-meal-empty">Nessun pasto registrato oggi</div>';
 
-  // Ultimo pasto (tempo fa)
-  const lastMealTime = meals.length ? meals[0].hhmm : null;
-  function timeAgoFromHHMM(hhmm){
-    if(!hhmm) return '—';
-    const [h,m]=hhmm.split(':').map(Number);
-    const now=new Date();
-    const mealDate=new Date();
-    mealDate.setHours(h,m,0,0);
-    const diffMin=Math.max(0,Math.floor((now-mealDate)/60000));
-    if(diffMin<1) return 'adesso';
-    if(diffMin<60) return diffMin+' min fa';
-    const hh=Math.floor(diffMin/60), mm=diffMin%60;
-    return hh+'h'+(mm>0?' '+mm+'min':'')+' fa';
+  // Ultimo pasto: se oggi non ha ancora mangiato, guarda ieri sera
+  let lastMealTime=null, lastMealAt=null, lastMealYesterday=false;
+  if(meals.length && _HHMM_RE.test(meals[0].hhmm||'')){
+    lastMealTime=meals[0].hhmm; lastMealAt=jasAbs(today,lastMealTime);
+  } else {
+    const ye=stData[jasperDiaryKey(yISO)];
+    const ym=((ye&&ye.meals)||[]).map(m=>m&&m.hhmm).filter(h=>_HHMM_RE.test(h||'')).sort().pop();
+    if(ym){ lastMealTime=ym; lastMealAt=jasAbs(yISO,ym); lastMealYesterday=true; }
   }
-  const lastMealAgo = timeAgoFromHHMM(lastMealTime);
+  const agoTxt=dt=>{ const mn=Math.max(0,Math.floor((nowD-dt)/60000)); return mn<1?'adesso':formatMin(mn)+' fa'; };
+  const mealGap=jasperMealStats();
+  const lastMealSub=lastMealAt
+    ? `${lastMealYesterday?'ieri · ':''}<span data-since="${lastMealAt.getTime()}" data-fmt="ago">${agoTxt(lastMealAt)}</span> · ${meals.length} past${meals.length===1?'o':'i'} oggi`
+    : 'nessun pasto registrato';
 
   // Ora corrente per default del time picker
   const nowHHMM = new Date().toLocaleTimeString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
 
-  // ── SONNO / Pisolini ──
-  const sleeps = entry.sleeps || [];
-  const opening = openingSleep(entry);
-  const completedSleeps = sleeps.filter(s => s.start && s.end).slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
-  const lastCompleted = completedSleeps.length ? completedSleeps[completedSleeps.length-1] : null;
+  // ── SONNO: ieri + oggi come intervalli reali (la notte è salvata sul giorno in cui inizia) ──
+  const iv=jasperIntervals(yISO,today).filter(x=>x.st<=nowD);
+  const openIv=[...iv].reverse().find(x=>!x.en)||null;
+  const doneIv=iv.filter(x=>x.en&&x.en<=nowD);
+  const lastDone=doneIv.length?doneIv[doneIv.length-1]:null;
 
-  // Cross-midnight: se oggi non ha un pisolino aperto, cercane uno aperto in ieri.
-  // Il pisolino della notte resta salvato sull'entry di ieri (dove è iniziato);
-  // jasperEndSleep() ha già il fallback per chiuderlo lì. Qui lo mostriamo come
-  // attivo così il timer non appare "bloccato" al mattino.
-  let overnightOpening = null;
-  if(!opening){
-    const yesterday = dateToISO(new Date(Date.now() - 86400000));
-    const yEntry = jasperDiary[yesterday] || stData[jasperDiaryKey(yesterday)];
-    if(yEntry && Array.isArray(yEntry.sleeps)){
-      overnightOpening = yEntry.sleeps.find(s => s.start && !s.end) || null;
-    }
-  }
-
-  // Card stato sonno (sleeping / awake / mai)
   let sleepCardHtml;
-  if(opening){
-    const sleepingFor = hhmmDiffMin(opening.start, nowHHMM);
+  if(openIv){
+    const sleepingMin=Math.max(0,Math.floor((nowD-openIv.st)/60000));
+    const prev=doneIv.filter(x=>x.en<=openIv.st).pop();
+    const awakeBefore=prev?Math.floor((openIv.st-prev.en)/60000):null;
+    const hint=(awakeBefore!==null&&awakeBefore>0&&awakeBefore<8*60)
+      ? `<div class="jas-sleep-hint">Prima era sveglio ${formatMin(awakeBefore)} (dalle ${esc(prev.end)})</div>` : '';
+    const tooLong=openIv.night ? sleepingMin>15*60 : sleepingMin>180;
+    const warn=tooLong
+      ? `<div class="jas-sleep-warn">Dorme da ${formatMin(sleepingMin)}: forse "Svegliato ora" non è stato premuto?<br><button type="button" onclick="jasperEditSleepFromDay('${openIv.day}','${esc(openIv.start)}',event)">Correggi orario</button></div>` : '';
     sleepCardHtml = `<div class="jas-sleep-card sleeping">
-      <div class="jas-sleep-lbl">💤 Sta dormendo</div>
-      <div class="jas-sleep-status">da ${formatMin(sleepingFor)}</div>
-      <div class="jas-sleep-detail">iniziato alle ${esc(opening.start)}</div>
+      <div class="jas-sleep-lbl">${openIv.night?'🌙 Sta dormendo (notte)':'💤 Sta dormendo'}</div>
+      <div class="jas-sleep-status">da <span data-since="${openIv.st.getTime()}">${formatMin(sleepingMin)}</span></div>
+      <div class="jas-sleep-detail">iniziato alle ${esc(openIv.start)}${openIv.day!==today?' di ieri':''}</div>
+      ${hint}
       <button class="jas-sleep-btn wake" onclick="jasperEndSleep()" type="button">☀️ Svegliato ora</button>
+      ${warn}
     </div>`;
-  } else if(overnightOpening){
-    const sleepingFor = hhmmDiffMin(overnightOpening.start, nowHHMM);
-    sleepCardHtml = `<div class="jas-sleep-card sleeping">
-      <div class="jas-sleep-lbl">🌙 Sta dormendo (notte)</div>
-      <div class="jas-sleep-status">da ${formatMin(sleepingFor)}</div>
-      <div class="jas-sleep-detail">iniziato alle ${esc(overnightOpening.start)} di ieri</div>
-      <button class="jas-sleep-btn wake" onclick="jasperEndSleep()" type="button">☀️ Svegliato ora</button>
-    </div>`;
-  } else if(lastCompleted){
-    const awakeFor = hhmmDiffMin(lastCompleted.end, nowHHMM);
-    const duration = hhmmDiffMin(lastCompleted.start, lastCompleted.end);
+  } else if(lastDone && (nowD-lastDone.en) < 16*3600000){
+    const awakeMin=Math.max(0,Math.floor((nowD-lastDone.en)/60000));
+    const dur=Math.round((lastDone.en-lastDone.st)/60000);
+    const detail=lastDone.night
+      ? `svegliato alle ${esc(lastDone.end)} · notte ${formatMin(dur)}`
+      : `ultimo pisolino ${esc(lastDone.start)}→${esc(lastDone.end)} · ${formatMin(dur)}`;
+    const stats=jasperWakeStats();
+    const w=lastDone.night?stats.morning:stats.other;
+    let hint='';
+    if(w){
+      const due=new Date(lastDone.en.getTime()+w*60000);
+      hint = due>nowD
+        ? `<div class="jas-sleep-hint">Prossimo sonno probabile verso ${jasHHMM(due)} · di solito sveglio ${formatMin(w)} (ultimi 14 giorni)</div>`
+        : `<div class="jas-sleep-hint">Di solito a quest'ora dorme già · sveglio in media ${formatMin(w)} (ultimi 14 giorni)</div>`;
+    }
     sleepCardHtml = `<div class="jas-sleep-card">
       <div class="jas-sleep-lbl">☀️ Sveglio</div>
-      <div class="jas-sleep-status">da ${formatMin(awakeFor)}</div>
-      <div class="jas-sleep-detail">ultimo pisolino ${esc(lastCompleted.start)}→${esc(lastCompleted.end)} · ${formatMin(duration)}</div>
+      <div class="jas-sleep-status">da <span data-since="${lastDone.en.getTime()}">${formatMin(awakeMin)}</span></div>
+      <div class="jas-sleep-detail">${detail}</div>
+      ${hint}
       <button class="jas-sleep-btn" onclick="jasperStartSleep()" type="button">💤 Dorme ora</button>
     </div>`;
-  } else if(entry.woke_at){
-    // Tipicamente: mattino dopo pisolino notturno cross-midnight chiuso su ieri.
-    // Oggi non ha completati ma sappiamo l'orario di sveglia → timer "Sveglio da X".
-    const awakeFor = hhmmDiffMin(entry.woke_at, nowHHMM);
+  } else if(entry.woke_at && _HHMM_RE.test(entry.woke_at)){
+    const wokeAt=jasAbs(today,entry.woke_at);
+    const awakeMin=Math.max(0,Math.floor((nowD-wokeAt)/60000));
     sleepCardHtml = `<div class="jas-sleep-card">
       <div class="jas-sleep-lbl">☀️ Sveglio</div>
-      <div class="jas-sleep-status">da ${formatMin(awakeFor)}</div>
+      <div class="jas-sleep-status">da <span data-since="${wokeAt.getTime()}">${formatMin(awakeMin)}</span></div>
       <div class="jas-sleep-detail">svegliato alle ${esc(entry.woke_at)}</div>
       <button class="jas-sleep-btn" onclick="jasperStartSleep()" type="button">💤 Dorme ora</button>
     </div>`;
@@ -274,29 +437,38 @@ async function renderJasper(){
     </div>`;
   }
 
-  // Lista pisolini di oggi con gap di sveglia tra uno e l'altro
-  let sleepsListHtml = '';
-  if(completedSleeps.length || opening){
-    const rows = [];
-    completedSleeps.forEach((s, i) => {
-      const duration = hhmmDiffMin(s.start, s.end);
-      rows.push(`<div class="jas-sleep-row">
-        <span class="jas-sleep-time">💤 ${esc(s.start)} → ${esc(s.end)} · ${formatMin(duration)}</span>
-        <button class="jas-sleep-del" onclick="jasperDeleteSleep('${esc(s.start)}',event)" title="Rimuovi" type="button">×</button>
-      </div>`);
-      // Gap verso il prossimo (altro pisolino completato o quello in corso)
-      const next = completedSleeps[i+1] || opening;
-      if(next){
-        const gap = hhmmDiffMin(s.end, next.start);
-        rows.push(`<div class="jas-sleep-gap">↕ ${formatMin(gap)} sveglio</div>`);
+  // Lista sonno di oggi: notte finita stamattina + pisolini, con la veglia tra uno e l'altro
+  const todayRows=iv.filter(x=>x.day===today||(x.en&&dateToISO(x.en)===today)||x===openIv);
+  const napsDone=todayRows.filter(x=>x.day===today&&!x.night&&x.en).length;
+  const napOpen=todayRows.some(x=>x.day===today&&!x.night&&!x.en);
+  let sleepsListHtml='';
+  if(todayRows.length){
+    const rows=[];
+    const first=todayRows[0];
+    if(first.day===today){
+      const prevOfFirst=iv.filter(x=>x.en&&x.en<=first.st).pop();
+      if(prevOfFirst){
+        const g=Math.floor((first.st-prevOfFirst.en)/60000);
+        if(g>0&&g<8*60) rows.push(`<div class="jas-sleep-gap">↕ ${formatMin(g)} sveglio (dalle ${esc(prevOfFirst.end)})</div>`);
+      }
+    }
+    todayRows.forEach((x,i)=>{
+      const cls='jas-sleep-row'+(x.en?'':' active')+(x.night?' night':'');
+      const ico=x.night?'🌙':'💤';
+      const lbl=x.night?'Notte ':'';
+      const fromY=x.day!==today?' (ieri)':'';
+      const timeTxt=x.en
+        ? `${ico} ${lbl}${esc(x.start)}${fromY} → ${esc(x.end)} · ${formatMin(Math.round((x.en-x.st)/60000))}`
+        : `${ico} ${lbl}${esc(x.start)}${fromY} → <em>in corso</em> · <span data-since="${x.st.getTime()}">${formatMin(Math.max(0,Math.floor((nowD-x.st)/60000)))}</span>`;
+      const del=(x.day===today&&x.en)?`<button class="jas-sleep-del" onclick="jasperDeleteSleep('${esc(x.start)}',event)" title="Rimuovi" type="button">×</button>`:'';
+      rows.push(`<div class="${cls}"><span class="jas-sleep-time">${timeTxt}</span>${del}</div>`);
+      const next=todayRows[i+1];
+      if(next&&x.en){
+        const g=Math.floor((next.st-x.en)/60000);
+        if(g>0) rows.push(`<div class="jas-sleep-gap">↕ ${formatMin(g)} sveglio</div>`);
       }
     });
-    if(opening){
-      rows.push(`<div class="jas-sleep-row active">
-        <span class="jas-sleep-time">💤 ${esc(opening.start)} → <em>in corso</em> · ${formatMin(hhmmDiffMin(opening.start, nowHHMM))}</span>
-      </div>`);
-    }
-    sleepsListHtml = rows.join('');
+    sleepsListHtml=rows.join('');
   }
 
   // Note oggi
@@ -319,19 +491,19 @@ async function renderJasper(){
     <!-- Sub-tab -->
     <div class="jas-tabs">
       <button class="jas-tab active" data-tab="oggi" onclick="jasperSetTab('oggi')" type="button">📅 Oggi</button>
-      <button class="jas-tab" data-tab="cibo" onclick="jasperSetTab('cibo')" type="button">🥕 Cibo</button>
       <button class="jas-tab" data-tab="storico" onclick="jasperSetTab('storico')" type="button">🗓 Storico</button>
       <button class="jas-tab" data-tab="crescita" onclick="jasperSetTab('crescita')" type="button">📊 Crescita</button>
     </div>
 
-    <!-- TAB OGGI — Solo pasti + note -->
+    <!-- TAB OGGI -->
     <div class="jas-tab-pane active" data-pane="oggi">
 
       <!-- Ultimo pasto card -->
       <div class="jas-last-meal-card">
         <div class="jas-last-meal-lbl">⏱ Ultimo pasto</div>
         <div class="jas-last-meal-val">${lastMealTime||'—'}</div>
-        <div class="jas-last-meal-sub">${lastMealTime?lastMealAgo:'nessun pasto oggi'} · ${meals.length} pasti oggi</div>
+        <div class="jas-last-meal-sub">${lastMealSub}</div>
+        ${mealGap?`<div class="jas-last-meal-sub">di solito ogni ${formatMin(mealGap)}</div>`:''}
       </div>
 
       <!-- Aggiungi pasto -->
@@ -349,12 +521,12 @@ async function renderJasper(){
         <div class="jas-meals-rows">${mealsListHtml}</div>
       </div>
 
-      <!-- Sonno / Pisolini -->
+      <!-- Sonno -->
       <div class="jas-section-lbl" style="margin-top:8px">💤 Sonno</div>
       ${sleepCardHtml}
 
       ${sleepsListHtml ? `<div class="jas-sleeps-list">
-        <div class="jas-section-lbl">🌙 Pisolini di oggi (${completedSleeps.length}${opening?' + 1 in corso':''})</div>
+        <div class="jas-section-lbl">🌙 Sonno di oggi (${napsDone} pisolin${napsDone===1?'o':'i'}${napOpen?' + 1 in corso':''})</div>
         <div class="jas-sleeps-rows">${sleepsListHtml}</div>
       </div>` : ''}
 
@@ -373,11 +545,6 @@ async function renderJasper(){
         </div>
         <div class="jas-note-saved">${notesHtml}</div>
       </div>
-    </div>
-
-    <!-- TAB CIBO -->
-    <div class="jas-tab-pane" data-pane="cibo" id="jasCiboPane">
-      <div style="color:#6a5030;font-size:13px;text-align:center;padding:20px 0">Caricamento...</div>
     </div>
 
     <!-- TAB STORICO -->
@@ -401,51 +568,36 @@ async function renderJasper(){
   requestAnimationFrame(() => { window.scrollTo(0, _scrollY); });
   // Ripristina tab attivo
   if(jasperTab!=='oggi') setTimeout(()=>jasperSetTab(jasperTab),0);
-  // Avvia live tick se c'e un pisolino attivo (auto-update durata)
+  // Aggiorna i tempi ogni 30 secondi senza ridisegnare la pagina
   startSleepTick();
   } catch(err) {
     _jasperRendering = false;
     console.error('renderJasper error:', err);
     const active = jasperActive();
-    if(active) active.innerHTML='<div style="padding:20px;color:#e06060;font-size:13px">Errore caricamento: '+err.message+'</div>';
+    if(active) active.innerHTML='<div style="padding:20px;color:#e06060;font-size:13px">Errore caricamento: '+esc(err.message)+'</div>';
   }
 }
 
 /* ── Live tick per sezione Sonno (aggiorna durate mentre Jasper dorme) ── */
 let _sleepTickInterval = null;
+let _jasTickCount = 0;
 function startSleepTick(){
   if(_sleepTickInterval) return;
+  // Ogni 30 secondi aggiorna solo i numeri dei tempi (niente ridisegno: non cancella
+  // quello che si sta scrivendo). Ogni 5 minuti ridisegna, ma solo se nessuno sta scrivendo.
   _sleepTickInterval = setInterval(() => {
-    // Solo se siamo su tab Oggi Jasper e c'e un pisolino attivo
-    if(jasperTab !== 'oggi') return;
-    const today = toISO();
-    const entry = jasperDiary[today] || stData[jasperDiaryKey(today)];
-    const hasTodayOpen = entry && (entry.sleeps||[]).some(s => s.start && !s.end);
-    // Cross-midnight: mantieni vivo il tick se ieri ha un pisolino aperto
-    // (pisolino notturno iniziato prima di mezzanotte, non ancora chiuso).
-    let hasOvernightOpen = false;
-    if(!hasTodayOpen){
-      const yesterday = dateToISO(new Date(Date.now() - 86400000));
-      const yEntry = jasperDiary[yesterday] || stData[jasperDiaryKey(yesterday)];
-      hasOvernightOpen = !!(yEntry && (yEntry.sleeps||[]).some(s => s.start && !s.end));
-    }
-    // Tick anche quando baby è sveglio, per aggiornare "Sveglio da X":
-    // sia dopo un pisolino diurno (lastCompleted) sia dopo quello notturno (woke_at).
-    const hasAwakeTimer = !hasTodayOpen && !hasOvernightOpen && entry && (
-      (entry.sleeps||[]).some(s => s.start && s.end) || entry.woke_at
-    );
-    if(!hasTodayOpen && !hasOvernightOpen && !hasAwakeTimer){
-      // Niente da aggiornare → stop tick
-      clearInterval(_sleepTickInterval);
-      _sleepTickInterval = null;
-      return;
-    }
-    // Re-render solo se la view Jasper e visibile
-    const active = jasperActive();
-    if(active && active.querySelector('.jasper-page')){
-      renderJasper();
-    }
-  }, 30000); // ogni 30 secondi
+    const host = jasperActive();
+    if(!host || !host.querySelector('.jasper-page')) return;
+    const now = Date.now();
+    host.querySelectorAll('[data-since]').forEach(el => {
+      const ts = +el.dataset.since;
+      if(!ts) return;
+      const min = Math.max(0, Math.floor((now - ts) / 60000));
+      el.textContent = el.dataset.fmt === 'ago' ? (min < 1 ? 'adesso' : formatMin(min) + ' fa') : formatMin(min);
+    });
+    _jasTickCount++;
+    if(_jasTickCount % 10 === 0) jasperSoftRefresh();
+  }, 30000);
 }
 
 /* ── Helpers per evitare ID duplicati su dual-pane ── */
@@ -459,7 +611,98 @@ function jasperPane(name) {
   return jasperActive()?.querySelector(`[data-pane="${name}"]`);
 }
 
-/* ── Storico calendario + Timeline milestone + Chart 7gg + Umore Anissa ── */
+/* ── Storico: serie sonno per i grafici ── */
+let jasperSleepRange = 7;
+function jasperSetSleepRange(n){ jasperSleepRange = n; renderJasperStorico(); }
+
+/* Serie giornaliera sonno: pisolini (min, numero) e notte che inizia quel giorno */
+function jasperSleepSeries(days){
+  const today = toISO();
+  const iv = jasperIntervals(dateToISO(new Date(Date.now() - (days + 1) * 86400000)), today);
+  const out = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const iso = dateToISO(new Date(Date.now() - i * 86400000));
+    const dayIv = iv.filter(x => x.day === iso);
+    const naps = dayIv.filter(x => !x.night && x.en);
+    const night = dayIv.find(x => x.night && x.en) || null;
+    // Veglia dal risveglio (fine notte precedente) al primo pisolino
+    const prevNight = iv.find(x => x.night && x.en && dateToISO(x.en) === iso);
+    const firstNap = naps[0];
+    const morningWake = (prevNight && firstNap && firstNap.st > prevNight.en) ? (firstNap.st - prevNight.en) / 60000 : null;
+    out.push({
+      iso,
+      hasData: dayIv.length > 0,
+      napMin: naps.reduce((s, x) => s + (x.en - x.st) / 60000, 0),
+      naps: naps.length,
+      nightMin: night ? (night.en - night.st) / 60000 : null,
+      morningWake: (morningWake !== null && morningWake < 8 * 60) ? morningWake : null
+    });
+  }
+  return out;
+}
+
+function jasperSleepChartsHTML(){
+  const days = jasperSleepRange;
+  const series = jasperSleepSeries(days);
+  const withData = series.filter(d => d.hasData);
+  const avg = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : null;
+  const napsPerDay = avg(withData.map(d => d.naps));
+  const napDurs = [];
+  const nightMins = withData.map(d => d.nightMin).filter(v => v != null);
+  series.forEach(d => { if (d.naps) napDurs.push(d.napMin / d.naps); });
+  const avgNapDur = avg(napDurs);
+  const avgNight = avg(nightMins);
+  const wake = _median(withData.map(d => d.morningWake).filter(v => v != null));
+  const h1 = v => (v / 60).toFixed(1).replace('.', ',') + 'h';
+
+  // 7 e 30 giorni: una barra per giorno. 90 giorni: media per settimana.
+  let napVals, nightVals, labels;
+  if (days <= 30) {
+    // Oggi è ancora in corso: senza pisolini finiti la barra resta vuota (non "0 ore")
+    napVals   = series.map(d => (d.hasData && !(d.iso === toISO() && !d.naps)) ? d.napMin : null);
+    nightVals = series.map(d => d.nightMin);
+    labels = series.map((d, i) => {
+      const dt = new Date(d.iso + 'T12:00:00');
+      if (days <= 7) return dt.toLocaleDateString('it-IT', {weekday:'short'}).slice(0, 2);
+      return (i % 5 === 0 || i === series.length - 1) ? String(dt.getDate()) : '';
+    });
+  } else {
+    napVals = []; nightVals = []; labels = [];
+    for (let i = 0; i < series.length; i += 7) {
+      const w = series.slice(i, i + 7);
+      const wd = w.filter(d => d.hasData);
+      napVals.push(wd.length ? avg(wd.map(d => d.napMin)) : null);
+      const wn = w.map(d => d.nightMin).filter(v => v != null);
+      nightVals.push(wn.length ? avg(wn) : null);
+      const dt = new Date(w[0].iso + 'T12:00:00');
+      labels.push((i / 7) % 3 === 0 ? dt.toLocaleDateString('it-IT', {day:'numeric', month:'numeric'}) : '');
+    }
+  }
+  const rangeBtn = n => `<button type="button" class="${days === n ? 'on' : ''}" onclick="jasperSetSleepRange(${n})">${n === 7 ? 'Settimana' : n === 30 ? 'Mese' : '3 mesi'}</button>`;
+  if (!withData.length) {
+    return `<div class="jas-section-lbl">💤 Sonno</div><div class="jas-range">${rangeBtn(7)}${rangeBtn(30)}${rangeBtn(90)}</div>
+      <div style="text-align:center;padding:16px 0;color:#4a3820;font-size:13px;font-style:italic">Nessun sonno registrato in questo periodo</div>`;
+  }
+  return `<div class="jas-section-lbl">💤 Sonno</div>
+    <div class="jas-range">${rangeBtn(7)}${rangeBtn(30)}${rangeBtn(90)}</div>
+    <div class="jas-stats">
+      <div class="jas-stat"><div class="jas-stat-val">${napsPerDay != null ? napsPerDay.toFixed(1).replace('.', ',') : '—'}</div><div class="jas-stat-lbl">Pisolini al giorno</div></div>
+      <div class="jas-stat"><div class="jas-stat-val">${avgNapDur != null ? formatMin(Math.round(avgNapDur)) : '—'}</div><div class="jas-stat-lbl">Durata pisolino</div></div>
+      <div class="jas-stat"><div class="jas-stat-val">${avgNight != null ? formatMin(Math.round(avgNight)) : '—'}</div><div class="jas-stat-lbl">Notte media</div></div>
+      <div class="jas-stat"><div class="jas-stat-val">${wake != null ? formatMin(Math.round(wake)) : '—'}</div><div class="jas-stat-lbl">Sveglio prima del 1° pisolino</div></div>
+    </div>
+    <div class="jas-chart-box">
+      <div class="jas-chart-ttl">☀️ Sonno di giorno${days > 30 ? ' · media per settimana' : ''}</div>
+      ${jasSvgBars(napVals, labels, {color:'#d4a843', fmt:h1, min:60, title:'Sonno di giorno'})}
+    </div>
+    <div class="jas-chart-box">
+      <div class="jas-chart-ttl">🌙 Notte${days > 30 ? ' · media per settimana' : ''}</div>
+      ${jasSvgBars(nightVals, labels, {color:'#7a6ab0', fmt:h1, min:60, title:'Notte'})}
+      <div class="jas-chart-note">La notte è segnata sul giorno in cui inizia. Barre vuote: giorni senza dati.</div>
+    </div>`;
+}
+
+/* ── Storico: calendario + grafici sonno + pasti ultimi 7 giorni ── */
 async function renderJasperStorico(){
   const pane=jasperPane('storico');
   const now=new Date();
@@ -468,14 +711,15 @@ async function renderJasperStorico(){
   const firstDay=new Date(year,month,1);
   const lastDay=new Date(year,month+1,0);
   const today=toISO();
-  const limit180=dateToISO(new Date(Date.now()-180*86400000));
+  // Primo giorno con dati: nessun limite di 180 giorni, lo storico resta tutto consultabile
+  const diaryDays=Object.keys(stData).filter(k=>k.startsWith('jasper_diary_')).map(k=>k.slice(13)).filter(isValidDate).sort();
+  const firstData=diaryDays[0]||today;
 
   // Intestazione mese
   const mLbl=firstDay.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
-  const canPrev=dateToISO(new Date(year,month,1))>limit180;
+  const canPrev=dateToISO(new Date(year,month,1))>firstData;
   const canNext=new Date(year,month+1,1)<=new Date(now.getFullYear(),now.getMonth()+1,1);
 
-  // Giorni vuoti prima del primo giorno
   let startDow=(firstDay.getDay()+6)%7; // lun=0
   let calHtml='<div class="jas-cal-hdr">';
   calHtml+=`<button class="jas-cal-nav" onclick="jasperCalNav(-1)" ${!canPrev?'disabled style="opacity:.3"':''}>‹</button>`;
@@ -488,19 +732,17 @@ async function renderJasperStorico(){
   for(let d=1;d<=lastDay.getDate();d++){
     const iso=dateToISO(new Date(year,month,d));
     const isFuture=iso>today;
-    const isPast180=iso<limit180;
+    const isBefore=iso<firstData;
     const e=stData[jasperDiaryKey(iso)]||{};
-    const mealsCount=(e.meals||[]).length;
-    const notesCount=(e.notes||[]).length;
-    const hasData=!!(mealsCount||notesCount);
+    const hasData=!!((e.meals||[]).length||(e.notes||[]).length||(e.sleeps||[]).length);
     const isToday=iso===today;
     const cls=[
-      isFuture||isPast180?'future':'',
-      hasData&&!isFuture&&!isPast180?'has-data':'',
+      isFuture||isBefore?'future':'',
+      hasData&&!isFuture?'has-data':'',
       isToday?'today':'',
     ].filter(Boolean).join(' ');
     const dot=hasData&&!isFuture?'<div class="jas-cal-dot"></div>':'';
-    calHtml+=`<button class="jas-cal-day ${cls}" onclick="${isFuture||isPast180?'':`openJasperDayPopup('${iso}')`}" type="button">${d}${dot}</button>`;
+    calHtml+=`<button class="jas-cal-day ${cls}" onclick="${isFuture||isBefore?'':`openJasperDayPopup('${iso}')`}" type="button">${d}${dot}</button>`;
   }
   calHtml+='</div>';
 
@@ -532,7 +774,9 @@ async function renderJasperStorico(){
     }
   </div>`;
 
-  const html=calHtml+weekChartHtml;
+  let sleepHtml='';
+  try { sleepHtml=jasperSleepChartsHTML(); } catch(e) { console.error('grafici sonno:', e); }
+  const html=calHtml+'<div style="margin-top:22px">'+sleepHtml+'</div>'+weekChartHtml;
   if(pane) pane.innerHTML=html;
 }
 
@@ -544,23 +788,11 @@ function jasperCalNav(dir){
   renderJasperStorico();
 }
 
-/* ── Crescita: peso + milestone custom ── */
+/* ── Crescita: peso ── */
 async function renderJasperCrescita(){
   const pane=jasperPane('crescita');
-  const weights=(stData['jasper_weights']||{list:[]}).list;
-  const sorted=[...weights].sort((a,b)=>a.date.localeCompare(b.date));
-  const maxW=sorted.length?Math.max(...sorted.map(w=>w.kg)):6;
-  const minW=sorted.length?Math.min(...sorted.map(w=>w.kg))-0.5:3;
-
-  const barHtml=sorted.slice(-10).map(w=>{
-    const pct=Math.round(((w.kg-minW)/(maxW-minW+0.1))*100);
-    const dlbl=new Date(w.date+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'});
-    return `<div style="display:flex;flex-direction:column;align-items:center;flex:1">
-      <div style="font-size:10px;color:#d4a843;margin-bottom:4px">${w.kg}</div>
-      <div class="jas-weight-bar" style="height:${Math.max(8,pct)}%;width:100%;min-height:8px"></div>
-      <div class="jas-weight-bar-lbl">${dlbl}</div>
-    </div>`;
-  }).join('');
+  const weights=(stData['jasper_weights']||{list:[]}).list||[];
+  const sorted=[...weights].filter(w=>w&&w.date).sort((a,b)=>a.date.localeCompare(b.date));
 
   const listHtml=sorted.slice().reverse().slice(0,15).map((w,i)=>{
     const dlbl=new Date(w.date+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'long'});
@@ -572,12 +804,7 @@ async function renderJasperCrescita(){
     </div>`;
   }).join('');
 
-  // ── Milestone custom ──
-  const cms=jasperCustomMilestones();
-  const cmsHtml=cms.list.length
-    ?cms.list.map((m,i)=>`<div class="jas-custom-ms-item"><span>✦</span><span>${esc(m.text)}</span><span class="jas-custom-ms-date">${m.label||m.date}</span><button class="jas-custom-ms-del" onclick="jasperDeleteMilestone(${i})">×</button></div>`).join('')
-    :'<div style="font-size:12px;color:#4a3820;padding:8px 0">Nessuna milestone personale ancora</div>';
-
+  const chart=jasSvgWeight(sorted);
   const html=`<div>
     <div class="jas-section-lbl">⚖ Registra peso</div>
     <div class="jas-weight-inp-row">
@@ -586,233 +813,14 @@ async function renderJasperCrescita(){
       <input class="jas-weight-inp" id="jasWeightNote" placeholder="nota opzionale (es. Pediatra)" style="flex:1">
     </div>
     <button onclick="jasperLogWeight()" style="padding:9px 20px;background:#221608;border:1px solid #6a5030;border-radius:12px;color:#d4a843;font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:20px">+ Salva peso</button>
-    ${sorted.length>=2?`<div class="jas-section-lbl">📈 Curva di crescita</div>
-    <div class="jas-weight-bar-wrap">${barHtml}</div>`:''}
+    ${chart?`<div class="jas-section-lbl">📈 Curva di crescita</div>
+    <div class="jas-chart-box">${chart}</div>`:''}
     <div class="jas-section-lbl">📋 Storico pesi</div>
     ${listHtml||'<div style="font-size:13px;color:#4a3820;font-style:italic;padding:8px 0">Nessun peso registrato ancora</div>'}
-
-    <!-- Milestone custom -->
-    <div class="jas-custom-ms" style="margin-top:28px">
-      <div class="jas-section-lbl">✦ Le tue milestone</div>
-      <div class="jas-custom-ms-list">${cmsHtml}</div>
-      <input class="jas-ms-inp" id="jasMsInp" autocomplete="off" autocorrect="off" autocapitalize="sentences" placeholder='es. "Prima volta che ha riso" · "Ha detto mamma"'
-        maxlength="60" style="width:100%;margin-bottom:10px">
-      <input class="jas-ms-inp" type="date" id="jasMsDate" value="${toISO()}" max="${toISO()}" style="width:100%;margin-bottom:10px">
-      <button onclick="jasperAddMilestone()" class="jas-ms-save-btn">💾 Salva milestone</button>
-    </div>
   </div>`;
   if(pane) pane.innerHTML=html;
 }
 
-/* ════════════════════════════════════════
-   CIBO — Dedicata ad Anissa
-   Database globale dei cibi che mangia Jasper
-   con reazione 1-5 (faccine), supporto mix
-   ════════════════════════════════════════ */
-const FOOD_FACES = ['','🤮','😣','😐','🙂','😍'];
-const FOOD_LABELS = ['','Vomita','Non gli piace','Neutro','Gli piace','Adora'];
-let _cibofilter = 'all'; // 'all' | '1' | '2' | '3' | '4' | '5'
-
-function jasperFoodsAll(){
-  const data = stData['jasper_foods'] || {list:[]};
-  if (!Array.isArray(data.list)) data.list = [];
-  return data;
-}
-
-async function saveJasperFoods(foods){
-  stData['jasper_foods']=foods;
-  localStorage.setItem('rico_st',JSON.stringify(stData));
-  sbFetch('startup_data',{
-    method:'POST',
-    prefer:'resolution=merge-duplicates,return=minimal',
-    body:JSON.stringify({id:'jasper_foods',data:foods})
-  }).catch(e => console.warn('saveJasperFoods Supabase sync failed:', e));
-}
-
-async function renderJasperCibo(){
-  const pane=jasperPane('cibo');
-  const foods=jasperFoodsAll();
-  const list=foods.list||[];
-  // Cleanup: se _editingFoodId non esiste piu (es. item cancellato), resettalo
-  if(_editingFoodId && !list.some(f => f.id === _editingFoodId)) _editingFoodId = null;
-
-  // Filter
-  let filtered=list;
-  // Filter by exact reaction (1-5)
-  const fnum = parseInt(_cibofilter);
-  if(!isNaN(fnum) && fnum>=1 && fnum<=5) {
-    filtered = list.filter(f => (f.reaction||3) === fnum);
-  }
-
-  // Sort
-  if(_cibofilter==='all') {
-    // Tutti: ordina per reazione discendente (love prima)
-    filtered = filtered.slice().sort((a,b)=>(b.reaction||0)-(a.reaction||0));
-  } else {
-    // Filtri specifici: ordina per data discendente (piu recenti prima)
-    filtered = filtered.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  }
-
-  const cardsHtml=filtered.length
-    ? filtered.map(f=>{
-        const dateLbl=f.date?new Date(f.date+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'}):'';
-        const typeLbl=f.type==='mix'?'<span class="jas-cibo-type-pill mix">MIX</span>':'<span class="jas-cibo-type-pill single">solo</span>';
-        return `<div class="jas-cibo-card" data-react="${f.reaction||0}">
-          <div class="jas-cibo-card-face">${FOOD_FACES[f.reaction||3]}</div>
-          <div class="jas-cibo-card-body">
-            <div class="jas-cibo-card-name">${esc(f.name)}</div>
-            <div class="jas-cibo-card-meta">${typeLbl}${dateLbl?'<span class="jas-cibo-date">'+esc(dateLbl)+'</span>':''}</div>
-            ${f.note?`<div class="jas-cibo-card-note">${esc(f.note)}</div>`:''}
-          </div>
-          <div class="jas-cibo-card-actions">
-            <button class="jas-cibo-edit" onclick="jasperEditFood('${esc(f.id)}')" title="Modifica">✎</button>
-            <button class="jas-cibo-del" onclick="jasperDeleteFoodEntry('${esc(f.id)}')" title="Rimuovi">×</button>
-          </div>
-        </div>`;
-      }).join('')
-    : '<div class="jas-cibo-empty">Nessun cibo registrato ancora.<br>Aggiungi il primo qui sotto ✦</div>';
-
-  // Stats
-  const total=list.length;
-  const loved=list.filter(f=>f.reaction>=4).length;
-  const hated=list.filter(f=>f.reaction<=2).length;
-
-  const html=`<div class="jas-cibo-page">
-    <!-- Stats -->
-    <div class="jas-cibo-stats">
-      <div class="jas-cibo-stat">
-        <div class="jas-cibo-stat-val">${total}</div>
-        <div class="jas-cibo-stat-lbl">Totale</div>
-      </div>
-      <div class="jas-cibo-stat love">
-        <div class="jas-cibo-stat-val">${loved}</div>
-        <div class="jas-cibo-stat-lbl">Gli piace</div>
-      </div>
-      <div class="jas-cibo-stat hate">
-        <div class="jas-cibo-stat-val">${hated}</div>
-        <div class="jas-cibo-stat-lbl">No</div>
-      </div>
-    </div>
-
-    <!-- Form aggiungi -->
-    <div class="jas-cibo-form">
-      <div class="jas-section-lbl">🥕 Aggiungi cibo</div>
-      <input class="jas-cibo-inp" id="jasCiboName" autocomplete="off" autocorrect="off" autocapitalize="sentences"
-        placeholder='es. "Carota" · "Pasta + zucchine + patate"' maxlength="60"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();jasperAddFoodEntry()}">
-
-      <div class="jas-cibo-type-row">
-        <label class="jas-cibo-type-opt">
-          <input type="radio" name="ciboType" value="single" checked>
-          <span>Singolo</span>
-        </label>
-        <label class="jas-cibo-type-opt">
-          <input type="radio" name="ciboType" value="mix">
-          <span>Mix</span>
-        </label>
-      </div>
-
-      <div class="jas-cibo-faces-lbl">Come l'ha presa?</div>
-      <div class="jas-cibo-faces" id="jasCiboFaces">
-        ${[1,2,3,4,5].map(v=>`<button class="jas-cibo-face ${v===3?'selected':''}" data-v="${v}" onclick="jasperSelectFoodFace(${v})" type="button">${FOOD_FACES[v]}<span>${FOOD_LABELS[v]}</span></button>`).join('')}
-      </div>
-
-      <textarea class="jas-cibo-note" id="jasCiboNote" rows="2" placeholder="Nota opzionale (es. quantita, dettagli...)"></textarea>
-
-      <button class="jas-cibo-save-btn" onclick="jasperAddFoodEntry()">💾 Salva cibo</button>
-    </div>
-
-    <!-- Filtri -->
-    <div class="jas-cibo-filters">
-      <button class="jas-cibo-filter ${_cibofilter==='all'?'on':''}" onclick="jasperSetCiboFilter('all')" type="button">Tutti</button>
-      ${[1,2,3,4,5].map(v=>`<button class="jas-cibo-filter face ${_cibofilter===String(v)?'on':''}" onclick="jasperSetCiboFilter('${v}')" type="button">${FOOD_FACES[v]}</button>`).join('')}
-    </div>
-
-    <!-- Lista -->
-    <div class="jas-cibo-list">${cardsHtml}</div>
-  </div>`;
-
-  if(pane) pane.innerHTML=html;
-}
-
-let _selectedFoodFace=3;
-let _editingFoodId=null;
-
-function jasperSelectFoodFace(v){
-  _selectedFoodFace=v;
-  document.querySelectorAll('.jas-cibo-face').forEach(b=>b.classList.toggle('selected',+b.dataset.v===v));
-}
-
-function jasperSetCiboFilter(f){
-  _cibofilter=f;
-  renderJasperCibo();
-}
-
-async function jasperAddFoodEntry(){
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const active = jasperActive();
-      const inp = active?.querySelector('#jasCiboName') || document.getElementById('jasCiboName');
-      if(!inp||!inp.value.trim()){toast('Scrivi il nome del cibo','warn');return;}
-      const type = (active?.querySelector('input[name="ciboType"]:checked') || document.querySelector('input[name="ciboType"]:checked'))?.value || 'single';
-      const noteEl = active?.querySelector('#jasCiboNote') || document.getElementById('jasCiboNote');
-      const note = (noteEl?.value||'').trim();
-      const foods = jasperFoodsAll();
-      if(_editingFoodId){
-        const idx = foods.list.findIndex(f=>f.id===_editingFoodId);
-        if(idx>=0){
-          foods.list[idx] = {...foods.list[idx], name:inp.value.trim(), type, reaction:_selectedFoodFace, note};
-          await saveJasperFoods(foods);
-          toast('✓ Cibo aggiornato','success');
-        }
-        _editingFoodId = null;
-      } else {
-        foods.list.unshift({
-          id:'food_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-          name:inp.value.trim(),
-          type, reaction:_selectedFoodFace, date:toISO(), note
-        });
-        await saveJasperFoods(foods);
-        toast('🥕 '+inp.value.trim()+' salvato','success');
-      }
-      inp.value = '';
-      if(noteEl) noteEl.value = '';
-      _selectedFoodFace = 3;
-      renderJasperCibo();
-    } catch(e) { console.error('jasperAddFoodEntry:', e); toast('Errore salvataggio cibo','warn'); }
-  }).catch(() => {});
-}
-
-function jasperEditFood(id){
-  const foods=jasperFoodsAll();
-  const f=foods.list.find(x=>x.id===id);
-  if(!f)return;
-  _editingFoodId=id;
-  _selectedFoodFace=f.reaction||3;
-  setTimeout(()=>{
-    const inp=document.getElementById('jasCiboName');
-    const note=document.getElementById('jasCiboNote');
-    if(inp){inp.value=f.name;inp.focus();}
-    if(note) note.value=f.note||'';
-    document.querySelectorAll('input[name="ciboType"]').forEach(r=>r.checked=(r.value===(f.type||'single')));
-    document.querySelectorAll('.jas-cibo-face').forEach(b=>b.classList.toggle('selected',+b.dataset.v===_selectedFoodFace));
-    inp?.scrollIntoView({behavior:'smooth',block:'center'});
-  },50);
-}
-
-async function jasperDeleteFoodEntry(id){
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const foods = jasperFoodsAll();
-      foods.list = foods.list.filter(f=>f.id!==id);
-      // Reset _editingFoodId se stiamo cancellando quello in edit
-      if(_editingFoodId === id) _editingFoodId = null;
-      await saveJasperFoods(foods);
-      renderJasperCibo();
-      toast('Cibo rimosso','info');
-    } catch(e) { console.error('jasperDeleteFoodEntry:', e); toast('Errore','warn'); }
-  }).catch(() => {});
-}
 
 async function jasperLogWeight(){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
@@ -823,24 +831,19 @@ async function jasperLogWeight(){
       const raw = (inpEl?.value||'').replace(',','.').trim();
       const kg = parseFloat(raw);
       const dateEl = active?.querySelector('#jasWeightDate') || document.getElementById('jasWeightDate');
-      const date = dateEl?.value || toISO();
+      const date = (dateEl?.value || toISO()).slice(0,10);
       const noteEl = active?.querySelector('#jasWeightNote') || document.getElementById('jasWeightNote');
       const note = (noteEl?.value||'').trim();
       if(isNaN(kg)||kg<0.5||kg>25){
         toast('Inserisci un peso valido (0.5 - 25 kg)','warn');
         return;
       }
-      const ws = stData['jasper_weights']||{list:[]};
-      ws.list = ws.list.filter(w=>w.date!==date);
-      ws.list.push({kg,date,note});
-      ws.list.sort((a,b)=>a.date.localeCompare(b.date));
-      stData['jasper_weights'] = ws;
-      localStorage.setItem('rico_st',JSON.stringify(stData));
-      sbFetch('startup_data',{
-        method:'POST',
-        prefer:'resolution=merge-duplicates,return=minimal',
-        body:JSON.stringify({id:'jasper_weights',data:ws})
-      }).catch(e => console.warn('jasper_weights sync failed:',e));
+      await stMutate('jasper_weights', ws => {
+        if(!Array.isArray(ws.list)) ws.list = [];
+        ws.list = ws.list.filter(w => w && w.date !== date);
+        ws.list.push({kg,date,note});
+        ws.list.sort((a,b)=>a.date.localeCompare(b.date));
+      }, {list:[]});
       toast('⚖ '+kg+'kg salvato ✓','success');
       renderJasperCrescita();
     } catch(e){ console.error('jasperLogWeight:',e); toast('Errore salvataggio peso','warn'); }
@@ -848,24 +851,33 @@ async function jasperLogWeight(){
 }
 
 async function jasperDeleteWeight(idx){
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
+  const sorted=[...((stData['jasper_weights']||{list:[]}).list||[])].filter(w=>w&&w.date).sort((a,b)=>a.date.localeCompare(b.date));
+  const target=sorted[idx];
+  if(!target) return;
+  await _jasperRemoveWeight(target, () => renderJasperCrescita());
+}
+/* Rimozione peso con ANNULLA */
+function _jasperRemoveWeight(target, after){
+  return _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const ws = stData['jasper_weights']||{list:[]};
-      // idx riferito alla lista SORTED ascending (come nella UI render)
-      const sorted = [...ws.list].sort((a,b)=>a.date.localeCompare(b.date));
-      if(idx < 0 || idx >= sorted.length) return;
-      const toRemove = sorted[idx];
-      // Rimuovi dal ws.list matchando per data (unica per giorno)
-      ws.list = ws.list.filter(w => w.date !== toRemove.date);
-      stData['jasper_weights'] = ws;
-      localStorage.setItem('rico_st',JSON.stringify(stData));
-      sbFetch('startup_data',{
-        method:'POST',
-        prefer:'resolution=merge-duplicates,return=minimal',
-        body:JSON.stringify({id:'jasper_weights',data:ws})
-      }).catch(e => console.warn('jasper_weights sync failed:',e));
-      renderJasperCrescita();
-      toast('Peso rimosso','info');
+      await stMutate('jasper_weights', ws => {
+        if(!Array.isArray(ws.list)) ws.list = [];
+        const before = ws.list.length;
+        ws.list = ws.list.filter(w => !(w && w.date === target.date));
+        if(ws.list.length === before) return false;
+      }, {list:[]});
+      if(after) after();
+      toast('Peso rimosso','info',{label:'ANNULLA',timeout:5000,callback:()=>{
+        _jasperOpQueue = _jasperOpQueue.then(async () => {
+          await stMutate('jasper_weights', ws => {
+            if(!Array.isArray(ws.list)) ws.list = [];
+            if(ws.list.some(w => w && w.date === target.date)) return false;
+            ws.list.push(target); ws.list.sort((a,b)=>a.date.localeCompare(b.date));
+          }, {list:[]});
+          if(after) after();
+          toast('Ripristinato ✓','success');
+        }).catch(() => {});
+      }});
     } catch(e) { console.error('jasperDeleteWeight:',e); toast('Errore','warn'); }
   }).catch(() => {});
 }
@@ -880,62 +892,79 @@ async function jasperLogMealTime(){
       const hhmm=readHHMMPicker('jasMealTime');
       if(!hhmm){toast('Seleziona un orario','warn');return;}
       const today=toISO();
-      const entry=jasperDiary[today]||(await loadJasperDiary(today));
-      if(!entry.meals)entry.meals=[];
-      // Evita duplicati: se esiste gia un pasto nello stesso minuto non lo ri-aggiunge
-      if(entry.meals.some(m => m.hhmm === hhmm)){toast('Pasto gia registrato a '+hhmm,'warn');return;}
-      entry.meals.push({hhmm});
-      entry.lastMeal=hhmm;
-      jasperDiary[today]=entry;
-      await saveJasperEntry(today,entry);
+      let dup=false;
+      const res=await jasperMutateDay(today, e => {
+        // Evita duplicati: se esiste gia un pasto nello stesso minuto non lo ri-aggiunge
+        if(e.meals.some(m => m && m.hhmm === hhmm)){ dup=true; return false; }
+        e.meals.push({hhmm});
+        e.lastMeal=hhmm;
+      });
       renderJasper();
-      toast('🍼 Pasto alle '+hhmm,'success');
+      if(dup){ toast('Pasto gia registrato a '+hhmm,'warn'); return; }
+      if(res) toast('🍼 Pasto alle '+hhmm,'success');
     } catch(e) { console.error('jasperLogMealTime:', e); toast('Errore salvataggio pasto','warn'); }
   }).catch(() => {});
 }
 
+/* Tocco su un pasto: apre la modifica (ora + nota) nella scheda del giorno.
+   Sostituisce la finestra prompt(), che nell'app su iPhone non funziona. */
 function jasperEditMealNote(idx){
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const today=toISO();
-      const entry=jasperDiary[today]||(await loadJasperDiary(today));
-      if(!entry.meals||idx<0)return;
-      // Identifica il pasto via stesso ordinamento del render (più recente in cima)
-      const sorted=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
-      const target=sorted[idx];
-      if(!target)return;
-      const real=entry.meals.find(m=>m===target);
-      const v=prompt(`Nota per il pasto delle ${target.hhmm} (es. 120ml, pappa carne):`, real.note||'');
-      if(v===null) return; // annullato
-      real.note = v.trim();
-      jasperDiary[today]=entry;
-      await saveJasperEntry(today,entry);
-      renderJasper();
-      toast(real.note ? '📝 Nota salvata' : 'Nota rimossa','info');
-    } catch(e) { console.error('jasperEditMealNote:', e); toast('Errore','warn'); }
-  }).catch(() => {});
+  const today=toISO();
+  const entry=jasperDiary[today]||stData[jasperDiaryKey(today)]||{};
+  const sorted=(entry.meals||[]).slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
+  const target=sorted[idx];
+  if(!target) return;
+  _popupEditingState={type:'meal', iso:today, data:{hhmm:target.hhmm, note:target.note||''}};
+  openJasperDayPopup(today);
 }
 
 function jasperDeleteMeal(idx){
+  const today=toISO();
+  const entry=jasperDiary[today]||stData[jasperDiaryKey(today)]||{};
+  const sorted=(entry.meals||[]).slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
+  const target=sorted[idx];
+  if(!target) return;
+  _jasperRemoveFromDay(today, 'meals', m => m && m.hhmm === target.hhmm, 'Pasto rimosso');
+}
+/* Rimozione dal diario con ANNULLA (pasti, pisolini, note) */
+function _jasperRemoveFromDay(iso, field, match, msg){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const today=toISO();
-      const entry=jasperDiary[today]||(await loadJasperDiary(today));
-      if(!entry.meals||idx<0)return;
-      const sorted=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''));
-      const toRemove=sorted[idx];
-      if(!toRemove)return;
-      entry.meals=entry.meals.filter(m=>m!==toRemove);
-      if(entry.meals.length){
-        const latest=entry.meals.slice().sort((a,b)=>(b.hhmm||'').localeCompare(a.hhmm||''))[0];
-        entry.lastMeal=latest.hhmm;
-      } else { entry.lastMeal=null; }
-      jasperDiary[today]=entry;
-      await saveJasperEntry(today,entry);
-      renderJasper();
-      toast('Pasto rimosso','info');
-    } catch(e) { console.error('jasperDeleteMeal:', e); toast('Errore','warn'); }
+      let removed = null;
+      await jasperMutateDay(iso, e => {
+        const i = e[field].findIndex(match);
+        if(i < 0) return false;
+        removed = e[field].splice(i, 1)[0];
+        if(field === 'meals'){
+          const latest = e.meals.map(m => m && m.hhmm).filter(Boolean).sort().pop();
+          e.lastMeal = latest || null;
+        }
+      });
+      _jasperAfterDayChange(iso);
+      if(!removed) return;
+      toast(msg, 'info', {label:'ANNULLA', timeout:5000, callback:() => {
+        _jasperOpQueue = _jasperOpQueue.then(async () => {
+          await jasperMutateDay(iso, e => {
+            const key = field === 'meals' ? 'hhmm' : field === 'sleeps' ? 'start' : null;
+            if(key && e[field].some(x => x && x[key] === removed[key])) return false;
+            e[field].push(removed);
+            if(field === 'meals'){
+              const latest = e.meals.map(m => m && m.hhmm).filter(Boolean).sort().pop();
+              e.lastMeal = latest || null;
+            }
+          });
+          _jasperAfterDayChange(iso);
+          toast('Ripristinato ✓','success');
+        }).catch(() => {});
+      }});
+    } catch(e) { console.error('jasperRemove:', e); toast('Errore','warn'); }
   }).catch(() => {});
+}
+/* Dopo una modifica: aggiorna la pagina di oggi e, se aperta, la scheda del giorno */
+function _jasperAfterDayChange(iso){
+  const pop = document.getElementById('jasperDayPopup');
+  if(pop && pop.classList.contains('open')) openJasperDayPopup(iso);
+  if(currentView === 'jasper') renderJasper();
 }
 
 /* ── Sleep tracking (pisolini) ── */
@@ -943,19 +972,16 @@ function jasperStartSleep(){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
       const today = toISO();
-      const entry = jasperDiary[today] || (await loadJasperDiary(today));
-      if(!entry.sleeps) entry.sleeps = [];
-      // Evita doppio start se c'e gia un pisolino aperto
-      if(entry.sleeps.some(s => s.start && !s.end)){
-        toast('Jasper sta gia dormendo','warn');
-        return;
-      }
       const start = nowHHMMSwiss();
-      entry.sleeps.push({start, end:null});
-      jasperDiary[today] = entry;
-      await saveJasperEntry(today, entry);
+      let already = false;
+      const res = await jasperMutateDay(today, e => {
+        // Evita doppio start se c'e gia un pisolino aperto
+        if(e.sleeps.some(s => s && s.start && !s.end)){ already = true; return false; }
+        e.sleeps.push({start, end:null});
+      });
       renderJasper();
-      toast('💤 Pisolino iniziato alle '+start, 'success');
+      if(already){ toast('Jasper sta gia dormendo','warn'); return; }
+      if(res) toast('💤 Pisolino iniziato alle '+start, 'success');
     } catch(e) { console.error('jasperStartSleep:',e); toast('Errore','warn'); }
   }).catch(() => {});
 }
@@ -964,64 +990,36 @@ function jasperEndSleep(){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
       const today = toISO();
-      let entry = jasperDiary[today] || (await loadJasperDiary(today));
-      if(!entry.sleeps) entry.sleeps = [];
-      let opening = entry.sleeps.find(s => s.start && !s.end);
-      let targetDate = today;
-
-      // Fallback cross-midnight: se oggi non ha opening, cercalo in ieri.
-      // Pisolino iniziato a 23:50 dom + svegliato a 00:15 lun va chiuso
-      // nell'entry di domenica (dove fu aperto), non lunedi.
-      if(!opening){
-        const yesterday = dateToISO(new Date(Date.now() - 86400000));
-        const yEntry = stData[jasperDiaryKey(yesterday)] || (await loadJasperDiary(yesterday));
-        if(yEntry && Array.isArray(yEntry.sleeps)){
-          const yOpening = yEntry.sleeps.find(s => s.start && !s.end);
-          if(yOpening){
-            entry = yEntry;
-            opening = yOpening;
-            targetDate = yesterday;
-          }
-        }
-      }
-
-      if(!opening){ toast('Nessun pisolino in corso','warn'); return; }
+      const yesterday = dateToISO(new Date(Date.now() - 86400000));
       const end = nowHHMMSwiss();
-      opening.end = end;
-      if(targetDate === today){
-        entry.woke_at = end;
-        jasperDiary[today] = entry;
-      }
-      await saveJasperEntry(targetDate, entry);
-      // Cross-midnight: salva woke_at anche nell'entry di oggi, così la UI
-      // mostra "Sveglio da X" al mattino anche senza pisolini completati oggi.
-      if(targetDate !== today){
-        const todayEntry = jasperDiary[today] || (await loadJasperDiary(today));
-        todayEntry.woke_at = end;
-        jasperDiary[today] = todayEntry;
-        await saveJasperEntry(today, todayEntry);
+      let closed = null;
+      await jasperMutateDay(today, e => {
+        const op = e.sleeps.find(s => s && s.start && !s.end);
+        if(!op) return false;
+        op.end = end;
+        e.woke_at = end;
+        closed = {start: op.start};
+      });
+      // Notte a cavallo della mezzanotte: il sonno aperto è sul giorno prima
+      if(!closed){
+        await jasperMutateDay(yesterday, e => {
+          const op = e.sleeps.find(s => s && s.start && !s.end);
+          if(!op) return false;
+          op.end = end;
+          closed = {start: op.start};
+        });
+        if(closed) await jasperMutateDay(today, e => { e.woke_at = end; });
       }
       renderJasper();
-      const duration = hhmmDiffMin(opening.start, end);
-      toast('☀️ Ha dormito '+formatMin(duration), 'success');
+      if(!closed){ toast('Nessun pisolino in corso','warn'); return; }
+      toast('☀️ Ha dormito '+formatMin(hhmmDiffMin(closed.start, end)), 'success');
     } catch(e) { console.error('jasperEndSleep:',e); toast('Errore','warn'); }
   }).catch(() => {});
 }
 
 function jasperDeleteSleep(startHHMM, event){
   event?.stopPropagation();
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const today = toISO();
-      const entry = jasperDiary[today] || (await loadJasperDiary(today));
-      if(!entry.sleeps) return;
-      entry.sleeps = entry.sleeps.filter(s => s.start !== startHHMM);
-      jasperDiary[today] = entry;
-      await saveJasperEntry(today, entry);
-      renderJasper();
-      toast('Pisolino rimosso','info');
-    } catch(e) { console.error('jasperDeleteSleep:',e); toast('Errore','warn'); }
-  }).catch(() => {});
+  _jasperRemoveFromDay(toISO(), 'sleeps', s => s && s.start === startHHMM, 'Pisolino rimosso');
 }
 
 function jasperShowManualSleepForm(){
@@ -1061,25 +1059,19 @@ function jasperAddSleepManual(){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
       const today = toISO();
-      const entry = jasperDiary[today] || (await loadJasperDiary(today));
-      if(!entry.sleeps) entry.sleeps = [];
-      // Se si sta aggiungendo un in-corso, verifica che non ce ne sia gia uno aperto
-      if(!end && entry.sleeps.some(s => s.start && !s.end)){
-        toast('C\'e gia un pisolino in corso','warn');
-        return;
-      }
-      // Evita duplicato esatto sullo stesso start
-      if(entry.sleeps.some(s => s.start === start)){
-        toast('Pisolino gia presente con questo inizio','warn');
-        return;
-      }
-      entry.sleeps.push({start, end: end || null});
-      jasperDiary[today] = entry;
-      await saveJasperEntry(today, entry);
+      let problem = null;
+      const res = await jasperMutateDay(today, e => {
+        // Se si sta aggiungendo un in-corso, verifica che non ce ne sia gia uno aperto
+        if(!end && e.sleeps.some(s => s && s.start && !s.end)){ problem = 'C\'e gia un pisolino in corso'; return false; }
+        // Evita duplicato esatto sullo stesso start
+        if(e.sleeps.some(s => s && s.start === start)){ problem = 'Pisolino gia presente con questo inizio'; return false; }
+        e.sleeps.push({start, end: end || null});
+      });
       renderJasper();
+      if(problem){ toast(problem,'warn'); return; }
+      if(!res) return;
       if(end){
-        const duration = hhmmDiffMin(start, end);
-        toast('💤 Pisolino aggiunto · '+formatMin(duration), 'success');
+        toast('💤 Pisolino aggiunto · '+formatMin(hhmmDiffMin(start, end)), 'success');
       } else {
         toast('💤 Pisolino in corso dalle '+start, 'success');
       }
@@ -1088,19 +1080,17 @@ function jasperAddSleepManual(){
 }
 
 /* ── Popup storico giorno (con edit/delete inline) ── */
-let _popupEditingState = null; // {type: 'meal'|'note'|'milestone'|'weight', iso, data}
+let _popupEditingState = null; // {type: 'meal'|'note'|'weight'|'sleep', iso, data}
 
 function openJasperDayPopup(iso){
   const entry=stData[jasperDiaryKey(iso)]||{};
   const meals=(entry.meals||[]).slice().sort((a,b)=>(a.hhmm||'').localeCompare(b.hhmm||''));
   const notes=entry.notes||[];
-  const cms=jasperCustomMilestones();
-  const dayMilestones=cms.list.filter(m=>m.date===iso);
-  const ws=(stData['jasper_weights']||{list:[]}).list;
-  const dayWeights=ws.filter(w=>w.date===iso);
+  const ws=(stData['jasper_weights']||{list:[]}).list||[];
+  const dayWeights=ws.filter(w=>w&&w.date===iso);
   const dlbl=new Date(iso+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
-  let content='';
+  let content=`<div class="jas-day-summary">${esc(jasperDaySummaryText(iso))}</div>`;
 
   // ── Pasti ──
   content+=`<div class="jas-popup-section">
@@ -1126,29 +1116,19 @@ function openJasperDayPopup(iso){
       : '<div class="jas-popup-empty">Nessuna nota</div>'}
   </div>`;
 
-  // ── Pisolini ──
-  const sleepsDayList = (entry.sleeps||[]).filter(s=>s.start).slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+  // ── Sonno (notte e pisolini, segnati sul giorno in cui iniziano) ──
+  const nightByStart={};
+  jasperIntervals(iso,iso).forEach(x=>{ nightByStart[x.start]=x.night; });
+  const sleepsDayList = (entry.sleeps||[]).filter(s=>s&&s.start).slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
   content+=`<div class="jas-popup-section">
-    <div class="jas-popup-sec-lbl">💤 Pisolini (${sleepsDayList.length})</div>
+    <div class="jas-popup-sec-lbl">💤 Sonno (${sleepsDayList.length})</div>
     ${sleepsDayList.length
       ? sleepsDayList.map(s=>`<div class="jas-popup-item-row">
-          <div class="jas-popup-sleep">💤 ${esc(s.start)} → ${s.end?esc(s.end)+' · '+formatMin(hhmmDiffMin(s.start,s.end)):'<em>in corso</em>'}</div>
+          <div class="jas-popup-sleep">${nightByStart[s.start]?'🌙 Notte':'💤'} ${esc(s.start)} → ${s.end?esc(s.end)+' · '+formatMin(hhmmDiffMin(s.start,s.end)):'<em>in corso</em>'}</div>
           <button class="jas-popup-item-btn edit" onclick="jasperEditSleepFromDay('${iso}','${esc(s.start)}',event)" title="Modifica">✎</button>
           <button class="jas-popup-item-btn del" onclick="jasperDeleteSleepFromDay('${iso}','${esc(s.start)}',event)" title="Rimuovi">×</button>
         </div>`).join('')
-      : '<div class="jas-popup-empty">Nessun pisolino registrato</div>'}
-  </div>`;
-
-  // ── Milestones ──
-  content+=`<div class="jas-popup-section">
-    <div class="jas-popup-sec-lbl">✦ Milestone (${dayMilestones.length})</div>
-    ${dayMilestones.length
-      ? dayMilestones.map((m,i)=>`<div class="jas-popup-item-row">
-          <div class="jas-popup-milestone">${esc(m.text)}</div>
-          <button class="jas-popup-item-btn edit" onclick="jasperEditMilestoneFromDay('${iso}',${i},event)" title="Modifica">✎</button>
-          <button class="jas-popup-item-btn del" onclick="jasperDeleteMilestoneFromDay('${iso}',${i},event)" title="Rimuovi">×</button>
-        </div>`).join('')
-      : '<div class="jas-popup-empty">Nessuna milestone questo giorno</div>'}
+      : '<div class="jas-popup-empty">Nessun sonno registrato</div>'}
   </div>`;
 
   // ── Pesi ──
@@ -1192,6 +1172,7 @@ function closeJasperDayPopup(){
   _popupEditingState = null;
   const overlay=document.getElementById('jasperDayPopup');
   if(overlay) overlay.classList.remove('open');
+  jasperSoftRefresh();
 }
 
 /* ── Popup edit form renderer ── */
@@ -1214,15 +1195,6 @@ function renderPopupEditForm(iso, state){
       <textarea id="popupEditFocus" class="jas-popup-edit-inp" rows="3">${esc(data.text||'')}</textarea>
       <div class="jas-popup-edit-btns">
         <button class="jas-popup-edit-save" onclick="jasperSaveNoteEdit('${iso}',event)" type="button">✓ Salva</button>
-        <button class="jas-popup-edit-cancel" onclick="jasperCancelPopupEdit('${iso}',event)" type="button">✗ Annulla</button>
-      </div>`;
-  } else if(type === 'milestone'){
-    body = `
-      <div class="jas-popup-edit-lbl">Modifica milestone</div>
-      <input type="text" id="popupEditFocus" class="jas-popup-edit-inp" value="${esc(data.text||'')}" maxlength="60">
-      <input type="date" id="popupEditMsDate" class="jas-popup-edit-inp" value="${esc(data.date||iso)}" style="margin-top:8px">
-      <div class="jas-popup-edit-btns">
-        <button class="jas-popup-edit-save" onclick="jasperSaveMilestoneEdit('${iso}',${data.globalIdx},event)" type="button">✓ Salva</button>
         <button class="jas-popup-edit-cancel" onclick="jasperCancelPopupEdit('${iso}',event)" type="button">✗ Annulla</button>
       </div>`;
   } else if(type === 'weight'){
@@ -1257,92 +1229,27 @@ function renderPopupEditForm(iso, state){
 /* ── Popup: delete functions (in queue per evitare race) ── */
 function jasperDeleteMealFromDay(iso, hhmm, event){
   event?.stopPropagation();
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-      if(!entry.meals) return;
-      const idx = entry.meals.findIndex(m => m.hhmm === hhmm);
-      if(idx < 0) return;
-      entry.meals.splice(idx, 1);
-      if(entry.meals.length){
-        const latest = entry.meals.slice().sort((a,b) => (b.hhmm||'').localeCompare(a.hhmm||''))[0];
-        entry.lastMeal = latest.hhmm;
-      } else { entry.lastMeal = null; }
-      await saveJasperEntry(iso, entry);
-      if(iso === toISO()) jasperDiary[iso] = entry;
-      openJasperDayPopup(iso);
-      toast('Pasto rimosso','info');
-    } catch(e) { console.error('jasperDeleteMealFromDay:', e); toast('Errore','warn'); }
-  }).catch(() => {});
+  _jasperRemoveFromDay(iso, 'meals', m => m && m.hhmm === hhmm, 'Pasto rimosso');
 }
 
 function jasperDeleteNoteFromDay(iso, idx, event){
   event?.stopPropagation();
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-      if(!entry.notes || idx < 0 || idx >= entry.notes.length) return;
-      entry.notes.splice(idx, 1);
-      await saveJasperEntry(iso, entry);
-      if(iso === toISO()) jasperDiary[iso] = entry;
-      openJasperDayPopup(iso);
-      toast('Nota rimossa','info');
-    } catch(e) { console.error('jasperDeleteNoteFromDay:', e); toast('Errore','warn'); }
-  }).catch(() => {});
+  const target=((stData[jasperDiaryKey(iso)]||{}).notes||[])[idx];
+  if(!target) return;
+  _jasperRemoveFromDay(iso, 'notes', n => n && n.text === target.text && (n.ts||'') === (target.ts||''), 'Nota rimossa');
 }
 
-function jasperDeleteMilestoneFromDay(iso, idx, event){
-  event?.stopPropagation();
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const cms = jasperCustomMilestones();
-      const dayMs = cms.list.filter(m => m.date === iso);
-      if(idx < 0 || idx >= dayMs.length) return;
-      const toRemove = dayMs[idx];
-      cms.list = cms.list.filter(m => !(m.date === iso && m.text === toRemove.text));
-      stData['jasper_milestones'] = cms;
-      localStorage.setItem('rico_st', JSON.stringify(stData));
-      sbFetch('startup_data', {
-        method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
-        body: JSON.stringify({id:'jasper_milestones', data:cms})
-      }).catch(e => console.warn('jasper_milestones sync failed:', e));
-      openJasperDayPopup(iso);
-      toast('Milestone rimossa','info');
-    } catch(e) { console.error('jasperDeleteMilestoneFromDay:', e); toast('Errore','warn'); }
-  }).catch(() => {});
-}
 
 function jasperDeleteWeightFromDay(iso, weightDate, event){
   event?.stopPropagation();
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const ws = stData['jasper_weights']||{list:[]};
-      ws.list = ws.list.filter(w => w.date !== weightDate);
-      stData['jasper_weights'] = ws;
-      localStorage.setItem('rico_st', JSON.stringify(stData));
-      sbFetch('startup_data', {
-        method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
-        body: JSON.stringify({id:'jasper_weights', data:ws})
-      }).catch(e => console.warn('jasper_weights sync failed:', e));
-      openJasperDayPopup(iso);
-      toast('Peso rimosso','info');
-    } catch(e) { console.error('jasperDeleteWeightFromDay:', e); toast('Errore','warn'); }
-  }).catch(() => {});
+  const target=((stData['jasper_weights']||{list:[]}).list||[]).find(w => w && w.date === weightDate);
+  if(!target) return;
+  _jasperRemoveWeight(target, () => { openJasperDayPopup(iso); if(jasperTab==='crescita') renderJasperCrescita(); });
 }
 
 function jasperDeleteSleepFromDay(iso, startHHMM, event){
   event?.stopPropagation();
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-      if(!entry.sleeps) return;
-      entry.sleeps = entry.sleeps.filter(s => s.start !== startHHMM);
-      await saveJasperEntry(iso, entry);
-      if(iso === toISO()) jasperDiary[iso] = entry;
-      openJasperDayPopup(iso);
-      toast('Pisolino rimosso','info');
-    } catch(e) { console.error('jasperDeleteSleepFromDay:', e); toast('Errore','warn'); }
-  }).catch(() => {});
+  _jasperRemoveFromDay(iso, 'sleeps', s => s && s.start === startHHMM, 'Pisolino rimosso');
 }
 
 /* ── Popup: edit triggers ── */
@@ -1364,16 +1271,6 @@ function jasperEditNoteFromDay(iso, idx, event){
   openJasperDayPopup(iso);
 }
 
-function jasperEditMilestoneFromDay(iso, idx, event){
-  event?.stopPropagation();
-  const cms = jasperCustomMilestones();
-  const dayMs = cms.list.filter(m => m.date === iso);
-  if(idx < 0 || idx >= dayMs.length) return;
-  const toEdit = dayMs[idx];
-  const globalIdx = cms.list.findIndex(m => m.date === iso && m.text === toEdit.text);
-  _popupEditingState = {type:'milestone', iso, data:{text:toEdit.text, date:toEdit.date, globalIdx}};
-  openJasperDayPopup(iso);
-}
 
 function jasperEditWeightFromDay(iso, weightDate, event){
   event?.stopPropagation();
@@ -1409,21 +1306,20 @@ function jasperSaveMealEdit(iso, oldHhmm, event){
   const newNote = (document.getElementById('popupEditMealNote')?.value || '').trim();
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-      const mealIdx = entry.meals.findIndex(m => m.hhmm === oldHhmm);
-      if(mealIdx < 0) return;
-      if(entry.meals.some((m,i) => m.hhmm === newHhmm && i !== mealIdx)){
-        toast('Pasto gia registrato a '+newHhmm,'warn');
-        return;
-      }
-      entry.meals[mealIdx].hhmm = newHhmm;
-      entry.meals[mealIdx].note = newNote;
-      const latest = entry.meals.slice().sort((a,b) => (b.hhmm||'').localeCompare(a.hhmm||''))[0];
-      entry.lastMeal = latest.hhmm;
-      await saveJasperEntry(iso, entry);
-      if(iso === toISO()) jasperDiary[iso] = entry;
+      let problem = null;
+      const res = await jasperMutateDay(iso, e => {
+        const mealIdx = e.meals.findIndex(m => m && m.hhmm === oldHhmm);
+        if(mealIdx < 0){ problem = 'Pasto non trovato'; return false; }
+        if(e.meals.some((m,i) => m && m.hhmm === newHhmm && i !== mealIdx)){ problem = 'Pasto gia registrato a '+newHhmm; return false; }
+        e.meals[mealIdx].hhmm = newHhmm;
+        e.meals[mealIdx].note = newNote;
+        const latest = e.meals.map(m => m && m.hhmm).filter(Boolean).sort().pop();
+        e.lastMeal = latest || null;
+      });
+      if(problem){ toast(problem,'warn'); return; }
+      if(!res) return;
       _popupEditingState = null;
-      openJasperDayPopup(iso);
+      _jasperAfterDayChange(iso);
       toast('Pasto aggiornato ✓','success');
     } catch(e) { console.error('jasperSaveMealEdit:', e); toast('Errore','warn'); }
   }).catch(() => {});
@@ -1438,47 +1334,21 @@ function jasperSaveNoteEdit(iso, event){
   const {originalText, originalTs} = state.data;
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-      if(!entry.notes || !entry.notes.length) return;
-      const idx = entry.notes.findIndex(n => n.text === originalText && (n.ts||'') === (originalTs||''));
-      if(idx < 0){ toast('Nota non trovata','warn'); return; }
-      entry.notes[idx].text = newText;
-      await saveJasperEntry(iso, entry);
-      if(iso === toISO()) jasperDiary[iso] = entry;
+      let notFound = false;
+      const res = await jasperMutateDay(iso, e => {
+        const idx = e.notes.findIndex(n => n && n.text === originalText && (n.ts||'') === (originalTs||''));
+        if(idx < 0){ notFound = true; return false; }
+        e.notes[idx].text = newText;
+      });
+      if(notFound){ toast('Nota non trovata','warn'); return; }
+      if(!res) return;
       _popupEditingState = null;
-      openJasperDayPopup(iso);
+      _jasperAfterDayChange(iso);
       toast('Nota aggiornata ✓','success');
     } catch(e) { console.error('jasperSaveNoteEdit:', e); toast('Errore','warn'); }
   }).catch(() => {});
 }
 
-function jasperSaveMilestoneEdit(iso, globalIdx, event){
-  event?.stopPropagation();
-  const newText = document.getElementById('popupEditFocus')?.value.trim();
-  const newDate = document.getElementById('popupEditMsDate')?.value;
-  if(!newText){ toast('Scrivi la milestone','warn'); return; }
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const cms = jasperCustomMilestones();
-      if(globalIdx < 0 || globalIdx >= cms.list.length) return;
-      const date = newDate || iso;
-      cms.list[globalIdx] = {
-        text: newText,
-        date,
-        label: new Date(date+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'})
-      };
-      stData['jasper_milestones'] = cms;
-      localStorage.setItem('rico_st', JSON.stringify(stData));
-      sbFetch('startup_data', {
-        method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
-        body: JSON.stringify({id:'jasper_milestones', data:cms})
-      }).catch(e => console.warn('jasper_milestones sync failed:', e));
-      _popupEditingState = null;
-      openJasperDayPopup(date); // riapri sulla nuova data se cambiata
-      toast('Milestone aggiornata ✓','success');
-    } catch(e) { console.error('jasperSaveMilestoneEdit:', e); toast('Errore','warn'); }
-  }).catch(() => {});
-}
 
 function jasperSaveWeightEdit(iso, oldDate, event){
   event?.stopPropagation();
@@ -1491,19 +1361,17 @@ function jasperSaveWeightEdit(iso, oldDate, event){
   }
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const ws = stData['jasper_weights']||{list:[]};
-      const idx = ws.list.findIndex(w => w.date === oldDate);
-      if(idx < 0) return;
-      ws.list[idx] = {kg:newKg, date:oldDate, note:newNote};
-      ws.list.sort((a,b) => a.date.localeCompare(b.date));
-      stData['jasper_weights'] = ws;
-      localStorage.setItem('rico_st', JSON.stringify(stData));
-      sbFetch('startup_data', {
-        method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
-        body: JSON.stringify({id:'jasper_weights', data:ws})
-      }).catch(e => console.warn('jasper_weights sync failed:', e));
+      const res = await stMutate('jasper_weights', ws => {
+        if(!Array.isArray(ws.list)) ws.list = [];
+        const idx = ws.list.findIndex(w => w && w.date === oldDate);
+        if(idx < 0) return false;
+        ws.list[idx] = {kg:newKg, date:oldDate, note:newNote};
+        ws.list.sort((a,b) => a.date.localeCompare(b.date));
+      }, {list:[]});
+      if(!res){ toast('Peso non trovato','warn'); return; }
       _popupEditingState = null;
       openJasperDayPopup(iso);
+      if(jasperTab === 'crescita') renderJasperCrescita();
       toast('Peso aggiornato ✓','success');
     } catch(e) { console.error('jasperSaveWeightEdit:', e); toast('Errore','warn'); }
   }).catch(() => {});
@@ -1517,75 +1385,25 @@ function jasperSaveSleepEdit(iso, originalStart, event){
   if(newEnd && newStart === newEnd){ toast('Inizio e fine coincidono','warn'); return; }
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const entry = (stData[jasperDiaryKey(iso)] ? JSON.parse(JSON.stringify(stData[jasperDiaryKey(iso)])) : await loadJasperDiary(iso));
-      if(!entry.sleeps) entry.sleeps = [];
-      const idx = entry.sleeps.findIndex(s => s.start === originalStart);
-      if(idx < 0){ toast('Pisolino non trovato','warn'); return; }
-      // Evita collisione con altro pisolino che ha gia quell'inizio
-      if(newStart !== originalStart && entry.sleeps.some((s,i) => i !== idx && s.start === newStart)){
-        toast('Esiste gia un pisolino a '+newStart,'warn');
-        return;
-      }
-      entry.sleeps[idx] = {start:newStart, end:newEnd || null};
-      await saveJasperEntry(iso, entry);
-      if(iso === toISO()) jasperDiary[iso] = entry;
+      let problem = null;
+      const res = await jasperMutateDay(iso, e => {
+        const idx = e.sleeps.findIndex(s => s && s.start === originalStart);
+        if(idx < 0){ problem = 'Pisolino non trovato'; return false; }
+        // Evita collisione con altro pisolino che ha gia quell'inizio
+        if(newStart !== originalStart && e.sleeps.some((s,i) => i !== idx && s && s.start === newStart)){
+          problem = 'Esiste gia un pisolino a '+newStart; return false;
+        }
+        e.sleeps[idx] = {start:newStart, end:newEnd || null};
+      });
+      if(problem){ toast(problem,'warn'); return; }
+      if(!res) return;
       _popupEditingState = null;
-      openJasperDayPopup(iso);
+      _jasperAfterDayChange(iso);
       toast('Pisolino aggiornato ✓','success');
     } catch(e) { console.error('jasperSaveSleepEdit:', e); toast('Errore','warn'); }
   }).catch(() => {});
 }
 
-function jasperCustomMilestones(){
-  const data = stData['jasper_milestones'] || {list:[]};
-  if (!Array.isArray(data.list)) data.list = [];
-  return data;
-}
-
-async function jasperAddMilestone(){
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const active = jasperActive();
-      const inp = active?.querySelector('#jasMsInp') || document.getElementById('jasMsInp');
-      const dateInp = active?.querySelector('#jasMsDate') || document.getElementById('jasMsDate');
-      if(!inp||!inp.value.trim()){toast('Scrivi la milestone','warn');return;}
-      const ms = jasperCustomMilestones();
-      const date = (dateInp?.value)||toISO();
-      const label = new Date(date+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'});
-      ms.list.unshift({text:inp.value.trim(),date,label});
-      if(ms.list.length>50) ms.list = ms.list.slice(0,50);
-      stData['jasper_milestones'] = ms;
-      localStorage.setItem('rico_st',JSON.stringify(stData));
-      sbFetch('startup_data',{
-        method:'POST',
-        prefer:'resolution=merge-duplicates,return=minimal',
-        body:JSON.stringify({id:'jasper_milestones',data:ms})
-      }).catch(e=>console.warn('milestone sync:',e));
-      inp.value='';
-      renderJasperCrescita();
-      toast('✦ Milestone salvata!','success');
-    } catch(e) { console.error('jasperAddMilestone:',e); toast('Errore','warn'); }
-  }).catch(() => {});
-}
-
-function jasperDeleteMilestone(idx){
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const ms=jasperCustomMilestones();
-      if(idx<0||idx>=ms.list.length)return;
-      ms.list.splice(idx,1);
-      stData['jasper_milestones']=ms;
-      localStorage.setItem('rico_st',JSON.stringify(stData));
-      sbFetch('startup_data',{
-        method:'POST',
-        prefer:'resolution=merge-duplicates,return=minimal',
-        body:JSON.stringify({id:'jasper_milestones',data:ms})
-      }).catch(e=>console.warn('milestone sync:',e));
-      renderJasperCrescita();
-      toast('Milestone rimossa','info');
-    } catch(e){ console.error('jasperDeleteMilestone:',e); toast('Errore','warn'); }
-  }).catch(() => {});
-}
 
 function jasperSaveNote(){
   // Snapshot del valore PRIMA di entrare in queue
@@ -1597,12 +1415,8 @@ function jasperSaveNote(){
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
       const today=toISO();
-      const entry=jasperDiary[today]||(await loadJasperDiary(today));
-      if(!entry.notes) entry.notes=[];
       const ts=new Date().toLocaleString('it-IT',{timeZone:'Europe/Zurich',hour:'2-digit',minute:'2-digit'});
-      entry.notes.push({text:noteText,ts});
-      jasperDiary[today]=entry;
-      await saveJasperEntry(today,entry);
+      await jasperMutateDay(today, e => { e.notes.push({text:noteText,ts}); });
       renderJasper();
       toast('Nota salvata ✓','success');
     } catch(e) { console.error('jasperSaveNote:', e); toast('Errore salvataggio nota','warn'); }
@@ -1610,18 +1424,11 @@ function jasperSaveNote(){
 }
 
 function jasperDeleteNote(idx, _ignore){
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const today=toISO();
-      const entry=jasperDiary[today]||(await loadJasperDiary(today));
-      if(!entry.notes||idx<0||idx>=entry.notes.length)return;
-      entry.notes.splice(idx,1);
-      jasperDiary[today]=entry;
-      await saveJasperEntry(today,entry);
-      renderJasper();
-    } catch(e){ console.error('jasperDeleteNote:',e); }
-  }).catch(() => {});
+  const today=toISO();
+  const entry=jasperDiary[today]||stData[jasperDiaryKey(today)]||{};
+  const target=(entry.notes||[])[idx];
+  if(!target) return;
+  _jasperRemoveFromDay(today, 'notes', n => n && n.text === target.text && (n.ts||'') === (target.ts||''), 'Nota rimossa');
 }
-
 
 

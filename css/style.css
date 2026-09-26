@@ -1967,3 +1967,38 @@ input.qa-edit-sel[type="time"]::-webkit-calendar-picker-indicator{
   .sp-shop-ttl{font-size:18px;}
   .sp-shop-count{font-size:22px;}
 }
+
+/* ═══════════════════════════════════════
+   v4 — aggiunte
+═══════════════════════════════════════ */
+/* Indicatore modifiche non ancora sul server */
+.sync-badge{background:#2a1a08;border:1px solid #8a5a20;color:#e0b060;border-radius:14px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+/* Impegno scaduto: sposta a oggi */
+.move-today-btn{font-size:11px;color:var(--gold);white-space:nowrap;}
+/* Modulo Aggiungi: Anissa non vede Startup */
+[data-profile="anissa"] #gArea .pill[data-v="startup"]{display:none!important;}
+@media(max-width:767px){
+  /* Anissa: le sue aree sempre visibili, quelle di Rico sotto "+ Altro" */
+  [data-profile="anissa"] #gArea .area-extra{display:inline-flex;}
+  [data-profile="anissa"] #gArea .area-anissa-more{display:none;}
+  [data-profile="anissa"] #gArea .area-anissa-more.show{display:inline-flex;}
+}
+/* Jasper: righe veglia/notte, avvisi, previsioni */
+.jas-sleep-row.night{border-left-color:#5a4a90;}
+.jas-sleep-wake{font-size:12px;color:#c9a860;padding:4px 10px 2px;}
+.jas-sleep-hint{font-size:12px;color:#b8a8e0;margin-top:6px;line-height:1.5;}
+.jas-sleep-warn{margin-top:10px;padding:8px 10px;border-radius:10px;background:#2a1508;border:1px solid #8a4a20;color:#f0b070;font-size:12px;line-height:1.5;}
+.jas-sleep-warn button{margin-top:6px;padding:5px 12px;background:#3a2210;border:1px solid #8a5a20;border-radius:8px;color:#f0c080;font-size:12px;cursor:pointer;font-family:inherit;}
+.jas-day-summary{font-size:12px;color:#c9a860;padding:6px 0 10px;line-height:1.6;border-bottom:1px solid #3a2a10;margin-bottom:10px;}
+/* Grafici sonno */
+.jas-range{display:flex;gap:6px;margin:6px 0 12px;}
+.jas-range button{flex:1;padding:7px 0;background:#1a1208;border:1px solid #4a3820;border-radius:10px;color:#8a7050;font-size:12px;cursor:pointer;font-family:inherit;}
+.jas-range button.on{background:#3a2a10;color:#f0c860;border-color:#a07828;}
+.jas-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.jas-stat{background:#1a1208;border:1px solid #3a2a10;border-radius:12px;padding:10px;}
+.jas-stat-val{font-size:18px;color:#f0c860;}
+.jas-stat-lbl{font-size:10px;color:#8a7050;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.jas-chart-box{margin:6px 0 18px;}
+.jas-chart-ttl{font-size:10px;letter-spacing:2px;color:#8a7050;text-transform:uppercase;margin-bottom:6px;}
+.jas-chart-box svg{width:100%;height:auto;display:block;}
+.jas-chart-note{font-size:11px;color:#6a5030;margin-top:4px;}

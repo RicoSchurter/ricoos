@@ -32,17 +32,7 @@ function backToProfiles() {
   if (saved === '1' && savedProfile) {
     currentProfile = savedProfile;
     applyProfileTheme(currentProfile);
-    // Aggiorna greeting con il profilo corretto
-    const _h = new Date().getHours();
-    const _pn = currentProfile === 'anissa' ? 'Anissa' : 'Rico';
-    const _gr = (_h < 12 ? 'Buongiorno' : _h < 18 ? 'Buon pomeriggio' : 'Buonasera') + ', ' + _pn;
-    ['tbGreet','mobGreet'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=_gr; });
-    const _ds = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
-    const _dl = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    const _dum = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
-    ['sbDate'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=_ds; });
-    ['tbDate'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=_dl; });
-    ['mobDate'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=_dum; });
+    updateHeader();
     // Ricarica MIT per il profilo corretto
     loadMIT();
     renderAll();
@@ -82,26 +72,20 @@ function updatePinDots() {
   }
 }
 
-function checkPin() {
+async function checkPin() {
   if (pinVal === PINS[currentProfile]) {
     sessionStorage.setItem('rico_unlocked', '1');
     sessionStorage.setItem('rico_profile', currentProfile);
     applyProfileTheme(currentProfile);
     // Aggiorna greeting, apiKey e render con il profilo corretto
     apiKey = localStorage.getItem('rico_apikey_'+currentProfile) || localStorage.getItem('rico_apikey') || '';
-    const _h=new Date().getHours();
-    const _pn=currentProfile==='anissa'?'Anissa':'Rico';
-    const _gr=(_h<12?'Buongiorno':_h<18?'Buon pomeriggio':'Buonasera')+', '+_pn;
-    ['tbGreet','mobGreet'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=_gr;});
-    const _ds=new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
-    const _dl=new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    ['sbDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=_ds;});
-    ['tbDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=_dl;});
-    ['mobDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();});
+    // Aspetta che i dati siano caricati: niente schermate vuote, niente scritture su dati vuoti
+    await _dataReady;
+    updateHeader();
     updateKeyUI();
     loadMIT();
-    loadChatLocal();
     renderAll();
+    setView(currentProfile === 'anissa' ? 'jasper' : 'oggi');
     document.getElementById('pinScreen').classList.add('hidden');
   } else {
     document.getElementById('pinError').textContent = 'PIN errato — riprova';
@@ -124,42 +108,10 @@ function closePDFModal() {
 }
 
 function switchProfile() {
+  // Ricarica pulita: il nuovo profilo parte sempre dai dati aggiornati del server.
+  // (Prima i dati venivano svuotati in memoria e un salvataggio poteva sovrascrivere lo storico.)
   sessionStorage.removeItem('rico_unlocked');
   sessionStorage.removeItem('rico_profile');
-  // Clear ALL global data to prevent cross-profile bleed
-  items = []; stData = {}; mitData = {}; jasperDiary = {};
-  chatHistory = [];
-  briefingDate = null;
-  filter = null; weekOff = 0; agDay = null; currentView = 'oggi';
-  qaRes = null; qaMove = null; editingItemId = null;
-  fS = {tipo:'task', area:'lavoro', st:'remychef', cpc:'CCOA', prio:'media'};
-  // Clear Jasper-specific globals
-  if(typeof _popupEditingState !== 'undefined') _popupEditingState = null;
-  if(typeof _editingFoodId !== 'undefined') _editingFoodId = null;
-  if(typeof _selectedFoodFace !== 'undefined') _selectedFoodFace = 3;
-  if(typeof _cibofilter !== 'undefined') _cibofilter = 'all';
-  if(typeof _jasperOpQueue !== 'undefined') _jasperOpQueue = Promise.resolve();
-  if(typeof jasperTab !== 'undefined') jasperTab = 'oggi';
-  if(typeof jasperCalMonth !== 'undefined') jasperCalMonth = null;
-  // Clear UI lists immediately
-  ['dTodayList','mTodayList','dAgList','mAgList'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = '';
-  });
-  ['d','m'].forEach(p => {
-    const msgs=$( p+'ChatMsgs'); if(msgs) msgs.innerHTML='';
-    const box=$(p+'AiBox'); if(box){box.innerHTML='';box.classList.remove('show');}
-    const conf=$(p+'ChatConfirm'); if(conf){conf.style.display='none';conf.innerHTML='';}
-  });
-  // Torna alla login
-  document.getElementById('pinEntry').style.display      = 'none';
-  document.getElementById('profileSelect').style.display = 'block';
-  document.getElementById('pinScreen').classList.remove('hidden');
-  // Rimuovi tema
-  document.documentElement.removeAttribute('data-profile');
-  currentProfile = 'rico'; // reset al default per il prossimo login
-  pinVal = '';
-  updatePinDots();
-  closeSettings();
+  location.reload();
 }
 

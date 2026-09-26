@@ -7,7 +7,6 @@ function renderAll() {
       document.getElementById('mv-agenda').classList.contains('active')) {
     renderAgenda();
   }
-  if (typeof updateShoppingBadge === 'function') updateShoppingBadge();
 }
 
 /* ═══ SIDEBAR ═══ */
@@ -106,7 +105,7 @@ function renderToday() {
     return (a.ora||'99:99').localeCompare(b.ora||'99:99');
   });
 
-  const lbl  = list.length ? `${list.length} elemento${list.length !== 1 ? 'i' : 'o'} oggi` : 'Agenda libera';
+  const lbl  = list.length ? `${list.length} element${list.length !== 1 ? 'i' : 'o'} oggi` : 'Agenda libera';
   const html = list.length ? list.map(card).join('') : emptyOggiHTML();
   // Avvia orologio live se agenda vuota
   if (!list.length) setTimeout(startLiveClock, 100);
@@ -115,7 +114,6 @@ function renderToday() {
   $('dTodayLbl').textContent = lbl; $('dTodayList').innerHTML = html;
   $('mTodayLbl').textContent = lbl; $('mTodayList').innerHTML = html;
 
-  if (allToday.length > 0 && allToday.every(i => i.done)) confetti();
   initSwipe();
 }
 
@@ -236,10 +234,10 @@ function card(it) {
     : it.recurChild ? '<div class="recur-lbl">↻ Ricorrente</div>' : '';
   const urgDot = it.prio === 'alta' && !it.done ? '<div class="urgent-dot"></div>' : '';
 
-  return `<div class="item ${it.done?'done':''}" style="--ic:${ic}" id="c-${it.id}" data-pid="${pid}">
+  return `<div class="item ${it.done?'done':''}" style="--ic:${ic}" id="c-${it.id}" data-pid="${pid}" data-date="${esc(it.data||'')}">
     ${urgDot}
     <div class="item-row">
-      <button class="chk ${it.done?'on':''}" onclick="toggle('${pid}')"><span class="chk-m">✓</span></button>
+      <button class="chk ${it.done?'on':''}" onclick="toggle('${pid}','${esc(it.data||'')}')"><span class="chk-m">✓</span></button>
       <div class="item-body">
         <div class="item-title">${safeTitle}</div>
         <div class="item-meta">
@@ -252,6 +250,7 @@ function card(it) {
         ${it.note ? `<div class="item-note">${safeNote}</div>` : ''}
         ${rtag}
       </div>
+      ${moveTodayBtn(it)}
       <button class="edit-btn" onclick="openEditModal('${pid}');event.stopPropagation()" title="Modifica">✎</button>
       ${!it.recurChild ? `<button class="del-btn" onclick="delItem('${esc(it.id)}',event)">×</button>` : ''}
     </div>
@@ -279,10 +278,10 @@ function cardNoDate(it) {
   const dateLbl = it.data === toISO() ? 'oggi'
     : dateObj.toLocaleDateString('it-IT', {weekday:'short', day:'numeric', month:'short'});
 
-  return `<div class="item ${it.done?'done':''}" style="--ic:${ic}" id="c-${it.id}" data-pid="${pid}">
+  return `<div class="item ${it.done?'done':''}" style="--ic:${ic}" id="c-${it.id}" data-pid="${pid}" data-date="${esc(it.data||'')}">
     ${urgDot}
     <div class="item-row">
-      <button class="chk ${it.done?'on':''}" onclick="toggle('${pid}')"><span class="chk-m">✓</span></button>
+      <button class="chk ${it.done?'on':''}" onclick="toggle('${pid}','${esc(it.data||'')}')"><span class="chk-m">✓</span></button>
       <div class="item-body">
         <div class="item-title">${safeTitle}</div>
         <div class="item-meta">
@@ -296,19 +295,93 @@ function cardNoDate(it) {
         ${it.note ? `<div class="item-note">${safeNote}</div>` : ''}
         ${rtag}
       </div>
+      ${moveTodayBtn(it)}
       <button class="edit-btn" onclick="openEditModal('${pid}');event.stopPropagation()" title="Modifica">✎</button>
       ${!it.recurChild ? `<button class="del-btn" onclick="delItem('${esc(it.id)}',event)">×</button>` : ''}
     </div>
   </div>`;
 }
 
-function toggle(id) {
-  items = items.map(i => i.id === id ? {...i, done: !i.done} : i);
+/* Spunta: per gli impegni ricorrenti vale solo per quel giorno (doneDates) */
+function isItemDoneOn(it, iso) {
+  if (!it) return false;
+  if (it.recur) return Array.isArray(it.doneDates) && it.doneDates.includes(iso);
+  return !!it.done;
+}
+function _todayAllDone() {
+  const t = toISO();
+  const all = expand().filter(i => i.data === t && (currentProfile !== 'anissa' || i.area !== 'startup'));
+  return all.length > 0 && all.every(i => i.done);
+}
+function toggle(id, iso) {
+  const orig = items.find(i => i.id === id);
+  if (!orig) return;
+  const wasAllDone = _todayAllDone();
+  const day = (orig.recur && isValidDate(iso)) ? iso.slice(0,10) : orig.data;
+  let nowDone;
+  items = items.map(i => {
+    if (i.id !== id) return i;
+    if (i.recur) {
+      const dd = Array.isArray(i.doneDates) ? i.doneDates.slice() : [];
+      const k = dd.indexOf(day);
+      if (k >= 0) { dd.splice(k, 1); nowDone = false; } else { dd.push(day); dd.sort(); nowDone = true; }
+      return {...i, doneDates: dd};
+    }
+    nowDone = !i.done;
+    return {...i, done: nowDone};
+  });
   saveItems();
   renderAll();
   checkSmartNotifs();
-  const it = items.find(i => i.id === id);
-  if (it?.done) toast(`✓ "${it.titolo.slice(0,28)}" completato`, 'success');
+  if (nowDone) toast(`✓ "${(orig.titolo||'').slice(0,28)}" completato`, 'success');
+  if (nowDone && !wasAllDone && _todayAllDone()) confetti();
+}
+
+/* Impegni scaduti non fatti: sposta a oggi in un tocco */
+function moveTodayBtn(it) {
+  if (!it || it.done || it.recur || it.recurChild || !it.data || it.data >= toISO()) return '';
+  return `<button class="edit-btn move-today-btn" onclick="moveToToday(['${esc(it.id)}']);event.stopPropagation()" title="Sposta a oggi">→ Oggi</button>`;
+}
+function moveToToday(ids) {
+  const t = toISO();
+  const set = new Set(ids);
+  const prev = {};
+  items = items.map(i => {
+    if (!set.has(i.id) || i.recur || i.done) return i;
+    prev[i.id] = i.data;
+    return {...i, data: t};
+  });
+  const moved = Object.keys(prev);
+  if (!moved.length) return;
+  saveItems();
+  renderAll();
+  checkSmartNotifs();
+  toast(`→ ${moved.length} spostat${moved.length > 1 ? 'i' : 'o'} a oggi`, 'success', {
+    label: 'ANNULLA', timeout: 5000,
+    callback: () => {
+      items = items.map(i => prev[i.id] ? {...i, data: prev[i.id]} : i);
+      saveItems(); renderAll(); checkSmartNotifs();
+      toast('Ripristinato ✓', 'success');
+    }
+  });
+}
+function moveOverdueToToday() {
+  const t = toISO();
+  const ids = items.filter(i => !i.deleted_at && i.tipo !== 'spesa' && i.data && i.data < t && !i.done && !i.recur && isProfileArea(i.area)).map(i => i.id);
+  moveToToday(ids);
+}
+
+/* Intestazione (data + saluto): usata all'avvio, al login e al cambio giorno */
+function updateHeader() {
+  const h  = new Date().getHours();
+  const profileName = currentProfile === 'anissa' ? 'Anissa' : 'Rico';
+  const gr = (h < 12 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera') + ', ' + profileName;
+  const d  = new Date();
+  const dl = d.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  const ds = d.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('sbDate', ds); set('tbGreet', gr); set('tbDate', dl);
+  set('mobDate', ds.toUpperCase()); set('mobGreet', gr);
 }
 
 function delItem(id, e) {
@@ -341,95 +414,6 @@ function suggestNextDate(it) {
     while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
   }
   return dateToISO(d);
-}
-
-function openRiprogramma(id, event) {
-  event?.stopPropagation();
-  // Chiudi eventuali panel aperti
-  document.querySelectorAll('.riprog-panel').forEach(p => p.remove());
-  const it = items.find(i => i.id === id);
-  if (!it) return;
-  const cardEl = document.getElementById('c-' + id);
-  if (!cardEl) return;
-
-  const sugDate = suggestNextDate(it);
-  const safeId  = esc(id);
-
-  const panel = document.createElement('div');
-  panel.className = 'riprog-panel';
-  panel.id = 'rp-' + id;
-  panel.innerHTML = `
-    <div class="riprog-title">↻ Riprogramma — ${esc(it.titolo.slice(0,30))}</div>
-    <div class="riprog-ai-hint" id="rpHint-${safeId}"><span style="color:var(--dim)">⏳ Calcolo proposta AI…</span></div>
-    <div class="riprog-fields">
-      <input type="date" id="rpDate-${safeId}" value="${sugDate}" min="${toISO()}" style="flex:1">
-      <input type="time" id="rpTime-${safeId}" value="${esc(it.ora||'')}" style="flex:1">
-    </div>
-    <div class="riprog-btns">
-      <button class="riprog-ok" onclick="confirmRiprogramma('${safeId}')">✓ Conferma</button>
-      <button class="riprog-cancel" onclick="closeRiprogramma('${safeId}')">✗ Annulla</button>
-    </div>`;
-  cardEl.after(panel);
-
-  if (apiKey) getRiprogrammaAI(id, it);
-}
-
-async function getRiprogrammaAI(id, it) {
-  const prompt = `Sei il coach di Rico. Deve riprogrammare: "${it.titolo}" (${it.tipo}, area ${it.area}, data originale ${it.data}).
-Oggi è ${toISO()} (${new Date().toLocaleDateString('it-IT',{weekday:'long'})}).
-Regole per la proposta:
-- CPC → mercoledì o giovedì mattina
-- Lavoro/Formatore → lunedì-venerdì, orario lavorativo
-- Famiglia → sabato o domenica
-- Personale → qualsiasi giorno, stesso orario se presente
-Rispondi SOLO con JSON valido: {"data":"YYYY-MM-DD","ora":"HH:MM o null","motivo":"max 8 parole"}`;
-  try {
-    const raw = await apiCall([{role:'user', content:prompt}], 120);
-    const p   = JSON.parse(raw.replace(/```json|```/g,'').trim());
-    const hint = document.getElementById('rpHint-' + id);
-    if (hint) {
-      hint.innerHTML = `<span style="color:var(--gold2)">✦ Proposta: <strong>${esc(p.data||'')}</strong>${(p.ora && p.ora!=='null') ? ' alle <strong>'+esc(p.ora)+'</strong>' : ''} — ${esc(p.motivo||'')}</span>`;
-    }
-    const di = document.getElementById('rpDate-' + id);
-    const ti = document.getElementById('rpTime-' + id);
-    if (di && p.data) di.value = p.data;
-    if (ti && p.ora && p.ora !== 'null') ti.value = p.ora;
-  } catch(e) {
-    const hint = document.getElementById('rpHint-' + id);
-    if (hint) hint.innerHTML = '<span style="color:var(--dim)">Proposta AI non disponibile — scegli tu la data.</span>';
-  }
-}
-
-function confirmRiprogramma(id) {
-  const it = items.find(i => i.id === id);
-  if (!it) return;
-  const newDate = document.getElementById('rpDate-' + id)?.value;
-  const newTime = document.getElementById('rpTime-' + id)?.value || '';
-  if (!newDate) { toast('Seleziona una data', 'warn'); return; }
-
-  // Marca originale come done
-  if (!it.done) {
-    items = items.map(i => i.id === id ? {...i, done: true} : i);
-  }
-  // Crea nuovo item con nuova data
-  const newIt = {
-    ...it,
-    id:    uid(),
-    data:  newDate.slice(0,10),
-    ora:   newTime,
-    done:  false,
-    recur: '',
-  };
-  items.unshift(newIt);
-  saveItems();
-  closeRiprogramma(id);
-  renderAll();
-  toast(`↻ Riprogrammato al ${newDate}`, 'success');
-}
-
-function closeRiprogramma(id) {
-  const panel = document.getElementById('rp-' + id);
-  if (panel) panel.remove();
 }
 
 /* ═══ AREA PICKER — modifica categoria inline ═══ */

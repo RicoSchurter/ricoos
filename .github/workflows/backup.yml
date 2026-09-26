@@ -1,14 +1,14 @@
-name: Weekly Supabase backup
+name: Daily Supabase backup
 
-# Ogni domenica alle 03:00 UTC (05:00 Zurigo estate / 04:00 Zurigo inverno)
+# Ogni giorno alle 03:00 UTC (05:00 Zurigo estate / 04:00 Zurigo inverno)
 # Puoi anche lanciarlo manualmente dal tab Actions con "Run workflow"
 on:
   schedule:
-    - cron: '0 3 * * 0'
+    - cron: '0 3 * * *'
   workflow_dispatch:
 
 concurrency:
-  group: weekly-backup
+  group: daily-backup
   cancel-in-progress: false
 
 jobs:
@@ -56,7 +56,7 @@ jobs:
             '{
               version: 1,
               backed_up_at: $timestamp,
-              source: "github-actions-weekly",
+              source: "github-actions-daily",
               items_count: ($items | length),
               startup_data_count: ($stData | length),
               items: $items,
@@ -74,8 +74,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add backups/
           if git diff --cached --quiet; then
-            echo "Nessun cambiamento — il backup della settimana e gia presente."
+            echo "Nessun cambiamento — il backup di oggi e gia presente."
           else
-            git commit -m "chore: backup Supabase settimanale $(date -u +%Y-%m-%d)"
+            git commit -m "chore: backup Supabase giornaliero $(date -u +%Y-%m-%d)"
             git push
           fi
