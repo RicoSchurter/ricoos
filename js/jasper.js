@@ -135,7 +135,12 @@ function _jasNormEntry(e){
 }
 async function jasperMutateDay(date, fn){
   const key = jasperDiaryKey(date);
-  const val = await stMutate(key, e => fn(_jasNormEntry(e)), () => ({notes:[],meals:[],sleeps:[],lastMeal:null}));
+  // Appena la modifica è salvata sul telefono, lo schermo si aggiorna (anche con rete lenta)
+  const onLocal = v => {
+    jasperDiary[date] = _jasNormEntry(JSON.parse(JSON.stringify(v)));
+    if (currentView === 'jasper' && !_jasperRendering) renderJasper();
+  };
+  const val = await stMutate(key, e => fn(_jasNormEntry(e)), () => ({notes:[],meals:[],sleeps:[],lastMeal:null}), onLocal);
   if (stData[key]) jasperDiary[date] = _jasNormEntry(JSON.parse(JSON.stringify(stData[key])));
   return val;
 }
@@ -328,6 +333,8 @@ async function renderJasper(){
   try {
   // Save scroll position before re-render (prevents iOS scroll jump)
   const _scrollY = window.scrollY || document.documentElement.scrollTop;
+  // Conserva la nota che si sta scrivendo (il ridisegno non la cancella mai)
+  const _noteDraft = (jasperActive()?.querySelector('#jasNoteInp')?.value) || '';
 
   const{months,days,totalD}=jasperAgeDetails();
   const today=toISO();
@@ -388,13 +395,14 @@ async function renderJasper(){
       ? `<div class="jas-sleep-hint">Prima era sveglio ${formatMin(awakeBefore)} (dalle ${esc(prev.end)})</div>` : '';
     const tooLong=openIv.night ? sleepingMin>15*60 : sleepingMin>180;
     const warn=tooLong
-      ? `<div class="jas-sleep-warn">Dorme da ${formatMin(sleepingMin)}: forse "Svegliato ora" non è stato premuto?<br><button type="button" onclick="jasperEditSleepFromDay('${openIv.day}','${esc(openIv.start)}',event)">Correggi orario</button></div>` : '';
+      ? `<div class="jas-sleep-warn">Dorme da ${formatMin(sleepingMin)}: forse "Svegliato ora" non è stato premuto?<br><button type="button" onclick="jasperOpenSleepEditor('${openIv.day}','${esc(openIv.start)}')">Correggi orario</button></div>` : '';
     sleepCardHtml = `<div class="jas-sleep-card sleeping">
       <div class="jas-sleep-lbl">${openIv.night?'🌙 Sta dormendo (notte)':'💤 Sta dormendo'}</div>
       <div class="jas-sleep-status">da <span data-since="${openIv.st.getTime()}">${formatMin(sleepingMin)}</span></div>
       <div class="jas-sleep-detail">iniziato alle ${esc(openIv.start)}${openIv.day!==today?' di ieri':''}</div>
       ${hint}
       <button class="jas-sleep-btn wake" onclick="jasperEndSleep()" type="button">☀️ Svegliato ora</button>
+      <button class="jas-sleep-alt" onclick="jasperOpenSleepEditor('${openIv.day}','${esc(openIv.start)}',{endNow:true})" type="button">Si è svegliato prima? Scegli l'ora</button>
       ${warn}
     </div>`;
   } else if(lastDone && (nowD-lastDone.en) < 16*3600000){
@@ -418,6 +426,7 @@ async function renderJasper(){
       <div class="jas-sleep-detail">${detail}</div>
       ${hint}
       <button class="jas-sleep-btn" onclick="jasperStartSleep()" type="button">💤 Dorme ora</button>
+      <button class="jas-sleep-alt" onclick="jasperOpenSleepEditor(toISO(),'')" type="button">Si è addormentato prima? Scegli l'ora</button>
     </div>`;
   } else if(entry.woke_at && _HHMM_RE.test(entry.woke_at)){
     const wokeAt=jasAbs(today,entry.woke_at);
@@ -427,6 +436,7 @@ async function renderJasper(){
       <div class="jas-sleep-status">da <span data-since="${wokeAt.getTime()}">${formatMin(awakeMin)}</span></div>
       <div class="jas-sleep-detail">svegliato alle ${esc(entry.woke_at)}</div>
       <button class="jas-sleep-btn" onclick="jasperStartSleep()" type="button">💤 Dorme ora</button>
+      <button class="jas-sleep-alt" onclick="jasperOpenSleepEditor(toISO(),'')" type="button">Si è addormentato prima? Scegli l'ora</button>
     </div>`;
   } else {
     sleepCardHtml = `<div class="jas-sleep-card">
@@ -434,6 +444,7 @@ async function renderJasper(){
       <div class="jas-sleep-status">Nessun pisolino oggi</div>
       <div class="jas-sleep-detail">Inizia a tracciare quando Jasper dorme</div>
       <button class="jas-sleep-btn" onclick="jasperStartSleep()" type="button">💤 Dorme ora</button>
+      <button class="jas-sleep-alt" onclick="jasperOpenSleepEditor(toISO(),'')" type="button">Si è addormentato prima? Scegli l'ora</button>
     </div>`;
   }
 
@@ -461,7 +472,7 @@ async function renderJasper(){
         ? `${ico} ${lbl}${esc(x.start)}${fromY} → ${esc(x.end)} · ${formatMin(Math.round((x.en-x.st)/60000))}`
         : `${ico} ${lbl}${esc(x.start)}${fromY} → <em>in corso</em> · <span data-since="${x.st.getTime()}">${formatMin(Math.max(0,Math.floor((nowD-x.st)/60000)))}</span>`;
       const del=(x.day===today&&x.en)?`<button class="jas-sleep-del" onclick="jasperDeleteSleep('${esc(x.start)}',event)" title="Rimuovi" type="button">×</button>`:'';
-      rows.push(`<div class="${cls}"><span class="jas-sleep-time">${timeTxt}</span>${del}</div>`);
+      rows.push(`<div class="${cls}" onclick="jasperOpenSleepEditor('${x.day}','${esc(x.start)}')" title="Tocca per modificare gli orari"><span class="jas-sleep-time">${timeTxt}</span><span class="jas-sleep-edit">✎</span>${del}</div>`);
       const next=todayRows[i+1];
       if(next&&x.en){
         const g=Math.floor((next.st-x.en)/60000);
@@ -530,8 +541,7 @@ async function renderJasper(){
         <div class="jas-sleeps-rows">${sleepsListHtml}</div>
       </div>` : ''}
 
-      <button class="jas-sleep-add-btn" onclick="jasperShowManualSleepForm()" type="button">+ Aggiungi pisolino manualmente</button>
-      <div id="jasManualSleepForm" style="display:none"></div>
+      <button class="jas-sleep-add-btn" onclick="jasperOpenSleepEditor(toISO(),'')" type="button">+ Aggiungi sonno (pisolino o notte)</button>
 
       <!-- Note veloci -->
       <div class="jas-notes-block">
@@ -563,6 +573,7 @@ async function renderJasper(){
   const inactive = jasperInactive();
   if (active) active.innerHTML = html;
   if (inactive) inactive.innerHTML = ''; // svuota l'altro per evitare duplicati DOM
+  if (_noteDraft && active) { const ni = active.querySelector('#jasNoteInp'); if (ni) ni.value = _noteDraft; }
   _jasperRendering = false;
   // Restore scroll position after re-render
   requestAnimationFrame(() => { window.scrollTo(0, _scrollY); });
@@ -823,21 +834,21 @@ async function renderJasperCrescita(){
 
 
 async function jasperLogWeight(){
+  // Valori letti al momento del tocco. Cerca l'input dentro l'active container per evitare duplicati
+  const active = jasperActive();
+  const inpEl = active?.querySelector('#jasWeightKg') || document.getElementById('jasWeightKg');
+  const raw = (inpEl?.value||'').replace(',','.').trim();
+  const kg = parseFloat(raw);
+  const dateEl = active?.querySelector('#jasWeightDate') || document.getElementById('jasWeightDate');
+  const date = (dateEl?.value || toISO()).slice(0,10);
+  const noteEl = active?.querySelector('#jasWeightNote') || document.getElementById('jasWeightNote');
+  const note = (noteEl?.value||'').trim();
+  if(isNaN(kg)||kg<0.5||kg>25){
+    toast('Inserisci un peso valido (0.5 - 25 kg)','warn');
+    return;
+  }
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      // Cerca l'input dentro l'active container per evitare duplicati
-      const active = jasperActive();
-      const inpEl = active?.querySelector('#jasWeightKg') || document.getElementById('jasWeightKg');
-      const raw = (inpEl?.value||'').replace(',','.').trim();
-      const kg = parseFloat(raw);
-      const dateEl = active?.querySelector('#jasWeightDate') || document.getElementById('jasWeightDate');
-      const date = (dateEl?.value || toISO()).slice(0,10);
-      const noteEl = active?.querySelector('#jasWeightNote') || document.getElementById('jasWeightNote');
-      const note = (noteEl?.value||'').trim();
-      if(isNaN(kg)||kg<0.5||kg>25){
-        toast('Inserisci un peso valido (0.5 - 25 kg)','warn');
-        return;
-      }
       await stMutate('jasper_weights', ws => {
         if(!Array.isArray(ws.list)) ws.list = [];
         ws.list = ws.list.filter(w => w && w.date !== date);
@@ -887,11 +898,12 @@ let _jasperOpQueue = Promise.resolve();
 
 // Registra un pasto con ora custom (default: ora corrente)
 async function jasperLogMealTime(){
+  // Valori letti al momento del tocco (con rete lenta il turno in coda può arrivare dopo)
+  const hhmm=readHHMMPicker('jasMealTime');
+  if(!hhmm){toast('Seleziona un orario','warn');return;}
+  const today=toISO();
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const hhmm=readHHMMPicker('jasMealTime');
-      if(!hhmm){toast('Seleziona un orario','warn');return;}
-      const today=toISO();
       let dup=false;
       const res=await jasperMutateDay(today, e => {
         // Evita duplicati: se esiste gia un pasto nello stesso minuto non lo ri-aggiunge
@@ -969,10 +981,11 @@ function _jasperAfterDayChange(iso){
 
 /* ── Sleep tracking (pisolini) ── */
 function jasperStartSleep(){
+  // Orario del tocco, anche se il salvataggio arriva dopo (rete lenta)
+  const today = toISO();
+  const start = nowHHMMSwiss();
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const today = toISO();
-      const start = nowHHMMSwiss();
       let already = false;
       const res = await jasperMutateDay(today, e => {
         // Evita doppio start se c'e gia un pisolino aperto
@@ -981,24 +994,25 @@ function jasperStartSleep(){
       });
       renderJasper();
       if(already){ toast('Jasper sta gia dormendo','warn'); return; }
-      if(res) toast('💤 Pisolino iniziato alle '+start, 'success');
+      if(res) toast('💤 Dorme dalle '+start, 'success', {label:'CORREGGI', timeout:6000, callback:() => jasperOpenSleepEditor(today, start)});
     } catch(e) { console.error('jasperStartSleep:',e); toast('Errore','warn'); }
   }).catch(() => {});
 }
 
 function jasperEndSleep(){
+  // Orario del tocco, anche se il salvataggio arriva dopo (rete lenta)
+  const today = toISO();
+  const yesterday = dateToISO(new Date(Date.now() - 86400000));
+  const end = nowHHMMSwiss();
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      const today = toISO();
-      const yesterday = dateToISO(new Date(Date.now() - 86400000));
-      const end = nowHHMMSwiss();
       let closed = null;
       await jasperMutateDay(today, e => {
         const op = e.sleeps.find(s => s && s.start && !s.end);
         if(!op) return false;
         op.end = end;
         e.woke_at = end;
-        closed = {start: op.start};
+        closed = {start: op.start, day: today};
       });
       // Notte a cavallo della mezzanotte: il sonno aperto è sul giorno prima
       if(!closed){
@@ -1006,13 +1020,13 @@ function jasperEndSleep(){
           const op = e.sleeps.find(s => s && s.start && !s.end);
           if(!op) return false;
           op.end = end;
-          closed = {start: op.start};
+          closed = {start: op.start, day: yesterday};
         });
         if(closed) await jasperMutateDay(today, e => { e.woke_at = end; });
       }
       renderJasper();
       if(!closed){ toast('Nessun pisolino in corso','warn'); return; }
-      toast('☀️ Ha dormito '+formatMin(hhmmDiffMin(closed.start, end)), 'success');
+      toast('☀️ Ha dormito '+formatMin(hhmmDiffMin(closed.start, end)), 'success', {label:'CORREGGI', timeout:6000, callback:() => jasperOpenSleepEditor(closed.day, closed.start)});
     } catch(e) { console.error('jasperEndSleep:',e); toast('Errore','warn'); }
   }).catch(() => {});
 }
@@ -1023,61 +1037,9 @@ function jasperDeleteSleep(startHHMM, event){
 }
 
 function jasperShowManualSleepForm(){
-  const active = jasperActive();
-  const wrap = active?.querySelector('#jasManualSleepForm') || document.getElementById('jasManualSleepForm');
-  if(!wrap) return;
-  if(wrap.style.display === 'block'){
-    wrap.style.display = 'none';
-    wrap.innerHTML = '';
-    return;
-  }
-  const now = nowHHMMSwiss();
-  wrap.innerHTML = `<div class="jas-sleep-manual-form">
-    <div class="jas-popup-edit-lbl">Aggiungi pisolino manualmente</div>
-    <div class="jas-sleep-manual-row">
-      <label>Inizio</label>
-      ${hhmmPickerHTML('jasManualStart', now, {withNow:true})}
-    </div>
-    <div class="jas-sleep-manual-row">
-      <label>Fine</label>
-      ${hhmmPickerHTML('jasManualEnd', '', {withNow:true, allowEmpty:true})}
-    </div>
-    <div style="font-size:11px;color:#8a7ca0;margin-bottom:10px;font-style:italic">Lascia vuota la fine se il pisolino e in corso</div>
-    <div class="jas-popup-edit-btns">
-      <button class="jas-popup-edit-save" onclick="jasperAddSleepManual()" type="button">✓ Salva</button>
-      <button class="jas-popup-edit-cancel" onclick="jasperShowManualSleepForm()" type="button">✗ Annulla</button>
-    </div>
-  </div>`;
-  wrap.style.display = 'block';
+  jasperOpenSleepEditor(toISO(), '');
 }
 
-function jasperAddSleepManual(){
-  const start = readHHMMPicker('jasManualStart');
-  const end = readHHMMPicker('jasManualEnd'); // null = in corso
-  if(!start){ toast('Inserisci almeno l\'ora di inizio','warn'); return; }
-  if(end && start === end){ toast('Inizio e fine coincidono','warn'); return; }
-  _jasperOpQueue = _jasperOpQueue.then(async () => {
-    try {
-      const today = toISO();
-      let problem = null;
-      const res = await jasperMutateDay(today, e => {
-        // Se si sta aggiungendo un in-corso, verifica che non ce ne sia gia uno aperto
-        if(!end && e.sleeps.some(s => s && s.start && !s.end)){ problem = 'C\'e gia un pisolino in corso'; return false; }
-        // Evita duplicato esatto sullo stesso start
-        if(e.sleeps.some(s => s && s.start === start)){ problem = 'Pisolino gia presente con questo inizio'; return false; }
-        e.sleeps.push({start, end: end || null});
-      });
-      renderJasper();
-      if(problem){ toast(problem,'warn'); return; }
-      if(!res) return;
-      if(end){
-        toast('💤 Pisolino aggiunto · '+formatMin(hhmmDiffMin(start, end)), 'success');
-      } else {
-        toast('💤 Pisolino in corso dalle '+start, 'success');
-      }
-    } catch(e) { console.error('jasperAddSleepManual:',e); toast('Errore','warn'); }
-  }).catch(() => {});
-}
 
 /* ── Popup storico giorno (con edit/delete inline) ── */
 let _popupEditingState = null; // {type: 'meal'|'note'|'weight'|'sleep', iso, data}
@@ -1207,21 +1169,33 @@ function renderPopupEditForm(iso, state){
         <button class="jas-popup-edit-cancel" onclick="jasperCancelPopupEdit('${iso}',event)" type="button">✗ Annulla</button>
       </div>`;
   } else if(type === 'sleep'){
-    body = `
-      <div class="jas-popup-edit-lbl">Modifica pisolino</div>
+    const creating = !data.originalStart;
+    const shift = id => `<div class="jas-shift">${[-30,-15,-10,-5,5].map(d => `<button type="button" onclick="jasperShiftPicker('${id}',${d})">${d > 0 ? '+' + d : '−' + Math.abs(d)} min</button>`).join('')}</div>`;
+    const dayToggle = creating ? `<div class="jas-day-toggle">
+        <span>Iniziato</span>
+        <button type="button" data-day="oggi" class="${data.day === 'ieri' ? '' : 'on'}" onclick="jasperSetEditDay('oggi')">Oggi</button>
+        <button type="button" data-day="ieri" class="${data.day === 'ieri' ? 'on' : ''}" onclick="jasperSetEditDay('ieri')">Ieri</button>
+      </div>` : '';
+    body = `<div oninput="jasperSleepEditPreview()">
+      <div class="jas-popup-edit-lbl">${creating ? 'Nuovo sonno' : 'Modifica orari'}</div>
+      ${dayToggle}
       <div class="jas-sleep-manual-row">
-        <label>Inizio</label>
+        <label>Addormentato</label>
         ${hhmmPickerHTML('popupEditSleepStart', data.start||'', {withNow:true})}
       </div>
+      ${shift('popupEditSleepStart')}
       <div class="jas-sleep-manual-row">
-        <label>Fine</label>
+        <label>Svegliato</label>
         ${hhmmPickerHTML('popupEditSleepEnd', data.end||'', {withNow:true, allowEmpty:true})}
       </div>
-      <div style="font-size:11px;color:#8a7ca0;margin-bottom:10px;font-style:italic">Lascia vuota la fine se il pisolino e in corso</div>
+      ${shift('popupEditSleepEnd')}
+      <div class="jas-sleep-edit-preview" id="jasSleepEditPreview"></div>
+      <div style="font-size:11px;color:#8a7ca0;margin-bottom:10px;font-style:italic">Lascia vuoto "Svegliato" se sta ancora dormendo</div>
       <div class="jas-popup-edit-btns">
         <button class="jas-popup-edit-save" onclick="jasperSaveSleepEdit('${iso}','${esc(data.originalStart||'')}',event)" type="button">✓ Salva</button>
         <button class="jas-popup-edit-cancel" onclick="jasperCancelPopupEdit('${iso}',event)" type="button">✗ Annulla</button>
-      </div>`;
+      </div>
+    </div>`;
   }
   return `<div class="jas-popup-edit-form">${body}</div>`;
 }
@@ -1290,10 +1264,92 @@ function jasperEditSleepFromDay(iso, startHHMM, event){
   _popupEditingState = {type:'sleep', iso, data:{originalStart:s.start, start:s.start, end:s.end||''}};
   openJasperDayPopup(iso);
 }
+/* ═══ EDITOR ORARI SONNO (pisolini e notte) ═══
+   Si apre toccando un sonno in "Oggi", da "Si è svegliato prima?", da CORREGGI
+   dopo Svegliato/Dorme ora, e da "+ Aggiungi sonno".
+   La notte è salvata sul giorno in cui inizia (ieri): l'editor lavora sempre
+   sul giorno giusto, anche quando la fine è dopo mezzanotte. */
+function jasperOpenSleepEditor(iso, start, opts){
+  const o = opts || {};
+  let data;
+  if(start){
+    const e = stData[jasperDiaryKey(iso)] || {};
+    const s = (e.sleeps || []).find(x => x && x.start === start);
+    if(!s){ toast('Sonno non trovato','warn'); return; }
+    data = {originalStart: s.start, start: s.start, end: o.endNow ? nowHHMMSwiss() : (s.end || '')};
+  } else {
+    data = {originalStart: '', start: nowHHMMSwiss(), end: '', day: 'oggi', dayManual: false};
+  }
+  _popupEditingState = {type:'sleep', iso, data, compact:true};
+  const title = document.getElementById('jasDayPopupTitle');
+  const body = document.getElementById('jasDayPopupContent');
+  if(title) title.textContent = jasperSleepEditorTitle(iso, data);
+  if(body) body.innerHTML = renderPopupEditForm(iso, _popupEditingState);
+  const overlay = document.getElementById('jasperDayPopup');
+  if(overlay) overlay.classList.add('open');
+  jasperSleepEditPreview();
+}
+function jasperSleepEditorTitle(iso, data){
+  if(!data.originalStart) return 'Aggiungi sonno';
+  const x = jasperIntervals(iso, iso).find(i => i.start === data.originalStart);
+  const night = x ? x.night : false;
+  if(iso === toISO()) return night ? '🌙 Notte di stasera' : '💤 Pisolino di oggi';
+  const d = new Date(iso + 'T12:00:00').toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
+  return (night ? '🌙 Notte iniziata ' : '💤 Sonno del ') + (iso === dateToISO(new Date(Date.now() - 86400000)) ? 'ieri, ' : '') + d;
+}
+/* Sposta un orario di N minuti (bottoni −30 −15 −10 −5 +5) */
+function jasperShiftPicker(prefix, delta){
+  let v = readHHMMPicker(prefix);
+  if(!v) v = nowHHMMSwiss();
+  const [h, m] = v.split(':').map(Number);
+  const t = ((h * 60 + m + delta) % 1440 + 1440) % 1440;
+  const hEl = document.getElementById(prefix + 'H');
+  const mEl = document.getElementById(prefix + 'M');
+  if(hEl){ hEl.value = String(Math.floor(t / 60)).padStart(2,'0'); hEl.dataset.touched = '1'; }
+  if(mEl){ mEl.value = String(t % 60).padStart(2,'0'); mEl.dataset.touched = '1'; }
+  jasperSleepEditPreview();
+}
+/* Nuovo sonno: iniziato oggi o ieri sera */
+function jasperSetEditDay(day){
+  const st = _popupEditingState;
+  if(!st || st.type !== 'sleep') return;
+  st.data.day = day;
+  st.data.dayManual = true;
+  jasperSleepEditPreview();
+}
+/* Anteprima durata + scelta automatica oggi/ieri + controlli */
+function jasperSleepEditPreview(){
+  const st = _popupEditingState;
+  if(!st || st.type !== 'sleep') return;
+  const el = document.getElementById('jasSleepEditPreview');
+  const s = readHHMMPicker('popupEditSleepStart');
+  const e = readHHMMPicker('popupEditSleepEnd');
+  const creating = !st.data.originalStart;
+  if(creating){
+    // Un sonno non può iniziare o finire nel futuro: se oggi non è possibile, è di ieri
+    if(!st.data.dayManual && s){
+      const today = toISO();
+      const stT = jasAbs(today, s);
+      let enT = null;
+      if(e){ enT = jasAbs(today, e); if(enT <= stT) enT = new Date(enT.getTime() + 86400000); }
+      const now = new Date(Date.now() + 60000);
+      st.data.day = (stT > now || (enT && enT > now)) ? 'ieri' : 'oggi';
+    }
+    document.querySelectorAll('#jasDayPopupContent .jas-day-toggle button').forEach(b => b.classList.toggle('on', b.dataset.day === st.data.day));
+  }
+  if(!el) return;
+  if(!s){ el.textContent = ''; return; }
+  if(!e){ el.textContent = 'Sta ancora dormendo, dalle ' + s; return; }
+  const d = hhmmDiffMin(s, e);
+  if(d > 16 * 60){ el.innerHTML = '<span class="warn">Controlla: la fine sembra prima dell\'inizio</span>'; return; }
+  el.textContent = 'Durata: ' + formatMin(d) + (e < s ? ' · finisce dopo mezzanotte' : '');
+}
 
 function jasperCancelPopupEdit(iso, event){
   event?.stopPropagation();
+  const compact = !!(_popupEditingState && _popupEditingState.compact);
   _popupEditingState = null;
+  if(compact){ closeJasperDayPopup(); return; }
   openJasperDayPopup(iso);
 }
 
@@ -1379,27 +1435,69 @@ function jasperSaveWeightEdit(iso, oldDate, event){
 
 function jasperSaveSleepEdit(iso, originalStart, event){
   event?.stopPropagation();
+  const st = _popupEditingState;
+  const compact = !!(st && st.compact);
   const newStart = readHHMMPicker('popupEditSleepStart');
   const newEnd = readHHMMPicker('popupEditSleepEnd');
-  if(!newStart){ toast('Inserisci almeno l\'ora di inizio','warn'); return; }
+  if(!newStart){ toast('Inserisci almeno l\'ora in cui si è addormentato','warn'); return; }
   if(newEnd && newStart === newEnd){ toast('Inizio e fine coincidono','warn'); return; }
+  if(newEnd && hhmmDiffMin(newStart, newEnd) > 16*60){ toast('Controlla gli orari: la fine sembra prima dell\'inizio','warn'); return; }
+  const today = toISO();
+  const yISO = dateToISO(new Date(Date.now() - 86400000));
+  // Nuovo sonno: il giorno è quello in cui inizia (oggi o ieri)
+  const dayISO = (!originalStart && st && st.data && st.data.day === 'ieri') ? yISO : iso;
+  // Mai nel futuro
+  const stT = jasAbs(dayISO, newStart);
+  let enT = null;
+  if(newEnd){ enT = jasAbs(dayISO, newEnd); if(enT <= stT) enT = new Date(enT.getTime() + 86400000); }
+  const nowT = new Date(Date.now() + 60000);
+  if(stT > nowT || (enT && enT > nowT)){ toast('Quell\'orario è nel futuro: controlla gli orari (o oggi/ieri)','warn'); return; }
+  // Un solo sonno in corso alla volta
+  if(!newEnd){
+    const otherOpen = jasperIntervals(yISO, today).some(x => !x.en && !(x.day === dayISO && x.start === originalStart));
+    if(otherOpen){ toast('C\'è già un sonno in corso: chiudi prima quello','warn'); return; }
+  }
+  // Niente sovrapposizioni con un altro sonno registrato
+  const enEff = enT || nowT;
+  const clash = jasperIntervals(dateToISO(new Date(stT.getTime() - 86400000)), today)
+    .find(x => !(x.day === dayISO && x.start === originalStart) && x.st < enEff && (x.en || nowT) > stT);
+  if(clash){ toast('Si sovrappone a un altro sonno (' + clash.start + (clash.end ? '→' + clash.end : ', in corso') + ')','warn'); return; }
   _jasperOpQueue = _jasperOpQueue.then(async () => {
     try {
-      let problem = null;
-      const res = await jasperMutateDay(iso, e => {
-        const idx = e.sleeps.findIndex(s => s && s.start === originalStart);
-        if(idx < 0){ problem = 'Pisolino non trovato'; return false; }
-        // Evita collisione con altro pisolino che ha gia quell'inizio
-        if(newStart !== originalStart && e.sleeps.some((s,i) => i !== idx && s && s.start === newStart)){
-          problem = 'Esiste gia un pisolino a '+newStart; return false;
+      let problem = null, oldEnd = null;
+      const res = await jasperMutateDay(dayISO, e => {
+        if(originalStart){
+          const idx = e.sleeps.findIndex(s => s && s.start === originalStart);
+          if(idx < 0){ problem = 'Sonno non trovato'; return false; }
+          // Evita collisione con altro sonno che ha gia quell'inizio
+          if(newStart !== originalStart && e.sleeps.some((s,i) => i !== idx && s && s.start === newStart)){
+            problem = 'Esiste gia un sonno a '+newStart; return false;
+          }
+          oldEnd = e.sleeps[idx].end || null;
+          e.sleeps[idx] = {start:newStart, end:newEnd || null};
+        } else {
+          if(e.sleeps.some(s => s && s.start === newStart)){ problem = 'Esiste gia un sonno che inizia alle '+newStart; return false; }
+          e.sleeps.push({start:newStart, end:newEnd || null});
         }
-        e.sleeps[idx] = {start:newStart, end:newEnd || null};
       });
       if(problem){ toast(problem,'warn'); return; }
       if(!res) return;
+      // Orario di sveglia di oggi allineato (notte di ieri che finisce stamattina, o ultimo sonno di oggi)
+      if(newEnd && enT && dateToISO(enT) === today && (dayISO === yISO || dayISO === today)){
+        await jasperMutateDay(today, e => {
+          if(e.woke_at && e.woke_at !== oldEnd) return false;
+          e.woke_at = newEnd;
+        });
+      }
       _popupEditingState = null;
-      _jasperAfterDayChange(iso);
-      toast('Pisolino aggiornato ✓','success');
+      if(compact){
+        const overlay = document.getElementById('jasperDayPopup');
+        if(overlay) overlay.classList.remove('open');
+        if(currentView === 'jasper') renderJasper();
+      } else {
+        _jasperAfterDayChange(dayISO);
+      }
+      toast(originalStart ? 'Orari aggiornati ✓' : 'Sonno aggiunto ✓', 'success');
     } catch(e) { console.error('jasperSaveSleepEdit:', e); toast('Errore','warn'); }
   }).catch(() => {});
 }

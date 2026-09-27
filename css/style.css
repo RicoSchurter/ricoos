@@ -2002,3 +2002,16 @@ input.qa-edit-sel[type="time"]::-webkit-calendar-picker-indicator{
 .jas-chart-ttl{font-size:10px;letter-spacing:2px;color:#8a7050;text-transform:uppercase;margin-bottom:6px;}
 .jas-chart-box svg{width:100%;height:auto;display:block;}
 .jas-chart-note{font-size:11px;color:#6a5030;margin-top:4px;}
+/* Editor orari sonno */
+.jas-sleep-row{cursor:pointer;}
+.jas-sleep-edit{color:#6a5a90;font-size:13px;margin-left:auto;padding:0 6px;}
+.jas-sleep-alt{display:block;margin:10px auto 0;background:none;border:none;color:#b8a8e0;font-size:12px;text-decoration:underline;cursor:pointer;font-family:inherit;padding:6px;}
+.jas-shift{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 12px;}
+.jas-shift button{flex:1;min-width:52px;padding:7px 0;background:#1e1830;border:1px solid #4a3a70;border-radius:8px;color:#c8b8e0;font-size:12px;cursor:pointer;font-family:inherit;}
+.jas-day-toggle{display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:12px;color:#8a7ca0;}
+.jas-day-toggle button{flex:1;padding:7px 0;background:#1e1830;border:1px solid #4a3a70;border-radius:8px;color:#8a7ca0;font-size:12px;cursor:pointer;font-family:inherit;}
+.jas-day-toggle button.on{background:#3a2a60;color:#f0e0ff;border-color:#8a70c0;}
+.jas-sleep-edit-preview{font-size:13px;color:#d4c4f0;margin:4px 0 8px;min-height:18px;}
+.jas-sleep-edit-preview .warn{color:#f0a070;}
+.jas-popup-edit-form .jas-sleep-manual-row{flex-wrap:wrap;gap:6px;}
+.jas-popup-edit-form .jas-sleep-manual-row label{width:100%;}

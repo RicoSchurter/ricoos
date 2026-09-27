@@ -1,18 +1,28 @@
 async function sbFetch(path, opts = {}) {
-  const res = await fetch(SB_URL + '/rest/v1/' + path, {
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + SB_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': opts.prefer || 'return=minimal',
-      ...opts.headers
-    },
-    ...opts
-  });
-  if (!res.ok) throw new Error('Supabase error ' + res.status);
-  const text = await res.text();
-  if (!text) return null;
-  try { return JSON.parse(text); } catch(e) { return null; }
+  // Tempo massimo di attesa: con rete debole la richiesta non resta appesa per sempre
+  // (prima un salvataggio bloccato poteva fermare tutte le azioni successive).
+  const ms = opts.timeout || 15000;
+  const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), ms) : null;
+  try {
+    const res = await fetch(SB_URL + '/rest/v1/' + path, {
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': opts.prefer || 'return=minimal',
+        ...opts.headers
+      },
+      ...opts,
+      signal: ctrl ? ctrl.signal : undefined
+    });
+    if (!res.ok) throw new Error('Supabase error ' + res.status);
+    const text = await res.text();
+    if (!text) return null;
+    try { return JSON.parse(text); } catch(e) { return null; }
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 /* ═══ LOAD / SAVE ═══
@@ -96,9 +106,11 @@ async function loadAll() {
   let localItems = [];
   try { localItems = JSON.parse(localStorage.getItem('rico_items') || '[]'); } catch(e) { localItems = []; }
   if (!Array.isArray(localItems)) localItems = [];
+  // Le due letture partono insieme: con rete lenta l'attesa massima è 8 secondi, non 16
+  const _stReq = sbFetch('startup_data?select=id,data', {timeout: 8000}).then(r => ({ok: true, rows: r}), e => ({ok: false, e}));
   let serverItems = null;
   try {
-    const rows = await sbFetch('items?select=data&order=updated_at.desc');
+    const rows = await sbFetch('items?select=data&order=updated_at.desc', {timeout: 8000});
     serverItems = rows && rows.length ? rows.map(r => r.data).filter(Boolean) : [];
   } catch(e) { serverItems = null; }
 
@@ -128,12 +140,12 @@ async function loadAll() {
   try { cachedSt = JSON.parse(localStorage.getItem('rico_st') || '{}'); } catch(e) { cachedSt = {}; }
   if (!cachedSt || typeof cachedSt !== 'object') cachedSt = {};
   let serverSt = null;
-  try {
-    const rows = await sbFetch('startup_data?select=id,data');
+  const _stRes = await _stReq;
+  if (_stRes.ok) {
     serverSt = {};
-    (rows || []).forEach(r => { serverSt[r.id] = r.data; });
-  } catch(e) {
-    console.warn('Supabase startup_data fetch failed, using localStorage:', e);
+    (_stRes.rows || []).forEach(r => { serverSt[r.id] = r.data; });
+  } else {
+    console.warn('Supabase startup_data fetch failed, using localStorage:', _stRes.e);
   }
   if (serverSt === null) {
     stData = {...cachedSt};
@@ -222,10 +234,10 @@ async function saveItems() {
 /* Modifica sicura di un dato del diario/pesi/MIT:
    rilegge la versione aggiornata dal server, applica fn e salva.
    fn riceve una copia modificabile; ritorna false per annullare. */
-async function stMutate(key, fn, defVal) {
+async function stMutate(key, fn, defVal, onLocal) {
   let base = null, online = true;
   try {
-    const rows = await sbFetch('startup_data?id=eq.' + encodeURIComponent(key) + '&select=data');
+    const rows = await sbFetch('startup_data?id=eq.' + encodeURIComponent(key) + '&select=data', {timeout: 4000});
     base = (rows && rows[0]) ? rows[0].data : null;
   } catch(e) { online = false; }
   if (!online) base = stData[key] != null ? stData[key] : null;
@@ -242,11 +254,14 @@ async function stMutate(key, fn, defVal) {
   try { localStorage.setItem('rico_st', JSON.stringify(stData)); } catch(e) { /* quota */ }
   _pendingSt.add(key);
   _persistPending();
+  // Lo schermo si aggiorna subito, senza aspettare la conferma del server
+  if (onLocal) { try { onLocal(val); } catch(e) { console.warn('onLocal:', e); } }
   try {
     await sbFetch('startup_data', {
       method: 'POST',
       prefer: 'resolution=merge-duplicates,return=minimal',
-      body: JSON.stringify({id: key, data: val})
+      body: JSON.stringify({id: key, data: val}),
+      timeout: 8000
     });
     if (stData[key] === val) _pendingSt.delete(key);
     _persistPending();
@@ -267,7 +282,7 @@ async function flushPending(manual) {
       if (stData[k] == null) { _pendingSt.delete(k); continue; }
       let toSend = stData[k];
       try {
-        const rows = await sbFetch('startup_data?id=eq.' + encodeURIComponent(k) + '&select=data');
+        const rows = await sbFetch('startup_data?id=eq.' + encodeURIComponent(k) + '&select=data', {timeout: 4000});
         const srv = (rows && rows[0]) ? rows[0].data : null;
         toSend = mergeStValue(k, srv, stData[k]);
         await sbFetch('startup_data', {

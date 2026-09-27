@@ -12,14 +12,19 @@ async function loadMIT() {
 async function saveMIT() {
   const key = mitKey();
   stData[key] = {...mitData};
+  const sent = stData[key];
   // Persisti su localStorage immediatamente (fallback offline)
   localStorage.setItem('rico_st', JSON.stringify(stData));
+  // In attesa finché il server non conferma: senza rete non si perde, viene rinviato
+  _pendingSt.add(key); _persistPending();
   // Poi su Supabase in background
   sbFetch('startup_data', {
     method:'POST',
     prefer:'resolution=merge-duplicates,return=minimal',
-    body: JSON.stringify({id: key, data: stData[key]})
-  }).catch(e => console.warn('mit sync failed:', e));
+    body: JSON.stringify({id: key, data: sent})
+  }).then(() => {
+    if (stData[key] === sent) { _pendingSt.delete(key); _persistPending(); }
+  }).catch(e => { console.warn('mit sync failed:', e); _scheduleRetry(); });
 }
 
 function renderMIT() {
